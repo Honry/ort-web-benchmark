@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ONNXRuntime Web Benchmark Tool</title>
+  </head>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #425066;
+      font-size: 31px;
+      margin-top: 0;
+    }
+
+    .loading-stats {
+      color: #aaa;
+      font-size: 12px;
+      margin-top: -12px;
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .content {
+      margin-top: 30px;
+    }
+
+    div {
+      margin-top: 20px;
+    }
+  </style>
+  <body>
+    <h1>ONNXRuntime Web Benchmark Tool</h1>
+
+    <!-- Loading status -->
+    <div class="loading-stats">Choose options then click 'Run'...</div>
+    <div>
+      Number of runs:
+      <input type="number" id="numRuns" value="101" min="101" defaultValue="101" />
+    </div>
+    <div>
+      Model:
+      <select id="model">
+        <option value="mobilenetv2-10">MobileNetv2</option>
+        <option value="squeezenet1.1-7">SqueezeNet</option>
+        <option value="emotion-ferplus-8">FER_emotion_recognition</option>
+        <option value="tinyyolov2-8">Yolo</option>
+        <option value="efficientnet-lite4-11">efficientnet-lite4-11</option>
+        <option value="candy-8">onnxzoo_fns-candy-8</option>
+        <option value="densenet-9">densenet-9</option>
+        <option value="resnet50-v1-12">ressnet50_v1</option>
+        <option value="resnet50-v2-7">resnet50-v2-7</option>
+        <option value="inception-v1-12">inception_v1</option>
+        <option value="yolo">ORT Web Demo Yolo</option>
+        <option value="mobilenetv2-7">ORT Web Demo MobileNetv2</option>
+      </select>
+    </div>
+    <div>
+      Backend:
+      <select id="backend">
+        <option value="webnn">webnn</option>
+        <option value="webgl">webgl</option>
+        <option value="wasm">wasm</option>
+        <!-- <option value="webgpu">webgpu</option> -->
+      </select>
+    </div>
+    <div>
+      <input type="button" value="Run" id="run" />
+    </div>
+    <div id="status" style="font: 1em sans-serif"></div>
+    <script src="./onnxruntime-web/dist/ort.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script> -->
+    <script>
+      function log(i) {
+        console.log(i);
+        document.getElementById("status").innerText +=
+          `\n[${performance.now().toFixed(3)}] ` + i;
+      }
+
+      function generateTensor(dataType, shape, val) {
+        let size = 1;
+        shape.forEach((element) => {
+          size *= element;
+        });
+        switch (dataType) {
+          case "uint16":
+            return new ort.Tensor(
+              dataType,
+              Uint16Array.from({ length: size }, () => val),
+              shape
+            );
+          case "float16":
+            return new ort.Tensor(
+              dataType,
+              Uint16Array.from({ length: size }, () => val),
+              shape
+            );
+          case "float32":
+            return new ort.Tensor(
+              dataType,
+              Float32Array.from({ length: size }, () => val),
+              shape
+            );
+          case "int32":
+            return new ort.Tensor(
+              dataType,
+              Int32Array.from({ length: size }, () => val),
+              shape
+            );
+          case "int64":
+            return new ort.Tensor(
+              dataType,
+              BigInt64Array.from({ length: size }, () => val),
+              shape
+            );
+        }
+        throw new Error(`Input tensor type ${dataType} is unknown`);
+      }
+
+      const type_to_func = {
+        float32: Float32Array,
+        uint16: Uint16Array,
+        float16: Uint16Array,
+        int32: Int32Array,
+        BigInt64Array: BigInt64Array,
+      };
+
+      function clone(x) {
+        let feed = {};
+        for (const [key, value] of Object.entries(x)) {
+          let func = type_to_func[value.type];
+          let arrayType = func.from(value.data);
+          feed[key] = new ort.Tensor(
+            value.type,
+            arrayType.slice(0),
+            value.dims
+          );
+        }
+        return feed;
+      }
+
+      ort.env.wasm.numThreads = 1;
+      ort.env.wasm.simd = false;
+      ort.env.wasm.proxy = true;
+      // ort.env.logLevel = "verbose"; //"error";
+      ort.env.debug = false;
+
+      async function run() {
+        let feed = {};
+        const provider = document.getElementById("backend").value;
+        const modelName = document.getElementById("model").value;
+        let modelPath = `models/feng/${modelName}.onnx`;
+        log("entering run ...");
+
+        try {
+          if (modelName == "mobilenetv2-10") {
+            feed["input"] = generateTensor("float32", [1, 3, 224, 224], 0.5);
+          } else if (modelName == "mobilenetv2-7") {
+            feed["input"] = generateTensor("float32", [1, 3, 224, 224], 0.5);
+            modelPath = `models/${modelName}.onnx`;
+          } else if (modelName == "squeezenet1.1-7") {
+            feed["data"] = generateTensor("float32", [1, 3, 224, 224], 0.5);
+          } else if (modelName == "emotion-ferplus-8") {
+            feed["Input3"] = generateTensor("float32", [1, 1, 64, 64], 0.5);
+          } else if (modelName == "tinyyolov2-8") {
+            feed["image"] = generateTensor("float32", [1, 3, 416, 416], 0.5);
+          } else if (modelName == "yolo") {
+            modelPath = `models/${modelName}.onnx`;
+            feed["image"] = generateTensor("float32", [1, 3, 416, 416], 0.5);
+          } else if (modelName == "efficientnet-lite4-11") {
+            feed["images:0"] = generateTensor("float32", [1, 224, 224, 3], 0.5);
+          } else if (modelName == "candy-8") {
+            feed["input1"] = generateTensor("float32", [1, 3, 224, 224], 0.5);
+          } else if (modelName == "densenet-9") {
+            feed["data_0"] = generateTensor("float32", [1, 3, 224, 224], 0.5);
+          } else if (modelName == "resnet50-v1-12" || modelName == "resnet50-v2-7") {
+            feed["data"] = generateTensor("float32", [1, 3, 224, 224], 0.5);
+          } else if (modelName == "inception-v1-12") {
+            feed["data_0"] = generateTensor("float32", [1, 3, 224, 224], 0.5);
+          } else if (modelName == "sam-h") {
+            feed["image_embeddings"] = generateTensor(
+              "float32",
+              [1, 256, 64, 64],
+              0.5
+            );
+            feed["point_coords"] = new ort.Tensor(
+              new Float32Array([327.1111, 426.875, 241.77777, 341.5]),
+              [1, 2, 2]
+            );
+            feed["point_labels"] = new ort.Tensor(
+              new Float32Array([0, 1]),
+              [1, 2]
+            );
+            feed["mask_input"] = generateTensor("float32", [1, 1, 256, 256], 0);
+            feed["has_mask_input"] = generateTensor("float32", [1], 1);
+            // orig_im_size is optimized out for this model:
+            //feed["orig_im_size"] = new ort.Tensor(new Float32Array([1200., 1800.]), [2]);
+          } else if (modelName == "sam-h-16") {
+            // The float16 version.
+            // TODO: Convert to actual float16 values. We're just estimating perf with this one, not correctness.
+            feed["image_embeddings"] = generateTensor(
+              "float16",
+              [1, 256, 64, 64],
+              0.5
+            );
+            feed["point_coords"] = new ort.Tensor(
+              "float16",
+              new Uint16Array([327, 426, 241, 341]),
+              [1, 2, 2]
+            );
+            feed["point_labels"] = new ort.Tensor(
+              "float16",
+              new Uint16Array([0, 2]),
+              [1, 2]
+            );
+            feed["mask_input"] = generateTensor("float16", [1, 1, 256, 256], 0);
+            feed["has_mask_input"] = generateTensor("float16", [1], 1);
+            // orig_im_size is optimized out for this model:
+            //feed["orig_im_size"] = new ort.Tensor(new Float32Array([1200., 1800.]), [2]);
+          } else if (modelName == "onnx-add") {
+            feed["A"] = generateTensor("float32", [5], 1);
+            feed["B"] = generateTensor("float32", [5], 1);
+          } else {
+            throw new Error(`Model ${modelName} is unknown`);
+          }
+
+          const options = {
+            executionProviders: [
+              {
+                name: provider,
+                deviceType: "gpu",
+                powerPreference: "default",
+              },
+            ],
+            //executionProviders: [{name: "webnn", deviceType: 'gpu', powerPreference: 'high-performance' }],
+          };
+        //   options.logSeverityLevel = 0;
+          // options.logVerbosityLevel = 3;
+
+          log("creating session ...");
+          const sess = await ort.InferenceSession.create(modelPath, options);
+          log("warmup ...");
+          await sess.run(clone(feed));
+
+          log("running ...");
+          let N = document.getElementById("numRuns").value;
+          N = N === null ? 10 : parseInt(N);
+          if (N < 1) {
+            throw new Error("Run Number should be greater than 0!");
+          }
+          let inferTimes = [];
+
+          for (var i = 0; i < N; i++) {
+            const input = clone(feed);
+            const start = performance.now();
+            const outputs = await sess.run(input);
+            //const outputs = await sess.run(feed); // Without clone(), you get DOMException: Failed to execute 'postMessage' on 'Worker': ArrayBuffer at index 0 is already detached.
+            inferTimes.push(performance.now() - start);
+          }
+
+          let intermediateTimings = "";
+          for (var i = 0; i < N; i++) {
+            intermediateTimings += `${inferTimes[i].toFixed(2)}, `;
+          }
+          log(intermediateTimings);
+          const totalTime = inferTimes.reduce(
+            (partialSum, a) => partialSum + a,
+            0
+          );
+          const result = `${modelName}/${provider}, ${(totalTime / N).toFixed(
+            2
+          )} ms / iter`;
+          log(result);
+        } catch (e) {
+          log(e);
+        }
+      }
+      const runBtn = document.getElementById("run");
+      runBtn.onclick = async () => {
+        await run();
+      };
+    </script>
+  </body>
+</html>

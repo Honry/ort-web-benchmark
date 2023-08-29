@@ -1,0 +1,27 @@
+a.	mobilenetv2-1.0.onnx
+https://github.com/onnx/models/blob/main/vision/classification/mobilenet/model/mobilenetv2-10.onnx
+
+b.	hugging face\efficientnet-lite4-11.onnx
+https://huggingface.co/onnx/EfficientNet-Lite4/resolve/main/efficientnet-lite4-11.onnx
+
+c.	onnxzoo_fns-candy-8.onnx
+https://github.com/onnx/models/blob/main/vision/style_transfer/fast_neural_style/model/candy-8.onnx
+
+d.	FER_emotion_recognition\model.onnx
+https://github.com/onnx/models/blob/69c5d3751dda5349fd3fc53f525395d180420c07/vision/body_analysis/emotion_ferplus/model/emotion-ferplus-8.onnx
+
+A
+e.	hugging face\densenet-9.onnx
+https://huggingface.co/onnx/DenseNet-121-9/resolve/main/densenet-9.onnx
+
+f.	resnet50_v1.onnx
+https://github.com/onnx/models/blob/69c5d3751dda5349fd3fc53f525395d180420c07/vision/classification/resnet/model/resnet50-v1-12.onnx
+
+g.	inception_v1.onnx
+https://github.com/onnx/models/blob/69c5d3751dda5349fd3fc53f525395d180420c07/vision/classification/inception_and_googlenet/inception_v1/model/inception-v1-12.onnx
+
+h.	squeezenet1.1-7.onnx
+https://github.com/onnx/models/blob/69c5d3751dda5349fd3fc53f525395d180420c07/vision/classification/squeezenet/model/squeezenet1.1-7.onnx
+
+i.	tinyyolov2-8.onnx
+https://github.com/onnx/models/blob/69c5d3751dda5349fd3fc53f525395d180420c07/vision/object_detection_segmentation/tiny-yolov2/model/tinyyolov2-8.onnx
