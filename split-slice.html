@@ -1,0 +1,142 @@
+<html>
+<!--
+    Usage:
+        http://localhost:8000/split-slice.html?op=split&splitNum=100&numRuns=100
+        http://localhost:8000/split-slice.html?op=slice&splitNum=100&numRuns=100
+        op = slice | split
+-->
+<style>
+    body {
+        font-family: sans-serif;
+    }
+</style>
+
+<head>
+</head>
+
+
+<body>
+    <h1>Split vs. Slice Benchmarking</h1>
+    <p class="text-lg-start">
+    <div id="status" style="font: 1em consolas;"></div>
+    </p>
+</body>
+
+<script>
+    const opName = getQueryVariable("op", "split");
+    const numRuns = parseInt(getQueryVariable("numRuns", "100"));
+    const splitNum = parseInt(getQueryVariable("splitNum", "100"));
+    function log(i) {
+        console.log(i); document.getElementById('status').innerText += `\n[${performance.now().toFixed(3)}] ` + i;
+    }
+
+    function getQueryVariable(name, defaults) {
+        const query = window.location.search.substring(1);
+        let vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            let pair = vars[i].split("=");
+            if (pair[0] == name) {
+                return pair[1];
+            }
+        }
+        return defaults;
+    }
+
+    async function run() {
+        const context = await navigator.ml.createContext({ deviceType: 'gpu' });
+        const builder = new MLGraphBuilder(context);
+
+        log("entering run ...");
+
+        try {
+
+            log(`Build ${opName} graph...`);
+            let graph;
+            if (opName == 'split') {
+                graph = await buildSplit(builder);
+            } else {
+                graph = await buildSlice(builder);
+            }
+
+            log("Build done ...");
+            const inputSize = 4 * splitNum * 56 * 56;
+            const inputBuffer = new Float32Array(inputSize);
+            for (let i = 0; i < inputSize; i++) {
+                inputBuffer[i] = i * 0.1;
+            }
+
+            const inputs = { 'input': inputBuffer.slice(0) };
+            const outputs = {};
+            for (let i = 0; i < splitNum; i++) {
+                outputs[`output${i}`] = new Float32Array(4 * 1 * 56 * 56);
+            }
+
+            log("warmup by running once ...");
+            let result = await context.compute(graph, inputs, outputs);
+
+            log(`running ${numRuns} times ...`);
+
+            let inferTimes = [];
+            for (let i = 0; i < numRuns; i++) {
+                const start = performance.now();
+                result = await context.compute(graph, result.inputs, result.outputs);
+                inferTimes.push(performance.now() - start);
+            }
+
+            let intermediateTimings = "";
+            for (let i = 1; i < numRuns; i++) {
+                intermediateTimings += `${inferTimes[i].toFixed(2)}, `;
+            }
+
+            log(intermediateTimings);
+
+            const totalTime = inferTimes.reduce((partialSum, a) => partialSum + a, 0);
+            const averageInferTime = `${opName} [4, ${splitNum}, 56, 56] / split into ${splitNum} outputs along axis 1, ${(totalTime / numRuns).toFixed(2)} ms / iter`;
+            log(averageInferTime);
+        } catch (e) {
+            log(e);
+        }
+    }
+
+    async function buildSplit(builder) {
+        const input = builder.input('input', {
+            dataType: 'float32',
+            type: 'float32',
+            dimensions: [4, splitNum, 56, 56],
+        });
+        const splits = builder.split(input, splitNum, { axis: 1 });
+        const outputs = {};
+        for (let i = 0; i < splits.length; i++) {
+            outputs[`output${i}`] = splits[i];
+        }
+        const startTime = performance.now();
+        const splitGraph = await builder.build(outputs);
+        log(`Build time: ${(performance.now() - startTime).toFixed(2)} ms`);
+        return splitGraph;
+    }
+
+    async function buildSlice(builder) {
+        const input = builder.input('input', {
+            dataType: 'float32',
+            type: 'float32',
+            dimensions: [4, splitNum, 56, 56],
+        });
+        const outputs = {};
+        let starts = [0, 0, 0, 0];
+        let sizes = [4, 1, 56, 56];
+        let start = 0;
+        for (let i = 0; i < splitNum; i++) {
+            starts[1] = start;
+            outputs[`output${i}`] = builder.slice(input, starts, sizes);
+            start++;
+        }
+        const startTime = performance.now();
+        const sliceGraph = await builder.build(outputs);
+        log(`Build time: ${(performance.now() - startTime).toFixed(2)} ms`);
+        return sliceGraph;
+    }
+
+    run();
+</script>
+
+</html>
