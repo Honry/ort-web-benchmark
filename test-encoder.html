@@ -54,8 +54,9 @@
     <div>
       Model:
       <select id="model">
-        <option value="whisper_base_encoder_subgraph_conv_gelu">whisper_base_encoder_subgraph_conv_gelu</option>
         <option value="whisper_base_encoder_lm_fp16_layernorm_gelu">whisper_base_encoder_lm_fp16_layernorm_gelu</option>
+        <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu</option>
+        <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu</option>
       </select>
     </div>
     <div>
@@ -163,11 +164,11 @@
         return feed;
       }
 
-      ort.env.wasm.numThreads = 4;
+      ort.env.wasm.numThreads = 1;
       ort.env.wasm.simd = true;
       ort.env.wasm.proxy = false;
       ort.env.logLevel = "warning"; //"error";
-      ort.env.debug = true;
+      ort.env.debug = false;
       // ort.env.wasm.wasmPaths = location.origin + "/onnxruntime-web/ort-web-20240114/dist/";
 
       async function run() {
@@ -176,7 +177,6 @@
         const modelName = document.getElementById("model").value;
         const deviceType = document.getElementById("deviceType").value;
         const numThreads = document.getElementById("numThreads").value;
-        let modelPath = `models/feng/${modelName}.onnx`;
         log("entering run ...");
 
         try {
@@ -191,10 +191,42 @@
             ],
             //executionProviders: [{name: "webnn", deviceType: 'gpu', powerPreference: 'high-performance' }],
           };
-
+          const urlPrefix = location.href.includes('github.io') ? 'https://huggingface.co/lwanming/whisper-base-static-shape/resolve/main/' : 'models/';
+          const modelPath = await getModelOPFS(modelName, `${urlPrefix + modelName}.onnx`, false);
           if (modelName.includes('whisper_base_encoder')) {
-            modelPath = `models/${modelName}.onnx`;
             feed["input_features"] = generateTensor("float16", [1, 80, 3000], 0.5);
+          } else if (modelName == 'whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu') {
+            feed['input_ids'] = generateTensor('int32', [1,4], 1);
+            feed['attention_mask'] = generateTensor('int32', [1,4], 1);
+            feed['encoder_hidden_states'] = generateTensor('float16', [1,1500,512], 1);
+          } else if (modelName == 'whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu') {
+            feed['input_ids'] = generateTensor('int32', [1,1], 1);
+            feed['attention_mask'] = generateTensor('int64', [1,128], 1n);
+            feed['position_ids'] = generateTensor('int32', [1], 1);
+            feed['past_key_values.0.decoder.key'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.0.decoder.value'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.0.encoder.key'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.0.encoder.value'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.1.decoder.key'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.1.decoder.value'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.1.encoder.key'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.1.encoder.value'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.2.decoder.key'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.2.decoder.value'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.2.encoder.key'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.2.encoder.value'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.3.decoder.key'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.3.decoder.value'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.3.encoder.key'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.3.encoder.value'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.4.decoder.key'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.4.decoder.value'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.4.encoder.key'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.4.encoder.value'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.5.decoder.key'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.5.decoder.value'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
+            feed['past_key_values.5.encoder.key'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
+            feed['past_key_values.5.encoder.value'] = generateTensor("float16", [1, 8, 1500, 64], 0.5);
           } else {
             throw new Error(`Model ${modelName} is unknown`);
           }
