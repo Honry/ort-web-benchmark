@@ -235,8 +235,9 @@
 
           log("creating session ...");
           console.log("sessionOptions: ", options);
-
+          const sess_start = performance.now();
           const sess = await ort.InferenceSession.create(modelPath, options);
+          log(`Session created in ${(performance.now() - sess_start).toFixed(2)} ms`);
           log("warmup ...");
           console.log("inputs: ", feed);
           const output = await sess.run(clone(feed));
