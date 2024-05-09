@@ -57,6 +57,10 @@
         <option value="whisper_base_encoder_lm_fp16_layernorm_gelu">whisper_base_encoder_lm_fp16_layernorm_gelu</option>
         <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu</option>
         <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu</option>
+        <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu_4dmask">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu_4dmask</option>
+        <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu_4dmask">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu_4dmask</option>
+        <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_4dmask">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_4dmask</option>
+        <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_4dmask">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_4dmask</option>
       </select>
     </div>
     <div>
@@ -195,13 +199,22 @@
           const modelPath = await getModelOPFS(modelName, `${urlPrefix + modelName}.onnx`, false);
           if (modelName.includes('whisper_base_encoder')) {
             feed["input_features"] = generateTensor("float16", [1, 80, 3000], 0.5);
-          } else if (modelName == 'whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu') {
+          } else if (modelName.includes('whisper_base_decoder_static_non_kvcache_lm_fp16')) {
             feed['input_ids'] = generateTensor('int32', [1,4], 1);
-            feed['attention_mask'] = generateTensor('int32', [1,4], 1);
+            if (modelName.indexOf('4dmask') != -1) {
+              feed['attention_mask'] = generateTensor('float16', [1,1,4,4], 1);
+            } else {
+              feed['attention_mask'] = generateTensor('int32', [1,4], 1);
+            }
+
             feed['encoder_hidden_states'] = generateTensor('float16', [1,1500,512], 1);
-          } else if (modelName == 'whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu') {
+          } else if (modelName.includes('whisper_base_decoder_static_kvcache_128_lm_fp16')) {
             feed['input_ids'] = generateTensor('int32', [1,1], 1);
-            feed['attention_mask'] = generateTensor('int64', [1,128], 1n);
+            if (modelName.indexOf('4dmask') != -1) {
+              feed['attention_mask'] = generateTensor('float16', [1,1,1,128], 1);
+            } else {
+              feed['attention_mask'] = generateTensor('int64', [1,128], 1n);
+            }
             feed['position_ids'] = generateTensor('int32', [1], 1);
             feed['past_key_values.0.decoder.key'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
             feed['past_key_values.0.decoder.value'] = generateTensor("float16", [1, 8, 127, 64], 0.5);
