@@ -54,14 +54,11 @@
     <div>
       Model:
       <select id="model">
-        <option value="whisper_base_encoder_lm_fp16_layernorm">whisper_base_encoder_lm_fp16_layernorm</option>
         <option value="whisper_base_encoder_lm_fp16_layernorm_gelu">whisper_base_encoder_lm_fp16_layernorm_gelu</option>
-        <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu</option>
-        <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu</option>
         <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu_4dmask">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu_4dmask</option>
         <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu_4dmask">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu_4dmask</option>
-        <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_4dmask">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_4dmask</option>
-        <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_4dmask">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_4dmask</option>
+        <option value="whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu">whisper_base_decoder_static_non_kvcache_lm_fp16_layernorm_gelu_2dmask</option>
+        <option value="whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu">whisper_base_decoder_static_kvcache_128_lm_fp16_layernorm_gelu_2dmask</option>
       </select>
     </div>
     <div>
@@ -84,7 +81,10 @@
       <input type="button" value="Run" id="run" />
     </div>
     <div id="status" style="font: 1em sans-serif"></div>
-    <script src="./onnxruntime-web/dist-1.18-unfuse-gelu/ort.all.js"></script>
+    <!-- <script src="./onnxruntime-web/dist-1.18-unfuse-gelu/ort.all.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/onnxruntime-web/1.18.0/ort.all.min.js"
+      integrity="sha512-MHOBvmgua1hQ3KTf3WRm+6UwgeulioSsl38T264/q8+zuL+Z0g0k9+VjvWC3lxAWtENRzUz4Bri9zKsZ/LRZ8w=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
       function log(i) {
         console.log(i);
