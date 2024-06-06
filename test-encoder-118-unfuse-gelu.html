@@ -254,7 +254,7 @@
           log(`Session created in ${(performance.now() - sess_start).toFixed(2)} ms`);
           log("warmup ...");
           console.log("inputs: ", feed);
-          const output = await sess.run(clone(feed));
+          const output = await sess.run(feed);
 
           console.log("output: ", output);
           log("running ...");
@@ -268,7 +268,7 @@
           for (var i = 0; i < N; i++) {
             const start = performance.now();
             console.time("ort session.run()");
-            const outputs = await sess.run(clone(feed));
+            const outputs = await sess.run(feed);
             console.timeEnd("ort session.run()");
             //const outputs = await sess.run(feed); // Without clone(), you get DOMException: Failed to execute 'postMessage' on 'Worker': ArrayBuffer at index 0 is already detached.
             inferTimes.push(performance.now() - start);
@@ -287,6 +287,7 @@
             2
           )} ms / iter`;
           log(result);
+          await sess.release();
         } catch (e) {
           log(e);
         }
