@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONNXRuntime Web Test - Pre-allocate Output Tensor</title>
+</head>
+<style>
+  body {
+    font-family: sans-serif;
+    padding: 20px;
+  }
+
+  h1 {
+    color: #425066;
+    font-size: 31px;
+    margin-top: 0;
+  }
+
+  .loading-stats {
+    color: #aaa;
+    font-size: 12px;
+    margin-top: -12px;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .content {
+    margin-top: 30px;
+  }
+
+  div {
+    margin-top: 20px;
+  }
+</style>
+
+<body>
+  <h1>ONNXRuntime Web Test - Pre-allocate Output Tensor</h1>
+
+  <!-- Loading status -->
+  <div class="loading-stats">Choose options then click 'Run'...</div>
+  <div>
+    Pre-allocate Output Type:
+    <select id="preAllocateType">
+      <option value="gpu-one">Pre-allocate One GPU Tensor</option>
+      <option value="gpu-all">Pre-allocate All GPU Tensors</option>
+      <option value="cpu">Pre-allocate All CPU Tensors</option>
+    </select>
+  </div>
+  <div>
+    <input type="button" value="Run" id="run" />
+  </div>
+  <div id="status" style="font: 1em sans-serif"></div>
+  <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.0-dev.20250810-5d77b73c4e/dist/ort.webgpu.min.js"
+    integrity="sha256-5yqgD+GVsK1MN4MBoXoYfzfrrz4C/FBG6p+tJaCItJs=" crossorigin="anonymous"></script>
+  <script>
+    const log = (i) => {
+      console.log(i);
+      document.getElementById('status').innerText +=
+        `\n[${performance.now().toFixed(3)}] ` + i;
+    }
+
+    ort.env.wasm.numThreads = 4;
+    ort.env.wasm.simd = true;
+    ort.env.wasm.proxy = false;
+    ort.env.logLevel = 'error';
+
+    const calcNormalizedBufferSize = size => Math.ceil(Number(size) / 16) * 16;
+
+    const downloadGpuData = async (device, gpuBuffer, originalSize) => {
+      const bufferSize = calcNormalizedBufferSize(originalSize);
+      const gpuReadBuffer = device.createBuffer({
+        size: bufferSize,
+        usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+      });
+      try {
+        const commandEncoder = device.createCommandEncoder();
+
+        commandEncoder.copyBufferToBuffer(
+          gpuBuffer /* source buffer */,
+          0 /* source offset */,
+          gpuReadBuffer /* destination buffer */,
+          0 /* destination offset */,
+          bufferSize /* size */,
+        );
+        device.queue.submit([commandEncoder.finish()]);
+        await gpuReadBuffer.mapAsync(GPUMapMode.READ);
+
+        const arrayBuffer = gpuReadBuffer.getMappedRange();
+
+        // the mapped ArrayBuffer will be released when the GPU buffer is destroyed. Need to clone the
+        // ArrayBuffer.
+        return new Uint8Array(arrayBuffer.slice(0, originalSize));
+      } catch (e) {
+        log(e);
+      } finally {
+        gpuReadBuffer.destroy();
+      }
+    };
+
+    const createGpuTensor = (device, dataType, dims, bufferSize) => {
+      const gpuBuffer = device.createBuffer({
+        usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE,
+        size: calcNormalizedBufferSize(bufferSize),
+      });
+      return ort.Tensor.fromGpuBuffer(gpuBuffer, { dataType, dims });
+    };
+
+    async function run() {
+      const preAllocateType = document.getElementById('preAllocateType').value;
+      const modelPath = 'models/split.onnx';
+      log('entering run ...');
+      try {
+        const options = {
+          executionProviders: [{ name: preAllocateType.startsWith('gpu') ? 'webgpu' : 'wasm' }],
+        };
+
+        log('creating session ...');
+        console.log('sessionOptions: ', options);
+        const sess = await ort.InferenceSession.create(modelPath, options);
+
+        // - Input:
+        //   - name: input, tensor: float32[2,6]
+        // - Output:
+        //   - name: output_1, tensor: float32[2,3]
+        //   - name: output_2, tensor: float32[2,3]
+
+        const feed = {};
+        const fetches = {};
+
+        const inputBuffer = new Float32Array(Array.from({ length: 12 }, (_, i) => i + 1));
+        feed['input'] = new ort.Tensor('float32', inputBuffer, [2, 6]);
+
+
+        let device;
+        const outputBufferSize = 2 * 3 * 4;  // 4 bytes per float
+        if (preAllocateType.startsWith('gpu')) {
+          device = ort.env.webgpu.device;
+          fetches['output_1'] = createGpuTensor(device, 'float32', [2, 3], outputBufferSize);
+
+          if (preAllocateType === 'gpu-all') {
+            fetches['output_2'] = createGpuTensor(device, 'float32', [2, 3], outputBufferSize);
+          }
+        } else {
+          fetches['output_1'] = new ort.Tensor('float32', new Float32Array(2 * 3), [2, 3]);
+          fetches['output_2'] = new ort.Tensor('float32', new Float32Array(2 * 3), [2, 3]);
+        }
+
+        log('running ...');
+        console.log('inputs: ', feed);
+
+        const outputs = await sess.run(feed, fetches);
+
+        console.log('outputs: ', outputs);
+        
+        let output1Data = [], output2Data = [];
+        if (preAllocateType.startsWith('gpu')) {
+          const output1DataBuffer = await downloadGpuData(device, outputs['output_1'].gpuBufferData, outputBufferSize);
+          output1Data = Array.from(new Float32Array(output1DataBuffer.buffer));
+          if (preAllocateType === 'gpu-all') {
+            const output2DataBuffer = await downloadGpuData(device, outputs['output_2'].gpuBufferData, outputBufferSize);
+            output2Data = Array.from(new Float32Array(output2DataBuffer.buffer));
+          } else {
+            if (outputs['output_2'] === undefined) {
+              log('output_2 is not defined in the outputs.');
+            } else {
+              output2Data = Array.from(outputs['output_2'].cpuData);
+            }
+          }
+        } else {
+          output1Data = Array.from(outputs['output_1'].cpuData);
+          output2Data = Array.from(outputs['output_2'].cpuData);
+        }
+        log(`output_1:  ${output1Data.join(', ')}`);
+        log(`output_2: ${output2Data.join(', ')}`);
+
+      } catch (e) {
+        log(e);
+      }
+    }
+
+    const runBtn = document.getElementById('run');
+    runBtn.onclick = async () => {
+      await run();
+    };
+  </script>
+</body>
+
+</html>
