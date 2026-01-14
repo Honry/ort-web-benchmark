@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Test Text Encoder 2 on NPU</title>
+    </head>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #425066;
+            font-size: 31px;
+            margin-top: 0;
+        }
+
+        .loading-stats {
+            color: #aaa;
+            font-size: 12px;
+            margin-top: -12px;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .content {
+            margin-top: 30px;
+        }
+
+        div {
+            margin-top: 20px;
+        }
+    </style>
+
+    <body>
+        <h1>Test Text Encoder 2 on NPU</h1>
+
+        <!-- Loading status -->
+        <div class="loading-stats">Choose options then click 'Run'...</div>
+        <div>
+            DeviceType:
+            <select id="deviceType">
+                <option value="npu" selected>WebNN NPU</option>
+                <option value="gpu">WebNN GPU</option>
+                <option value="cpu">WebNN CPU</option>
+            </select>
+        </div>
+        <div>
+            <input type="button" value="Run" id="run" />
+        </div>
+        <div id="status" style="font: 1em sans-serif"></div>
+        <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.24.0-dev.20251104-75d35474d5/dist/ort.webgpu.min.js"></script>
+        <script type="module">
+            import { AutoTokenizer, env } from "https://cdn.jsdelivr.net/npm/@xenova/transformers/dist/transformers.js";
+            env.localModelPath = "models/";
+            env.allowRemoteModels = true;
+            env.allowLocalModels = true;
+            function log(i) {
+                console.log(i);
+                document.getElementById("status").innerText += `\n[${performance.now().toFixed(3)}] ` + i;
+            }
+
+            ort.env.wasm.numThreads = 4;
+            ort.env.wasm.simd = true;
+            ort.env.wasm.proxy = false;
+
+            async function run() {
+                runBtn.disabled = true;
+                let feed = {};
+                const deviceType = document.getElementById("deviceType").value;
+                const modelUrl =
+                    "https://huggingface.co/webnn/sdxl-turbo/resolve/main/onnx/text_encoder_2_model_qdq_q4f16.onnx";
+                const modelBuffer = await getModelOPFS("text_encoder_2_model_qdq_q4f16", modelUrl, false);
+                log("entering run ...");
+                try {
+                    log("creating session ...");
+                    const options = {
+                        executionProviders: [
+                            {
+                                name: "webnn",
+                                deviceType: deviceType,
+                            },
+                        ],
+                        logSeverityLevel: 0,
+                        freeDimensionOverrides: {
+                            batch_size: 1,
+                            sequence_length: 77,
+                        },
+                    };
+                    console.log("sessionOptions: ", options);
+                    const sess_start = performance.now();
+                    const sess = await ort.InferenceSession.create(modelBuffer, options);
+                    log("session created in " + (performance.now() - sess_start).toFixed(2) + " ms");
+
+                    console.log("inputs: ", feed);
+                    log("running ...");
+
+                    // inputInfo = {
+                    //     input_ids: { dataType: "int64", dims: [1, 77] },
+                    // };
+                    // outputInfo = {
+                    //     "hidden_states.31": { dataType: "float16", dims: [1, 77, 1280] },
+                    //     text_embeds: { dataType: "float16", dims: [1, 1280] },
+                    // };
+
+                    const tokenizer2 = await AutoTokenizer.from_pretrained("tokenizer_2");
+                    const prompt =
+                        "An artistic baby raccoon DJ in a vintage suit, adjusting knobs on a futuristic mixer. The scene is a dim nightclub with vibrant lights and soft bokeh. Highly detailed, cinematic style.";
+                    const { input_ids: inputIds2 } = await tokenizer2(prompt, {
+                        padding: "max_length",
+                        maxLength: 77,
+                        truncation: true,
+                        return_tensor: false,
+                    });
+
+                    const inputIds2Data = new BigInt64Array(inputIds2.map(x => BigInt(x)));
+                    feed = {
+                        input_ids: new ort.Tensor("int64", inputIds2Data, [1, 77]),
+                    };
+
+                    const outputs = await sess.run(feed);
+
+                    console.log("outputs: ", outputs);
+
+                    const hs_result = `output hidden_states.31 first 10 values: [${outputs["hidden_states.31"].data.slice(0, 10)}]`;
+                    log(hs_result);
+                    const te_result = `output text_embeds first 10 values: [${outputs["text_embeds"].data.slice(0, 10)}]`;
+                    log(te_result);
+
+                    await sess.release();
+                    runBtn.disabled = false;
+                } catch (e) {
+                    log(e);
+                }
+            }
+            // Get model via Origin Private File System
+            async function getModelOPFS(name, url, updateModel) {
+                const root = await navigator.storage.getDirectory();
+                let fileHandle;
+
+                async function updateFile() {
+                    const response = await fetch(url);
+                    const buffer = await readResponse(response);
+                    fileHandle = await root.getFileHandle(name, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(buffer);
+                    await writable.close();
+                    return buffer;
+                }
+
+                if (updateModel) {
+                    return await updateFile();
+                }
+
+                try {
+                    fileHandle = await root.getFileHandle(name);
+                    const blob = await fileHandle.getFile();
+                    return await blob.arrayBuffer();
+                } catch (e) {
+                    return await updateFile();
+                }
+            }
+
+            async function readResponse(response) {
+                const contentLength = response.headers.get("Content-Length");
+                let total = parseInt(contentLength ?? "0");
+                let buffer = new Uint8Array(total);
+                let loaded = 0;
+
+                const reader = response.body.getReader();
+                async function read() {
+                    const { done, value } = await reader.read();
+                    if (done) return;
+
+                    let newLoaded = loaded + value.length;
+                    if (newLoaded > total) {
+                        total = newLoaded;
+                        let newBuffer = new Uint8Array(total);
+                        newBuffer.set(buffer);
+                        buffer = newBuffer;
+                    }
+                    buffer.set(value, loaded);
+                    loaded = newLoaded;
+                    return read();
+                }
+
+                await read();
+                return buffer;
+            }
+            const runBtn = document.getElementById("run");
+            runBtn.onclick = async () => {
+                await run();
+            };
+        </script>
+    </body>
+</html>
