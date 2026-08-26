@@ -1,1829 +1,2954 @@
 /*!
- * ONNX Runtime Web v1.19.0
+ * ONNX Runtime Web v1.30.0
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-var Md=Object.create;var rn=Object.defineProperty;var Ud=Object.getOwnPropertyDescriptor;var Vd=Object.getOwnPropertyNames;var zd=Object.getPrototypeOf,Wd=Object.prototype.hasOwnProperty;var Lo=(i=>typeof require<"u"?require:typeof Proxy<"u"?new Proxy(i,{get:(e,o)=>(typeof require<"u"?require:e)[o]}):i)(function(i){if(typeof require<"u")return require.apply(this,arguments);throw Error('Dynamic require of "'+i+'" is not supported')});var O=(i,e)=>()=>(i&&(e=i(i=0)),e);var mt=(i,e)=>()=>(e||i((e={exports:{}}).exports,e),e.exports),Or=(i,e)=>{for(var o in e)rn(i,o,{get:e[o],enumerable:!0})},Ya=(i,e,o,t)=>{if(e&&typeof e=="object"||typeof e=="function")for(let r of Vd(e))!Wd.call(i,r)&&r!==o&&rn(i,r,{get:()=>e[r],enumerable:!(t=Ud(e,r))||t.enumerable});return i};var Qe=(i,e,o)=>(o=i!=null?Md(zd(i)):{},Ya(e||!i||!i.__esModule?rn(o,"default",{value:i,enumerable:!0}):o,i)),nn=i=>Ya(rn({},"__esModule",{value:!0}),i);var on,Le,tr,Hd,an,sn=O(()=>{"use strict";on=new Map,Le=[],tr=(i,e,o)=>{if(e&&typeof e.init=="function"&&typeof e.createInferenceSessionHandler=="function"){let t=on.get(i);if(t===void 0)on.set(i,{backend:e,priority:o});else{if(t.priority>o)return;if(t.priority===o&&t.backend!==e)throw new Error(`cannot register backend "${i}" using priority ${o}`)}if(o>=0){let r=Le.indexOf(i);r!==-1&&Le.splice(r,1);for(let n=0;n<Le.length;n++)if(on.get(Le[n]).priority<=o){Le.splice(n,0,i);return}Le.push(i)}return}throw new TypeError("not a valid backend")},Hd=async i=>{let e=on.get(i);if(!e)return"backend not found.";if(e.initialized)return e.backend;if(e.aborted)return e.error;{let o=!!e.initPromise;try{return o||(e.initPromise=e.backend.init(i)),await e.initPromise,e.initialized=!0,e.backend}catch(t){return o||(e.error=`${t}`,e.aborted=!0),e.error}finally{delete e.initPromise}}},an=async i=>{let e=i.executionProviders||[],o=e.map(u=>typeof u=="string"?u:u.name),t=o.length===0?Le:o,r,n=[],s=new Set;for(let u of t){let l=await Hd(u);typeof l=="string"?n.push({name:u,err:l}):(r||(r=l),r===l&&s.add(u))}if(!r)throw new Error(`no available backend found. ERR: ${n.map(u=>`[${u.name}] ${u.err}`).join(", ")}`);for(let{name:u,err:l}of n)o.includes(u)&&console.warn(`removing requested execution provider "${u}" from session options because it is not available: ${l}`);let a=e.filter(u=>s.has(typeof u=="string"?u:u.name));return[r,new Proxy(i,{get:(u,l)=>l==="executionProviders"?a:Reflect.get(u,l)})]}});var Za=O(()=>{"use strict";sn()});var Qa,ts=O(()=>{"use strict";Qa="1.19.0"});var es,Mt,$o=O(()=>{"use strict";ts();es="warning",Mt={wasm:{},webgl:{},webgpu:{},versions:{common:Qa},set logLevel(i){if(i!==void 0){if(typeof i!="string"||["verbose","info","warning","error","fatal"].indexOf(i)===-1)throw new Error(`Unsupported logging level: ${i}`);es=i}},get logLevel(){return es}};Object.defineProperty(Mt,"logLevel",{enumerable:!0})});var z,rs=O(()=>{"use strict";$o();z=Mt});var ns,os,is=O(()=>{"use strict";ns=(i,e)=>{let o=typeof document<"u"?document.createElement("canvas"):new OffscreenCanvas(1,1);o.width=i.dims[3],o.height=i.dims[2];let t=o.getContext("2d");if(t!=null){let r,n;e?.tensorLayout!==void 0&&e.tensorLayout==="NHWC"?(r=i.dims[2],n=i.dims[3]):(r=i.dims[3],n=i.dims[2]);let s=e?.format!==void 0?e.format:"RGB",a=e?.norm,u,l;a===void 0||a.mean===void 0?u=[255,255,255,255]:typeof a.mean=="number"?u=[a.mean,a.mean,a.mean,a.mean]:(u=[a.mean[0],a.mean[1],a.mean[2],0],a.mean[3]!==void 0&&(u[3]=a.mean[3])),a===void 0||a.bias===void 0?l=[0,0,0,0]:typeof a.bias=="number"?l=[a.bias,a.bias,a.bias,a.bias]:(l=[a.bias[0],a.bias[1],a.bias[2],0],a.bias[3]!==void 0&&(l[3]=a.bias[3]));let f=n*r,p=0,d=f,y=f*2,w=-1;s==="RGBA"?(p=0,d=f,y=f*2,w=f*3):s==="RGB"?(p=0,d=f,y=f*2):s==="RBG"&&(p=0,y=f,d=f*2);for(let v=0;v<n;v++)for(let S=0;S<r;S++){let D=(i.data[p++]-l[0])*u[0],P=(i.data[d++]-l[1])*u[1],A=(i.data[y++]-l[2])*u[2],G=w===-1?255:(i.data[w++]-l[3])*u[3];t.fillStyle="rgba("+D+","+P+","+A+","+G+")",t.fillRect(S,v,1,1)}if("toDataURL"in o)return o.toDataURL();throw new Error("toDataURL is not supported")}else throw new Error("Can not access image data")},os=(i,e)=>{let o=typeof document<"u"?document.createElement("canvas").getContext("2d"):new OffscreenCanvas(1,1).getContext("2d"),t;if(o!=null){let r,n,s;e?.tensorLayout!==void 0&&e.tensorLayout==="NHWC"?(r=i.dims[2],n=i.dims[1],s=i.dims[3]):(r=i.dims[3],n=i.dims[2],s=i.dims[1]);let a=e!==void 0&&e.format!==void 0?e.format:"RGB",u=e?.norm,l,f;u===void 0||u.mean===void 0?l=[255,255,255,255]:typeof u.mean=="number"?l=[u.mean,u.mean,u.mean,u.mean]:(l=[u.mean[0],u.mean[1],u.mean[2],255],u.mean[3]!==void 0&&(l[3]=u.mean[3])),u===void 0||u.bias===void 0?f=[0,0,0,0]:typeof u.bias=="number"?f=[u.bias,u.bias,u.bias,u.bias]:(f=[u.bias[0],u.bias[1],u.bias[2],0],u.bias[3]!==void 0&&(f[3]=u.bias[3]));let p=n*r;if(e!==void 0&&(e.format!==void 0&&s===4&&e.format!=="RGBA"||s===3&&e.format!=="RGB"&&e.format!=="BGR"))throw new Error("Tensor format doesn't match input tensor dims");let d=4,y=0,w=1,v=2,S=3,D=0,P=p,A=p*2,G=-1;a==="RGBA"?(D=0,P=p,A=p*2,G=p*3):a==="RGB"?(D=0,P=p,A=p*2):a==="RBG"&&(D=0,A=p,P=p*2),t=o.createImageData(r,n);for(let V=0;V<n*r;y+=d,w+=d,v+=d,S+=d,V++)t.data[y]=(i.data[D++]-f[0])*l[0],t.data[w]=(i.data[P++]-f[1])*l[1],t.data[v]=(i.data[A++]-f[2])*l[2],t.data[S]=G===-1?255:(i.data[G++]-f[3])*l[3]}else throw new Error("Can not access image data");return t}});var ko,as,ss,us,ls,fs=O(()=>{"use strict";un();ko=(i,e)=>{if(i===void 0)throw new Error("Image buffer must be defined");if(e.height===void 0||e.width===void 0)throw new Error("Image height and width must be defined");if(e.tensorLayout==="NHWC")throw new Error("NHWC Tensor layout is not supported yet");let{height:o,width:t}=e,r=e.norm??{mean:255,bias:0},n,s;typeof r.mean=="number"?n=[r.mean,r.mean,r.mean,r.mean]:n=[r.mean[0],r.mean[1],r.mean[2],r.mean[3]??255],typeof r.bias=="number"?s=[r.bias,r.bias,r.bias,r.bias]:s=[r.bias[0],r.bias[1],r.bias[2],r.bias[3]??0];let a=e.format!==void 0?e.format:"RGBA",u=e.tensorFormat!==void 0&&e.tensorFormat!==void 0?e.tensorFormat:"RGB",l=o*t,f=u==="RGBA"?new Float32Array(l*4):new Float32Array(l*3),p=4,d=0,y=1,w=2,v=3,S=0,D=l,P=l*2,A=-1;a==="RGB"&&(p=3,d=0,y=1,w=2,v=-1),u==="RGBA"?A=l*3:u==="RBG"?(S=0,P=l,D=l*2):u==="BGR"&&(P=0,D=l,S=l*2);for(let V=0;V<l;V++,d+=p,w+=p,y+=p,v+=p)f[S++]=(i[d]+s[0])/n[0],f[D++]=(i[y]+s[1])/n[1],f[P++]=(i[w]+s[2])/n[2],A!==-1&&v!==-1&&(f[A++]=(i[v]+s[3])/n[3]);return u==="RGBA"?new Dt("float32",f,[1,4,o,t]):new Dt("float32",f,[1,3,o,t])},as=async(i,e)=>{let o=typeof HTMLImageElement<"u"&&i instanceof HTMLImageElement,t=typeof ImageData<"u"&&i instanceof ImageData,r=typeof ImageBitmap<"u"&&i instanceof ImageBitmap,n=typeof i=="string",s,a=e??{},u=()=>{if(typeof document<"u")return document.createElement("canvas");if(typeof OffscreenCanvas<"u")return new OffscreenCanvas(1,1);throw new Error("Canvas is not supported")},l=f=>f instanceof HTMLCanvasElement||f instanceof OffscreenCanvas?f.getContext("2d"):null;if(o){let f=u();f.width=i.width,f.height=i.height;let p=l(f);if(p!=null){let d=i.height,y=i.width;if(e!==void 0&&e.resizedHeight!==void 0&&e.resizedWidth!==void 0&&(d=e.resizedHeight,y=e.resizedWidth),e!==void 0){if(a=e,e.tensorFormat!==void 0)throw new Error("Image input config format must be RGBA for HTMLImageElement");a.tensorFormat="RGBA",a.height=d,a.width=y}else a.tensorFormat="RGBA",a.height=d,a.width=y;p.drawImage(i,0,0),s=p.getImageData(0,0,y,d).data}else throw new Error("Can not access image data")}else if(t){let f,p;if(e!==void 0&&e.resizedWidth!==void 0&&e.resizedHeight!==void 0?(f=e.resizedHeight,p=e.resizedWidth):(f=i.height,p=i.width),e!==void 0&&(a=e),a.format="RGBA",a.height=f,a.width=p,e!==void 0){let d=u();d.width=p,d.height=f;let y=l(d);if(y!=null)y.putImageData(i,0,0),s=y.getImageData(0,0,p,f).data;else throw new Error("Can not access image data")}else s=i.data}else if(r){if(e===void 0)throw new Error("Please provide image config with format for Imagebitmap");let f=u();f.width=i.width,f.height=i.height;let p=l(f);if(p!=null){let d=i.height,y=i.width;return p.drawImage(i,0,0,y,d),s=p.getImageData(0,0,y,d).data,a.height=d,a.width=y,ko(s,a)}else throw new Error("Can not access image data")}else{if(n)return new Promise((f,p)=>{let d=u(),y=l(d);if(!i||!y)return p();let w=new Image;w.crossOrigin="Anonymous",w.src=i,w.onload=()=>{d.width=w.width,d.height=w.height,y.drawImage(w,0,0,d.width,d.height);let v=y.getImageData(0,0,d.width,d.height);a.height=d.height,a.width=d.width,f(ko(v.data,a))}});throw new Error("Input data provided is not supported - aborted tensor creation")}if(s!==void 0)return ko(s,a);throw new Error("Input data provided is not supported - aborted tensor creation")},ss=(i,e)=>{let{width:o,height:t,download:r,dispose:n}=e,s=[1,t,o,4];return new Dt({location:"texture",type:"float32",texture:i,dims:s,download:r,dispose:n})},us=(i,e)=>{let{dataType:o,dims:t,download:r,dispose:n}=e;return new Dt({location:"gpu-buffer",type:o??"float32",gpuBuffer:i,dims:t,download:r,dispose:n})},ls=(i,e,o)=>new Dt({location:"cpu-pinned",type:i,data:e,dims:o??[e.length]})});var $e,Sr,cs,ps,ds=O(()=>{"use strict";$e=new Map([["float32",Float32Array],["uint8",Uint8Array],["int8",Int8Array],["uint16",Uint16Array],["int16",Int16Array],["int32",Int32Array],["bool",Uint8Array],["float64",Float64Array],["uint32",Uint32Array]]),Sr=new Map([[Float32Array,"float32"],[Uint8Array,"uint8"],[Int8Array,"int8"],[Uint16Array,"uint16"],[Int16Array,"int16"],[Int32Array,"int32"],[Float64Array,"float64"],[Uint32Array,"uint32"]]),cs=!1,ps=()=>{if(!cs){cs=!0;let i=typeof BigInt64Array<"u"&&BigInt64Array.from,e=typeof BigUint64Array<"u"&&BigUint64Array.from,o=typeof Float16Array<"u"&&Float16Array.from;i&&($e.set("int64",BigInt64Array),Sr.set(BigInt64Array,"int64")),e&&($e.set("uint64",BigUint64Array),Sr.set(BigUint64Array,"uint64")),o?($e.set("float16",Float16Array),Sr.set(Float16Array,"float16")):$e.set("float16",Uint16Array)}}});var hs,ms,bs=O(()=>{"use strict";un();hs=i=>{let e=1;for(let o=0;o<i.length;o++){let t=i[o];if(typeof t!="number"||!Number.isSafeInteger(t))throw new TypeError(`dims[${o}] must be an integer, got: ${t}`);if(t<0)throw new RangeError(`dims[${o}] must be a non-negative integer, got: ${t}`);e*=t}return e},ms=(i,e)=>{switch(i.location){case"cpu":return new Dt(i.type,i.data,e);case"cpu-pinned":return new Dt({location:"cpu-pinned",data:i.data,type:i.type,dims:e});case"texture":return new Dt({location:"texture",texture:i.texture,type:i.type,dims:e});case"gpu-buffer":return new Dt({location:"gpu-buffer",gpuBuffer:i.gpuBuffer,type:i.type,dims:e});default:throw new Error(`tensorReshape: tensor location ${i.location} is not supported`)}}});var Dt,un=O(()=>{"use strict";is();fs();ds();bs();Dt=class{constructor(e,o,t){ps();let r,n;if(typeof e=="object"&&"location"in e)switch(this.dataLocation=e.location,r=e.type,n=e.dims,e.location){case"cpu-pinned":{let a=$e.get(r);if(!a)throw new TypeError(`unsupported type "${r}" to create tensor from pinned buffer`);if(!(e.data instanceof a))throw new TypeError(`buffer should be of type ${a.name}`);this.cpuData=e.data;break}case"texture":{if(r!=="float32")throw new TypeError(`unsupported type "${r}" to create tensor from texture`);this.gpuTextureData=e.texture,this.downloader=e.download,this.disposer=e.dispose;break}case"gpu-buffer":{if(r!=="float32"&&r!=="float16"&&r!=="int32"&&r!=="int64"&&r!=="uint32"&&r!=="uint8"&&r!=="bool")throw new TypeError(`unsupported type "${r}" to create tensor from gpu buffer`);this.gpuBufferData=e.gpuBuffer,this.downloader=e.download,this.disposer=e.dispose;break}default:throw new Error(`Tensor constructor: unsupported location '${this.dataLocation}'`)}else{let a,u;if(typeof e=="string")if(r=e,u=t,e==="string"){if(!Array.isArray(o))throw new TypeError("A string tensor's data must be a string array.");a=o}else{let l=$e.get(e);if(l===void 0)throw new TypeError(`Unsupported tensor type: ${e}.`);if(Array.isArray(o)){if(e==="float16"&&l===Uint16Array)throw new TypeError("Creating a float16 tensor from number array is not supported. Please use Uint16Array as data.");e==="uint64"||e==="int64"?a=l.from(o,BigInt):a=l.from(o)}else if(o instanceof l)a=o;else throw new TypeError(`A ${r} tensor's data must be type of ${l}`)}else if(u=o,Array.isArray(e)){if(e.length===0)throw new TypeError("Tensor type cannot be inferred from an empty array.");let l=typeof e[0];if(l==="string")r="string",a=e;else if(l==="boolean")r="bool",a=Uint8Array.from(e);else throw new TypeError(`Invalid element type of data array: ${l}.`)}else{let l=Sr.get(e.constructor);if(l===void 0)throw new TypeError(`Unsupported type for tensor data: ${e.constructor}.`);r=l,a=e}if(u===void 0)u=[a.length];else if(!Array.isArray(u))throw new TypeError("A tensor's dims must be a number array");n=u,this.cpuData=a,this.dataLocation="cpu"}let s=hs(n);if(this.cpuData&&s!==this.cpuData.length)throw new Error(`Tensor's size(${s}) does not match data length(${this.cpuData.length}).`);this.type=r,this.dims=n,this.size=s}static async fromImage(e,o){return as(e,o)}static fromTexture(e,o){return ss(e,o)}static fromGpuBuffer(e,o){return us(e,o)}static fromPinnedBuffer(e,o,t){return ls(e,o,t)}toDataURL(e){return ns(this,e)}toImageData(e){return os(this,e)}get data(){if(this.ensureValid(),!this.cpuData)throw new Error("The data is not on CPU. Use `getData()` to download GPU data to CPU, or use `texture` or `gpuBuffer` property to access the GPU data directly.");return this.cpuData}get location(){return this.dataLocation}get texture(){if(this.ensureValid(),!this.gpuTextureData)throw new Error("The data is not stored as a WebGL texture.");return this.gpuTextureData}get gpuBuffer(){if(this.ensureValid(),!this.gpuBufferData)throw new Error("The data is not stored as a WebGPU buffer.");return this.gpuBufferData}async getData(e){switch(this.ensureValid(),this.dataLocation){case"cpu":case"cpu-pinned":return this.data;case"texture":case"gpu-buffer":{if(!this.downloader)throw new Error("The current tensor is not created with a specified data downloader.");if(this.isDownloading)throw new Error("The current tensor is being downloaded.");try{this.isDownloading=!0;let o=await this.downloader();return this.downloader=void 0,this.dataLocation="cpu",this.cpuData=o,e&&this.disposer&&(this.disposer(),this.disposer=void 0),o}finally{this.isDownloading=!1}}default:throw new Error(`cannot get data from location: ${this.dataLocation}`)}}dispose(){if(this.isDownloading)throw new Error("The current tensor is being downloaded.");this.disposer&&(this.disposer(),this.disposer=void 0),this.cpuData=void 0,this.gpuTextureData=void 0,this.gpuBufferData=void 0,this.downloader=void 0,this.isDownloading=void 0,this.dataLocation="none"}ensureValid(){if(this.dataLocation==="none")throw new Error("The tensor is disposed.")}reshape(e){if(this.ensureValid(),this.downloader||this.disposer)throw new Error("Cannot reshape a tensor that owns GPU resource.");return ms(this,e)}}});var xt,ln=O(()=>{"use strict";un();xt=Dt});var gs,ys,ke,Be,Bo=O(()=>{"use strict";$o();gs=(i,e)=>{(typeof Mt.trace>"u"?!Mt.wasm.trace:!Mt.trace)||console.timeStamp(`${i}::ORT::${e}`)},ys=(i,e)=>{let o=new Error().stack?.split(/\r\n|\r|\n/g)||[],t=!1;for(let r=0;r<o.length;r++){if(t&&!o[r].includes("TRACE_FUNC")){let n=`FUNC_${i}::${o[r].trim().split(" ")[1]}`;e&&(n+=`::${e}`),gs("CPU",n);return}o[r].includes("TRACE_FUNC")&&(t=!0)}},ke=i=>{(typeof Mt.trace>"u"?!Mt.wasm.trace:!Mt.trace)||ys("BEGIN",i)},Be=i=>{(typeof Mt.trace>"u"?!Mt.wasm.trace:!Mt.trace)||ys("END",i)}});var fn,xs=O(()=>{"use strict";sn();ln();Bo();fn=class i{constructor(e){this.handler=e}async run(e,o,t){ke();let r={},n={};if(typeof e!="object"||e===null||e instanceof xt||Array.isArray(e))throw new TypeError("'feeds' must be an object that use input names as keys and OnnxValue as corresponding values.");let s=!0;if(typeof o=="object"){if(o===null)throw new TypeError("Unexpected argument[1]: cannot be null.");if(o instanceof xt)throw new TypeError("'fetches' cannot be a Tensor");if(Array.isArray(o)){if(o.length===0)throw new TypeError("'fetches' cannot be an empty array.");s=!1;for(let l of o){if(typeof l!="string")throw new TypeError("'fetches' must be a string array or an object.");if(this.outputNames.indexOf(l)===-1)throw new RangeError(`'fetches' contains invalid output name: ${l}.`);r[l]=null}if(typeof t=="object"&&t!==null)n=t;else if(typeof t<"u")throw new TypeError("'options' must be an object.")}else{let l=!1,f=Object.getOwnPropertyNames(o);for(let p of this.outputNames)if(f.indexOf(p)!==-1){let d=o[p];(d===null||d instanceof xt)&&(l=!0,s=!1,r[p]=d)}if(l){if(typeof t=="object"&&t!==null)n=t;else if(typeof t<"u")throw new TypeError("'options' must be an object.")}else n=o}}else if(typeof o<"u")throw new TypeError("Unexpected argument[1]: must be 'fetches' or 'options'.");for(let l of this.inputNames)if(typeof e[l]>"u")throw new Error(`input '${l}' is missing in 'feeds'.`);if(s)for(let l of this.outputNames)r[l]=null;let a=await this.handler.run(e,r,n),u={};for(let l in a)if(Object.hasOwnProperty.call(a,l)){let f=a[l];f instanceof xt?u[l]=f:u[l]=new xt(f.type,f.data,f.dims)}return Be(),u}async release(){return this.handler.dispose()}static async create(e,o,t,r){ke();let n,s={};if(typeof e=="string"){if(n=e,typeof o=="object"&&o!==null)s=o;else if(typeof o<"u")throw new TypeError("'options' must be an object.")}else if(e instanceof Uint8Array){if(n=e,typeof o=="object"&&o!==null)s=o;else if(typeof o<"u")throw new TypeError("'options' must be an object.")}else if(e instanceof ArrayBuffer||typeof SharedArrayBuffer<"u"&&e instanceof SharedArrayBuffer){let f=e,p=0,d=e.byteLength;if(typeof o=="object"&&o!==null)s=o;else if(typeof o=="number"){if(p=o,!Number.isSafeInteger(p))throw new RangeError("'byteOffset' must be an integer.");if(p<0||p>=f.byteLength)throw new RangeError(`'byteOffset' is out of range [0, ${f.byteLength}).`);if(d=e.byteLength-p,typeof t=="number"){if(d=t,!Number.isSafeInteger(d))throw new RangeError("'byteLength' must be an integer.");if(d<=0||p+d>f.byteLength)throw new RangeError(`'byteLength' is out of range (0, ${f.byteLength-p}].`);if(typeof r=="object"&&r!==null)s=r;else if(typeof r<"u")throw new TypeError("'options' must be an object.")}else if(typeof t<"u")throw new TypeError("'byteLength' must be a number.")}else if(typeof o<"u")throw new TypeError("'options' must be an object.");n=new Uint8Array(f,p,d)}else throw new TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");let[a,u]=await an(s),l=await a.createInferenceSessionHandler(n,u);return Be(),new i(l)}startProfiling(){this.handler.startProfiling()}endProfiling(){this.handler.endProfiling()}get inputNames(){return this.handler.inputNames}get outputNames(){return this.handler.outputNames}}});var qd,Ts=O(()=>{"use strict";xs();qd=fn});var ws=O(()=>{"use strict"});var vs=O(()=>{"use strict"});var Is=O(()=>{"use strict"});var _s=O(()=>{"use strict"});var jd,cn,Os=O(()=>{"use strict";sn();ln();jd="Training backend could not be resolved. Make sure you're using the correct configuration & WebAssembly files.",cn=class i{constructor(e,o,t){this.handler=e,this.hasOptimizerModel=o,this.hasEvalModel=t}get trainingInputNames(){return this.handler.inputNames}get trainingOutputNames(){return this.handler.outputNames}get evalInputNames(){if(this.hasEvalModel)return this.handler.evalInputNames;throw new Error("This training session has no evalModel loaded.")}get evalOutputNames(){if(this.hasEvalModel)return this.handler.evalOutputNames;throw new Error("This training session has no evalModel loaded.")}static async create(e,o){let t=e.evalModel||"",r=e.optimizerModel||"",n=o||{},[s,a]=await an(n);if(s.createTrainingSessionHandler){let u=await s.createTrainingSessionHandler(e.checkpointState,e.trainModel,t,r,a);return new i(u,!!e.optimizerModel,!!e.evalModel)}else throw new Error(jd)}typeNarrowingForRunStep(e,o,t,r,n){let s={},a={};if(typeof t!="object"||t===null||t instanceof xt||Array.isArray(t))throw new TypeError("'feeds' must be an object that use input names as keys and OnnxValue as corresponding values.");let u=!0;if(typeof r=="object"){if(r===null)throw new TypeError("Unexpected argument[1]: cannot be null.");if(r instanceof xt)throw new TypeError("'fetches' cannot be a Tensor");if(Array.isArray(r)){if(r.length===0)throw new TypeError("'fetches' cannot be an empty array.");u=!1;for(let l of r){if(typeof l!="string")throw new TypeError("'fetches' must be a string array or an object.");if(o.indexOf(l)===-1)throw new RangeError(`'fetches' contains invalid output name: ${l}.`);s[l]=null}if(typeof n=="object"&&n!==null)a=n;else if(typeof n<"u")throw new TypeError("'options' must be an object.")}else{let l=!1,f=Object.getOwnPropertyNames(r);for(let p of o)if(f.indexOf(p)!==-1){let d=r[p];(d===null||d instanceof xt)&&(l=!0,u=!1,s[p]=d)}if(l){if(typeof n=="object"&&n!==null)a=n;else if(typeof n<"u")throw new TypeError("'options' must be an object.")}else a=r}}else if(typeof r<"u")throw new TypeError("Unexpected argument[1]: must be 'fetches' or 'options'.");for(let l of e)if(typeof t[l]>"u")throw new Error(`input '${l}' is missing in 'feeds'.`);if(u)for(let l of o)s[l]=null;return[s,a]}convertHandlerReturnTypeToMapOfTensors(e){let o={};for(let t in e)if(Object.hasOwnProperty.call(e,t)){let r=e[t];r instanceof xt?o[t]=r:o[t]=new xt(r.type,r.data,r.dims)}return o}async lazyResetGrad(){await this.handler.lazyResetGrad()}async runTrainStep(e,o,t){let[r,n]=this.typeNarrowingForRunStep(this.trainingInputNames,this.trainingOutputNames,e,o,t),s=await this.handler.runTrainStep(e,r,n);return this.convertHandlerReturnTypeToMapOfTensors(s)}async runOptimizerStep(e){if(this.hasOptimizerModel)await this.handler.runOptimizerStep(e||{});else throw new Error("This TrainingSession has no OptimizerModel loaded.")}async runEvalStep(e,o,t){if(this.hasEvalModel){let[r,n]=this.typeNarrowingForRunStep(this.evalInputNames,this.evalOutputNames,e,o,t),s=await this.handler.runEvalStep(e,r,n);return this.convertHandlerReturnTypeToMapOfTensors(s)}else throw new Error("This TrainingSession has no EvalModel loaded.")}async getParametersSize(e=!0){return this.handler.getParametersSize(e)}async loadParametersBuffer(e,o=!0){let t=await this.getParametersSize(o);if(e.length!==4*t)throw new Error("Size of the buffer passed into loadParametersBuffer must match the number of parameters in the model. Please use getParametersSize method to check.");return this.handler.loadParametersBuffer(e,o)}async getContiguousParameters(e=!0){return this.handler.getContiguousParameters(e)}async release(){return this.handler.dispose()}}});var Xd,Ss=O(()=>{"use strict";Os();Xd=cn});var Fo={};Or(Fo,{InferenceSession:()=>qd,TRACE:()=>gs,TRACE_FUNC_BEGIN:()=>ke,TRACE_FUNC_END:()=>Be,Tensor:()=>xt,TrainingSession:()=>Xd,env:()=>z,registerBackend:()=>tr});var Zt=O(()=>{"use strict";Za();rs();Ts();ln();ws();vs();Bo();Is();_s();Ss()});function Ie(i,e,o,t){if(e===void 0)return Jd(i);if(o===void 0)pn(i,e,1);else if(typeof o=="number"&&t===void 0)pn(i,e,o);else if(typeof o=="string"&&t===void 0)pn(i,o,1,e);else if(typeof o=="string"&&typeof t=="number")pn(i,o,t,e);else throw new TypeError("input is valid")}function Jd(i){return{verbose:Ie.verbose.bind(null,i),info:Ie.info.bind(null,i),warning:Ie.warning.bind(null,i),error:Ie.error.bind(null,i),fatal:Ie.fatal.bind(null,i)}}function pn(i,e,o,t){let r=Ar[t||""]||Ar[""];Ps[i]<Ps[r.minimalSeverity]||(r.logDateTime&&(e=`${new Date().toISOString()}|${e}`),r.logSourceLocation,Kd[r.provider].log(i,e,t))}var Co,No,Ps,Kd,Es,Ar,et,hn,mn,bn,dn,zt=O(()=>{"use strict";Co=class{log(e,o,t){}},No=class{log(e,o,t){console.log(`${this.color(e)} ${t?"\x1B[35m"+t+"\x1B[0m ":""}${o}`)}color(e){switch(e){case"verbose":return"\x1B[34;40mv\x1B[0m";case"info":return"\x1B[32mi\x1B[0m";case"warning":return"\x1B[30;43mw\x1B[0m";case"error":return"\x1B[31;40me\x1B[0m";case"fatal":return"\x1B[101mf\x1B[0m";default:throw new Error(`unsupported severity: ${e}`)}}},Ps={verbose:1e3,info:2e3,warning:4e3,error:5e3,fatal:6e3},Kd={none:new Co,console:new No},Es={provider:"console",minimalSeverity:"warning",logDateTime:!0,logSourceLocation:!1},Ar={"":Es};(u=>{function i(l,f){u("verbose",l,f)}u.verbose=i;function e(l,f){u("info",l,f)}u.info=e;function o(l,f){u("warning",l,f)}u.warning=o;function t(l,f){u("error",l,f)}u.error=t;function r(l,f){u("fatal",l,f)}u.fatal=r;function n(l){Ar={},s("",l||{})}u.reset=n;function s(l,f){if(l==="*")n(f);else{let p=Ar[l]||Es;Ar[l]={provider:f.provider||p.provider,minimalSeverity:f.minimalSeverity||p.minimalSeverity,logDateTime:f.logDateTime===void 0?p.logDateTime:f.logDateTime,logSourceLocation:f.logSourceLocation===void 0?p.logSourceLocation:f.logSourceLocation}}}u.set=s;function a(l){let f={};l.logLevel&&(f.minimalSeverity=l.logLevel),s("",f)}u.setWithEnv=a})(Ie||={});et=Ie,hn=class{constructor(e,o,t,r,n,s){this.category=e;this.name=o;this.startTime=t;this.endCallback=r;this.timer=n;this.ctx=s}async end(){return this.endCallback(this)}async checkTimer(){if(this.ctx===void 0||this.timer===void 0)throw new Error("No webgl timer found");return this.ctx.endTimer(),this.ctx.waitForQueryAndGetTime(this.timer)}},mn=class{constructor(e,o,t,r){this.category=e;this.name=o;this.startTime=t;this.endTime=r}},bn=class{constructor(e,o,t){this._started=!1;this._flushPointer=0;this._started=!1,this._maxNumberEvents=e===void 0?1e4:e,this._flushBatchSize=o===void 0?10:o,this._flushIntervalInMilliseconds=t===void 0?5e3:t}static create(e){return e===void 0?new this:new this(e.maxNumberEvents,e.flushBatchSize,e.flushIntervalInMilliseconds)}start(){this._started=!0,this._timingEvents=[],this._flushTime=dn(),this._flushPointer=0}stop(){for(this._started=!1;this._flushPointer<this._timingEvents.length;this._flushPointer++)this.logOneEvent(this._timingEvents[this._flushPointer])}event(e,o,t,r){let n=this._started?this.begin(e,o,r):void 0,s=!1,a=t();if(a&&typeof a.then=="function")return s=!0,new Promise((u,l)=>{a.then(async f=>{n&&await n.end(),u(f)},async f=>{n&&await n.end(),l(f)})});if(!s&&n){let u=n.end();if(u&&typeof u.then=="function")return new Promise((l,f)=>{u.then(()=>{l(a)},p=>{f(p)})})}return a}begin(e,o,t){if(!this._started)throw new Error("profiler is not started yet");if(t===void 0){let r=dn();return this.flush(r),new hn(e,o,r,n=>this.endSync(n))}else{let r=t.beginTimer();return new hn(e,o,0,async n=>this.end(n),r,t)}}async end(e){let o=await e.checkTimer();this._timingEvents.length<this._maxNumberEvents&&(this._timingEvents.push(new mn(e.category,e.name,e.startTime,o)),this.flush(o))}endSync(e){let o=dn();this._timingEvents.length<this._maxNumberEvents&&(this._timingEvents.push(new mn(e.category,e.name,e.startTime,o)),this.flush(o))}logOneEvent(e){et.verbose(`Profiler.${e.category}`,`${(e.endTime-e.startTime).toFixed(2)}ms on event '${e.name}' at ${e.endTime.toFixed(2)}`)}flush(e){if(this._timingEvents.length-this._flushPointer>=this._flushBatchSize||e-this._flushTime>=this._flushIntervalInMilliseconds){for(let o=this._flushPointer;this._flushPointer<o+this._flushBatchSize&&this._flushPointer<this._timingEvents.length;this._flushPointer++)this.logOneEvent(this._timingEvents[this._flushPointer]);this._flushTime=dn()}}get started(){return this._started}},dn=typeof performance<"u"&&performance.now?()=>performance.now():Date.now});function Ds(i,e,o){for(let t of o){let r=t[0],n=t[1],s=t[2],a=t[3],u=t[4];if(i.opType===r){for(let l of e)if((l.domain===n||l.domain==="ai.onnx"&&n==="")&&Yd(l.version,s))return{opImpl:a,opInit:u}}}throw new TypeError(`cannot resolve operator '${i.opType}' with opsets: ${e.map(t=>`${t.domain||"ai.onnx"} v${t.version}`).join(", ")}`)}function Yd(i,e){if(e.endsWith("+")){let o=Number.parseInt(e.substring(0,e.length-1),10);return!isNaN(o)&&o<=i}else if(e.split("-").length===2){let o=e.split("-"),t=Number.parseInt(o[0],10),r=Number.parseInt(o[1],10);return!isNaN(t)&&!isNaN(r)&&t<=i&&i<=r}else return Number.parseInt(e,10)===i}var Ls=O(()=>{"use strict"});var $s=mt(Ro=>{"use strict";Ro.__esModule=!0;var Zd=function(){function i(e){if(!e)throw new TypeError("Invalid argument; `value` has no value.");this.value=i.EMPTY,e&&i.isGuid(e)&&(this.value=e)}return i.isGuid=function(e){var o=e.toString();return e&&(e instanceof i||i.validator.test(o))},i.create=function(){return new i([i.gen(2),i.gen(1),i.gen(1),i.gen(1),i.gen(3)].join("-"))},i.createEmpty=function(){return new i("emptyguid")},i.parse=function(e){return new i(e)},i.raw=function(){return[i.gen(2),i.gen(1),i.gen(1),i.gen(1),i.gen(3)].join("-")},i.gen=function(e){for(var o="",t=0;t<e;t++)o+=((1+Math.random())*65536|0).toString(16).substring(1);return o},i.prototype.equals=function(e){return i.isGuid(e)&&this.value===e.toString()},i.prototype.isEmpty=function(){return this.value===i.EMPTY},i.prototype.toString=function(){return this.value},i.prototype.toJSON=function(){return{value:this.value}},i.validator=new RegExp("^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$","i"),i.EMPTY="00000000-0000-0000-0000-000000000000",i}();Ro.Guid=Zd});function nt(i,e,o){this.low=i|0,this.high=e|0,this.unsigned=!!o}function At(i){return(i&&i.__isLong__)===!0}function ks(i){var e=Math.clz32(i&-i);return i?31-e:e}function Fe(i,e){var o,t,r;return e?(i>>>=0,(r=0<=i&&i<256)&&(t=Fs[i],t)?t:(o=Y(i,0,!0),r&&(Fs[i]=o),o)):(i|=0,(r=-128<=i&&i<128)&&(t=Bs[i],t)?t:(o=Y(i,i<0?-1:0,!1),r&&(Bs[i]=o),o))}function Ht(i,e){if(isNaN(i))return e?me:Qt;if(e){if(i<0)return me;if(i>=Gs)return Vs}else{if(i<=-Ns)return Bt;if(i+1>=Ns)return Us}return i<0?Ht(-i,e).neg():Y(i%rr|0,i/rr|0,e)}function Y(i,e,o){return new nt(i,e,o)}function Mo(i,e,o){if(i.length===0)throw Error("empty string");if(typeof e=="number"?(o=e,e=!1):e=!!e,i==="NaN"||i==="Infinity"||i==="+Infinity"||i==="-Infinity")return e?me:Qt;if(o=o||10,o<2||36<o)throw RangeError("radix");var t;if((t=i.indexOf("-"))>0)throw Error("interior hyphen");if(t===0)return Mo(i.substring(1),e,o).neg();for(var r=Ht(gn(o,8)),n=Qt,s=0;s<i.length;s+=8){var a=Math.min(8,i.length-s),u=parseInt(i.substring(s,s+a),o);if(a<8){var l=Ht(gn(o,a));n=n.mul(l).add(Ht(u))}else n=n.mul(r),n=n.add(Ht(u))}return n.unsigned=e,n}function te(i,e){return typeof i=="number"?Ht(i,e):typeof i=="string"?Mo(i,e):Y(i.low,i.high,typeof e=="boolean"?e:i.unsigned)}var Wt,Bs,Fs,gn,Cs,Qd,rr,Gs,Ns,Rs,Qt,me,er,Ms,Go,Us,Vs,Bt,L,be,Uo=O(()=>{Wt=null;try{Wt=new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([0,97,115,109,1,0,0,0,1,13,2,96,0,1,127,96,4,127,127,127,127,1,127,3,7,6,0,1,1,1,1,1,6,6,1,127,1,65,0,11,7,50,6,3,109,117,108,0,1,5,100,105,118,95,115,0,2,5,100,105,118,95,117,0,3,5,114,101,109,95,115,0,4,5,114,101,109,95,117,0,5,8,103,101,116,95,104,105,103,104,0,0,10,191,1,6,4,0,35,0,11,36,1,1,126,32,0,173,32,1,173,66,32,134,132,32,2,173,32,3,173,66,32,134,132,126,34,4,66,32,135,167,36,0,32,4,167,11,36,1,1,126,32,0,173,32,1,173,66,32,134,132,32,2,173,32,3,173,66,32,134,132,127,34,4,66,32,135,167,36,0,32,4,167,11,36,1,1,126,32,0,173,32,1,173,66,32,134,132,32,2,173,32,3,173,66,32,134,132,128,34,4,66,32,135,167,36,0,32,4,167,11,36,1,1,126,32,0,173,32,1,173,66,32,134,132,32,2,173,32,3,173,66,32,134,132,129,34,4,66,32,135,167,36,0,32,4,167,11,36,1,1,126,32,0,173,32,1,173,66,32,134,132,32,2,173,32,3,173,66,32,134,132,130,34,4,66,32,135,167,36,0,32,4,167,11])),{}).exports}catch{}nt.prototype.__isLong__;Object.defineProperty(nt.prototype,"__isLong__",{value:!0});nt.isLong=At;Bs={},Fs={};nt.fromInt=Fe;nt.fromNumber=Ht;nt.fromBits=Y;gn=Math.pow;nt.fromString=Mo;nt.fromValue=te;Cs=65536,Qd=1<<24,rr=Cs*Cs,Gs=rr*rr,Ns=Gs/2,Rs=Fe(Qd),Qt=Fe(0);nt.ZERO=Qt;me=Fe(0,!0);nt.UZERO=me;er=Fe(1);nt.ONE=er;Ms=Fe(1,!0);nt.UONE=Ms;Go=Fe(-1);nt.NEG_ONE=Go;Us=Y(-1,2147483647,!1);nt.MAX_VALUE=Us;Vs=Y(-1,-1,!0);nt.MAX_UNSIGNED_VALUE=Vs;Bt=Y(0,-2147483648,!1);nt.MIN_VALUE=Bt;L=nt.prototype;L.toInt=function(){return this.unsigned?this.low>>>0:this.low};L.toNumber=function(){return this.unsigned?(this.high>>>0)*rr+(this.low>>>0):this.high*rr+(this.low>>>0)};L.toString=function(e){if(e=e||10,e<2||36<e)throw RangeError("radix");if(this.isZero())return"0";if(this.isNegative())if(this.eq(Bt)){var o=Ht(e),t=this.div(o),r=t.mul(o).sub(this);return t.toString(e)+r.toInt().toString(e)}else return"-"+this.neg().toString(e);for(var n=Ht(gn(e,6),this.unsigned),s=this,a="";;){var u=s.div(n),l=s.sub(u.mul(n)).toInt()>>>0,f=l.toString(e);if(s=u,s.isZero())return f+a;for(;f.length<6;)f="0"+f;a=""+f+a}};L.getHighBits=function(){return this.high};L.getHighBitsUnsigned=function(){return this.high>>>0};L.getLowBits=function(){return this.low};L.getLowBitsUnsigned=function(){return this.low>>>0};L.getNumBitsAbs=function(){if(this.isNegative())return this.eq(Bt)?64:this.neg().getNumBitsAbs();for(var e=this.high!=0?this.high:this.low,o=31;o>0&&!(e&1<<o);o--);return this.high!=0?o+33:o+1};L.isZero=function(){return this.high===0&&this.low===0};L.eqz=L.isZero;L.isNegative=function(){return!this.unsigned&&this.high<0};L.isPositive=function(){return this.unsigned||this.high>=0};L.isOdd=function(){return(this.low&1)===1};L.isEven=function(){return(this.low&1)===0};L.equals=function(e){return At(e)||(e=te(e)),this.unsigned!==e.unsigned&&this.high>>>31===1&&e.high>>>31===1?!1:this.high===e.high&&this.low===e.low};L.eq=L.equals;L.notEquals=function(e){return!this.eq(e)};L.neq=L.notEquals;L.ne=L.notEquals;L.lessThan=function(e){return this.comp(e)<0};L.lt=L.lessThan;L.lessThanOrEqual=function(e){return this.comp(e)<=0};L.lte=L.lessThanOrEqual;L.le=L.lessThanOrEqual;L.greaterThan=function(e){return this.comp(e)>0};L.gt=L.greaterThan;L.greaterThanOrEqual=function(e){return this.comp(e)>=0};L.gte=L.greaterThanOrEqual;L.ge=L.greaterThanOrEqual;L.compare=function(e){if(At(e)||(e=te(e)),this.eq(e))return 0;var o=this.isNegative(),t=e.isNegative();return o&&!t?-1:!o&&t?1:this.unsigned?e.high>>>0>this.high>>>0||e.high===this.high&&e.low>>>0>this.low>>>0?-1:1:this.sub(e).isNegative()?-1:1};L.comp=L.compare;L.negate=function(){return!this.unsigned&&this.eq(Bt)?Bt:this.not().add(er)};L.neg=L.negate;L.add=function(e){At(e)||(e=te(e));var o=this.high>>>16,t=this.high&65535,r=this.low>>>16,n=this.low&65535,s=e.high>>>16,a=e.high&65535,u=e.low>>>16,l=e.low&65535,f=0,p=0,d=0,y=0;return y+=n+l,d+=y>>>16,y&=65535,d+=r+u,p+=d>>>16,d&=65535,p+=t+a,f+=p>>>16,p&=65535,f+=o+s,f&=65535,Y(d<<16|y,f<<16|p,this.unsigned)};L.subtract=function(e){return At(e)||(e=te(e)),this.add(e.neg())};L.sub=L.subtract;L.multiply=function(e){if(this.isZero())return this;if(At(e)||(e=te(e)),Wt){var o=Wt.mul(this.low,this.high,e.low,e.high);return Y(o,Wt.get_high(),this.unsigned)}if(e.isZero())return this.unsigned?me:Qt;if(this.eq(Bt))return e.isOdd()?Bt:Qt;if(e.eq(Bt))return this.isOdd()?Bt:Qt;if(this.isNegative())return e.isNegative()?this.neg().mul(e.neg()):this.neg().mul(e).neg();if(e.isNegative())return this.mul(e.neg()).neg();if(this.lt(Rs)&&e.lt(Rs))return Ht(this.toNumber()*e.toNumber(),this.unsigned);var t=this.high>>>16,r=this.high&65535,n=this.low>>>16,s=this.low&65535,a=e.high>>>16,u=e.high&65535,l=e.low>>>16,f=e.low&65535,p=0,d=0,y=0,w=0;return w+=s*f,y+=w>>>16,w&=65535,y+=n*f,d+=y>>>16,y&=65535,y+=s*l,d+=y>>>16,y&=65535,d+=r*f,p+=d>>>16,d&=65535,d+=n*l,p+=d>>>16,d&=65535,d+=s*u,p+=d>>>16,d&=65535,p+=t*f+r*l+n*u+s*a,p&=65535,Y(y<<16|w,p<<16|d,this.unsigned)};L.mul=L.multiply;L.divide=function(e){if(At(e)||(e=te(e)),e.isZero())throw Error("division by zero");if(Wt){if(!this.unsigned&&this.high===-2147483648&&e.low===-1&&e.high===-1)return this;var o=(this.unsigned?Wt.div_u:Wt.div_s)(this.low,this.high,e.low,e.high);return Y(o,Wt.get_high(),this.unsigned)}if(this.isZero())return this.unsigned?me:Qt;var t,r,n;if(this.unsigned){if(e.unsigned||(e=e.toUnsigned()),e.gt(this))return me;if(e.gt(this.shru(1)))return Ms;n=me}else{if(this.eq(Bt)){if(e.eq(er)||e.eq(Go))return Bt;if(e.eq(Bt))return er;var s=this.shr(1);return t=s.div(e).shl(1),t.eq(Qt)?e.isNegative()?er:Go:(r=this.sub(e.mul(t)),n=t.add(r.div(e)),n)}else if(e.eq(Bt))return this.unsigned?me:Qt;if(this.isNegative())return e.isNegative()?this.neg().div(e.neg()):this.neg().div(e).neg();if(e.isNegative())return this.div(e.neg()).neg();n=Qt}for(r=this;r.gte(e);){t=Math.max(1,Math.floor(r.toNumber()/e.toNumber()));for(var a=Math.ceil(Math.log(t)/Math.LN2),u=a<=48?1:gn(2,a-48),l=Ht(t),f=l.mul(e);f.isNegative()||f.gt(r);)t-=u,l=Ht(t,this.unsigned),f=l.mul(e);l.isZero()&&(l=er),n=n.add(l),r=r.sub(f)}return n};L.div=L.divide;L.modulo=function(e){if(At(e)||(e=te(e)),Wt){var o=(this.unsigned?Wt.rem_u:Wt.rem_s)(this.low,this.high,e.low,e.high);return Y(o,Wt.get_high(),this.unsigned)}return this.sub(this.div(e).mul(e))};L.mod=L.modulo;L.rem=L.modulo;L.not=function(){return Y(~this.low,~this.high,this.unsigned)};L.countLeadingZeros=function(){return this.high?Math.clz32(this.high):Math.clz32(this.low)+32};L.clz=L.countLeadingZeros;L.countTrailingZeros=function(){return this.low?ks(this.low):ks(this.high)+32};L.ctz=L.countTrailingZeros;L.and=function(e){return At(e)||(e=te(e)),Y(this.low&e.low,this.high&e.high,this.unsigned)};L.or=function(e){return At(e)||(e=te(e)),Y(this.low|e.low,this.high|e.high,this.unsigned)};L.xor=function(e){return At(e)||(e=te(e)),Y(this.low^e.low,this.high^e.high,this.unsigned)};L.shiftLeft=function(e){return At(e)&&(e=e.toInt()),(e&=63)===0?this:e<32?Y(this.low<<e,this.high<<e|this.low>>>32-e,this.unsigned):Y(0,this.low<<e-32,this.unsigned)};L.shl=L.shiftLeft;L.shiftRight=function(e){return At(e)&&(e=e.toInt()),(e&=63)===0?this:e<32?Y(this.low>>>e|this.high<<32-e,this.high>>e,this.unsigned):Y(this.high>>e-32,this.high>=0?0:-1,this.unsigned)};L.shr=L.shiftRight;L.shiftRightUnsigned=function(e){return At(e)&&(e=e.toInt()),(e&=63)===0?this:e<32?Y(this.low>>>e|this.high<<32-e,this.high>>>e,this.unsigned):e===32?Y(this.high,0,this.unsigned):Y(this.high>>>e-32,0,this.unsigned)};L.shru=L.shiftRightUnsigned;L.shr_u=L.shiftRightUnsigned;L.rotateLeft=function(e){var o;return At(e)&&(e=e.toInt()),(e&=63)===0?this:e===32?Y(this.high,this.low,this.unsigned):e<32?(o=32-e,Y(this.low<<e|this.high>>>o,this.high<<e|this.low>>>o,this.unsigned)):(e-=32,o=32-e,Y(this.high<<e|this.low>>>o,this.low<<e|this.high>>>o,this.unsigned))};L.rotl=L.rotateLeft;L.rotateRight=function(e){var o;return At(e)&&(e=e.toInt()),(e&=63)===0?this:e===32?Y(this.high,this.low,this.unsigned):e<32?(o=32-e,Y(this.high<<o|this.low>>>e,this.low<<o|this.high>>>e,this.unsigned)):(e-=32,o=32-e,Y(this.low<<o|this.high>>>e,this.high<<o|this.low>>>e,this.unsigned))};L.rotr=L.rotateRight;L.toSigned=function(){return this.unsigned?Y(this.low,this.high,!1):this};L.toUnsigned=function(){return this.unsigned?this:Y(this.low,this.high,!0)};L.toBytes=function(e){return e?this.toBytesLE():this.toBytesBE()};L.toBytesLE=function(){var e=this.high,o=this.low;return[o&255,o>>>8&255,o>>>16&255,o>>>24,e&255,e>>>8&255,e>>>16&255,e>>>24]};L.toBytesBE=function(){var e=this.high,o=this.low;return[e>>>24,e>>>16&255,e>>>8&255,e&255,o>>>24,o>>>16&255,o>>>8&255,o&255]};nt.fromBytes=function(e,o,t){return t?nt.fromBytesLE(e,o):nt.fromBytesBE(e,o)};nt.fromBytesLE=function(e,o){return new nt(e[0]|e[1]<<8|e[2]<<16|e[3]<<24,e[4]|e[5]<<8|e[6]<<16|e[7]<<24,o)};nt.fromBytesBE=function(e,o){return new nt(e[4]<<24|e[5]<<16|e[6]<<8|e[7],e[0]<<24|e[1]<<16|e[2]<<8|e[3],o)};be=nt});var T,yn=O(()=>{T={};T.Offset;T.Table;T.SIZEOF_SHORT=2;T.SIZEOF_INT=4;T.FILE_IDENTIFIER_LENGTH=4;T.SIZE_PREFIX_LENGTH=4;T.Encoding={UTF8_BYTES:1,UTF16_STRING:2};T.int32=new Int32Array(2);T.float32=new Float32Array(T.int32.buffer);T.float64=new Float64Array(T.int32.buffer);T.isLittleEndian=new Uint16Array(new Uint8Array([1,0]).buffer)[0]===1;T.Long=function(i,e){this.low=i|0,this.high=e|0};T.Long.create=function(i,e){return i==0&&e==0?T.Long.ZERO:new T.Long(i,e)};T.Long.prototype.toFloat64=function(){return(this.low>>>0)+this.high*4294967296};T.Long.prototype.equals=function(i){return this.low==i.low&&this.high==i.high};T.Long.ZERO=new T.Long(0,0);T.Builder=function(i){if(i)var e=i;else var e=1024;this.bb=T.ByteBuffer.allocate(e),this.space=e,this.minalign=1,this.vtable=null,this.vtable_in_use=0,this.isNested=!1,this.object_start=0,this.vtables=[],this.vector_num_elems=0,this.force_defaults=!1};T.Builder.prototype.clear=function(){this.bb.clear(),this.space=this.bb.capacity(),this.minalign=1,this.vtable=null,this.vtable_in_use=0,this.isNested=!1,this.object_start=0,this.vtables=[],this.vector_num_elems=0,this.force_defaults=!1};T.Builder.prototype.forceDefaults=function(i){this.force_defaults=i};T.Builder.prototype.dataBuffer=function(){return this.bb};T.Builder.prototype.asUint8Array=function(){return this.bb.bytes().subarray(this.bb.position(),this.bb.position()+this.offset())};T.Builder.prototype.prep=function(i,e){i>this.minalign&&(this.minalign=i);for(var o=~(this.bb.capacity()-this.space+e)+1&i-1;this.space<o+i+e;){var t=this.bb.capacity();this.bb=T.Builder.growByteBuffer(this.bb),this.space+=this.bb.capacity()-t}this.pad(o)};T.Builder.prototype.pad=function(i){for(var e=0;e<i;e++)this.bb.writeInt8(--this.space,0)};T.Builder.prototype.writeInt8=function(i){this.bb.writeInt8(this.space-=1,i)};T.Builder.prototype.writeInt16=function(i){this.bb.writeInt16(this.space-=2,i)};T.Builder.prototype.writeInt32=function(i){this.bb.writeInt32(this.space-=4,i)};T.Builder.prototype.writeInt64=function(i){this.bb.writeInt64(this.space-=8,i)};T.Builder.prototype.writeFloat32=function(i){this.bb.writeFloat32(this.space-=4,i)};T.Builder.prototype.writeFloat64=function(i){this.bb.writeFloat64(this.space-=8,i)};T.Builder.prototype.addInt8=function(i){this.prep(1,0),this.writeInt8(i)};T.Builder.prototype.addInt16=function(i){this.prep(2,0),this.writeInt16(i)};T.Builder.prototype.addInt32=function(i){this.prep(4,0),this.writeInt32(i)};T.Builder.prototype.addInt64=function(i){this.prep(8,0),this.writeInt64(i)};T.Builder.prototype.addFloat32=function(i){this.prep(4,0),this.writeFloat32(i)};T.Builder.prototype.addFloat64=function(i){this.prep(8,0),this.writeFloat64(i)};T.Builder.prototype.addFieldInt8=function(i,e,o){(this.force_defaults||e!=o)&&(this.addInt8(e),this.slot(i))};T.Builder.prototype.addFieldInt16=function(i,e,o){(this.force_defaults||e!=o)&&(this.addInt16(e),this.slot(i))};T.Builder.prototype.addFieldInt32=function(i,e,o){(this.force_defaults||e!=o)&&(this.addInt32(e),this.slot(i))};T.Builder.prototype.addFieldInt64=function(i,e,o){(this.force_defaults||!e.equals(o))&&(this.addInt64(e),this.slot(i))};T.Builder.prototype.addFieldFloat32=function(i,e,o){(this.force_defaults||e!=o)&&(this.addFloat32(e),this.slot(i))};T.Builder.prototype.addFieldFloat64=function(i,e,o){(this.force_defaults||e!=o)&&(this.addFloat64(e),this.slot(i))};T.Builder.prototype.addFieldOffset=function(i,e,o){(this.force_defaults||e!=o)&&(this.addOffset(e),this.slot(i))};T.Builder.prototype.addFieldStruct=function(i,e,o){e!=o&&(this.nested(e),this.slot(i))};T.Builder.prototype.nested=function(i){if(i!=this.offset())throw new Error("FlatBuffers: struct must be serialized inline.")};T.Builder.prototype.notNested=function(){if(this.isNested)throw new Error("FlatBuffers: object serialization must not be nested.")};T.Builder.prototype.slot=function(i){this.vtable[i]=this.offset()};T.Builder.prototype.offset=function(){return this.bb.capacity()-this.space};T.Builder.growByteBuffer=function(i){var e=i.capacity();if(e&3221225472)throw new Error("FlatBuffers: cannot grow buffer beyond 2 gigabytes.");var o=e<<1,t=T.ByteBuffer.allocate(o);return t.setPosition(o-e),t.bytes().set(i.bytes(),o-e),t};T.Builder.prototype.addOffset=function(i){this.prep(T.SIZEOF_INT,0),this.writeInt32(this.offset()-i+T.SIZEOF_INT)};T.Builder.prototype.startObject=function(i){this.notNested(),this.vtable==null&&(this.vtable=[]),this.vtable_in_use=i;for(var e=0;e<i;e++)this.vtable[e]=0;this.isNested=!0,this.object_start=this.offset()};T.Builder.prototype.endObject=function(){if(this.vtable==null||!this.isNested)throw new Error("FlatBuffers: endObject called without startObject");this.addInt32(0);for(var i=this.offset(),e=this.vtable_in_use-1;e>=0&&this.vtable[e]==0;e--);for(var o=e+1;e>=0;e--)this.addInt16(this.vtable[e]!=0?i-this.vtable[e]:0);var t=2;this.addInt16(i-this.object_start);var r=(o+t)*T.SIZEOF_SHORT;this.addInt16(r);var n=0,s=this.space;t:for(e=0;e<this.vtables.length;e++){var a=this.bb.capacity()-this.vtables[e];if(r==this.bb.readInt16(a)){for(var u=T.SIZEOF_SHORT;u<r;u+=T.SIZEOF_SHORT)if(this.bb.readInt16(s+u)!=this.bb.readInt16(a+u))continue t;n=this.vtables[e];break}}return n?(this.space=this.bb.capacity()-i,this.bb.writeInt32(this.space,n-i)):(this.vtables.push(this.offset()),this.bb.writeInt32(this.bb.capacity()-i,this.offset()-i)),this.isNested=!1,i};T.Builder.prototype.finish=function(i,e,o){var t=o?T.SIZE_PREFIX_LENGTH:0;if(e){var r=e;if(this.prep(this.minalign,T.SIZEOF_INT+T.FILE_IDENTIFIER_LENGTH+t),r.length!=T.FILE_IDENTIFIER_LENGTH)throw new Error("FlatBuffers: file identifier must be length "+T.FILE_IDENTIFIER_LENGTH);for(var n=T.FILE_IDENTIFIER_LENGTH-1;n>=0;n--)this.writeInt8(r.charCodeAt(n))}this.prep(this.minalign,T.SIZEOF_INT+t),this.addOffset(i),t&&this.addInt32(this.bb.capacity()-this.space),this.bb.setPosition(this.space)};T.Builder.prototype.finishSizePrefixed=function(i,e){this.finish(i,e,!0)};T.Builder.prototype.requiredField=function(i,e){var o=this.bb.capacity()-i,t=o-this.bb.readInt32(o),r=this.bb.readInt16(t+e)!=0;if(!r)throw new Error("FlatBuffers: field "+e+" must be set")};T.Builder.prototype.startVector=function(i,e,o){this.notNested(),this.vector_num_elems=e,this.prep(T.SIZEOF_INT,i*e),this.prep(o,i*e)};T.Builder.prototype.endVector=function(){return this.writeInt32(this.vector_num_elems),this.offset()};T.Builder.prototype.createString=function(i){if(i instanceof Uint8Array)var e=i;else for(var e=[],o=0;o<i.length;){var t,r=i.charCodeAt(o++);if(r<55296||r>=56320)t=r;else{var n=i.charCodeAt(o++);t=(r<<10)+n+(65536-56623104-56320)}t<128?e.push(t):(t<2048?e.push(t>>6&31|192):(t<65536?e.push(t>>12&15|224):e.push(t>>18&7|240,t>>12&63|128),e.push(t>>6&63|128)),e.push(t&63|128))}this.addInt8(0),this.startVector(1,e.length,1),this.bb.setPosition(this.space-=e.length);for(var o=0,s=this.space,a=this.bb.bytes();o<e.length;o++)a[s++]=e[o];return this.endVector()};T.Builder.prototype.createLong=function(i,e){return T.Long.create(i,e)};T.ByteBuffer=function(i){this.bytes_=i,this.position_=0};T.ByteBuffer.allocate=function(i){return new T.ByteBuffer(new Uint8Array(i))};T.ByteBuffer.prototype.clear=function(){this.position_=0};T.ByteBuffer.prototype.bytes=function(){return this.bytes_};T.ByteBuffer.prototype.position=function(){return this.position_};T.ByteBuffer.prototype.setPosition=function(i){this.position_=i};T.ByteBuffer.prototype.capacity=function(){return this.bytes_.length};T.ByteBuffer.prototype.readInt8=function(i){return this.readUint8(i)<<24>>24};T.ByteBuffer.prototype.readUint8=function(i){return this.bytes_[i]};T.ByteBuffer.prototype.readInt16=function(i){return this.readUint16(i)<<16>>16};T.ByteBuffer.prototype.readUint16=function(i){return this.bytes_[i]|this.bytes_[i+1]<<8};T.ByteBuffer.prototype.readInt32=function(i){return this.bytes_[i]|this.bytes_[i+1]<<8|this.bytes_[i+2]<<16|this.bytes_[i+3]<<24};T.ByteBuffer.prototype.readUint32=function(i){return this.readInt32(i)>>>0};T.ByteBuffer.prototype.readInt64=function(i){return new T.Long(this.readInt32(i),this.readInt32(i+4))};T.ByteBuffer.prototype.readUint64=function(i){return new T.Long(this.readUint32(i),this.readUint32(i+4))};T.ByteBuffer.prototype.readFloat32=function(i){return T.int32[0]=this.readInt32(i),T.float32[0]};T.ByteBuffer.prototype.readFloat64=function(i){return T.int32[T.isLittleEndian?0:1]=this.readInt32(i),T.int32[T.isLittleEndian?1:0]=this.readInt32(i+4),T.float64[0]};T.ByteBuffer.prototype.writeInt8=function(i,e){this.bytes_[i]=e};T.ByteBuffer.prototype.writeUint8=function(i,e){this.bytes_[i]=e};T.ByteBuffer.prototype.writeInt16=function(i,e){this.bytes_[i]=e,this.bytes_[i+1]=e>>8};T.ByteBuffer.prototype.writeUint16=function(i,e){this.bytes_[i]=e,this.bytes_[i+1]=e>>8};T.ByteBuffer.prototype.writeInt32=function(i,e){this.bytes_[i]=e,this.bytes_[i+1]=e>>8,this.bytes_[i+2]=e>>16,this.bytes_[i+3]=e>>24};T.ByteBuffer.prototype.writeUint32=function(i,e){this.bytes_[i]=e,this.bytes_[i+1]=e>>8,this.bytes_[i+2]=e>>16,this.bytes_[i+3]=e>>24};T.ByteBuffer.prototype.writeInt64=function(i,e){this.writeInt32(i,e.low),this.writeInt32(i+4,e.high)};T.ByteBuffer.prototype.writeUint64=function(i,e){this.writeUint32(i,e.low),this.writeUint32(i+4,e.high)};T.ByteBuffer.prototype.writeFloat32=function(i,e){T.float32[0]=e,this.writeInt32(i,T.int32[0])};T.ByteBuffer.prototype.writeFloat64=function(i,e){T.float64[0]=e,this.writeInt32(i,T.int32[T.isLittleEndian?0:1]),this.writeInt32(i+4,T.int32[T.isLittleEndian?1:0])};T.ByteBuffer.prototype.getBufferIdentifier=function(){if(this.bytes_.length<this.position_+T.SIZEOF_INT+T.FILE_IDENTIFIER_LENGTH)throw new Error("FlatBuffers: ByteBuffer is too short to contain an identifier.");for(var i="",e=0;e<T.FILE_IDENTIFIER_LENGTH;e++)i+=String.fromCharCode(this.readInt8(this.position_+T.SIZEOF_INT+e));return i};T.ByteBuffer.prototype.__offset=function(i,e){var o=i-this.readInt32(i);return e<this.readInt16(o)?this.readInt16(o+e):0};T.ByteBuffer.prototype.__union=function(i,e){return i.bb_pos=e+this.readInt32(e),i.bb=this,i};T.ByteBuffer.prototype.__string=function(i,e){i+=this.readInt32(i);var o=this.readInt32(i),t="",r=0;if(i+=T.SIZEOF_INT,e===T.Encoding.UTF8_BYTES)return this.bytes_.subarray(i,i+o);for(;r<o;){var n,s=this.readUint8(i+r++);if(s<192)n=s;else{var a=this.readUint8(i+r++);if(s<224)n=(s&31)<<6|a&63;else{var u=this.readUint8(i+r++);if(s<240)n=(s&15)<<12|(a&63)<<6|u&63;else{var l=this.readUint8(i+r++);n=(s&7)<<18|(a&63)<<12|(u&63)<<6|l&63}}}n<65536?t+=String.fromCharCode(n):(n-=65536,t+=String.fromCharCode((n>>10)+55296,(n&1024-1)+56320))}return t};T.ByteBuffer.prototype.__indirect=function(i){return i+this.readInt32(i)};T.ByteBuffer.prototype.__vector=function(i){return i+this.readInt32(i)+T.SIZEOF_INT};T.ByteBuffer.prototype.__vector_len=function(i){return this.readInt32(i+this.readInt32(i))};T.ByteBuffer.prototype.__has_identifier=function(i){if(i.length!=T.FILE_IDENTIFIER_LENGTH)throw new Error("FlatBuffers: file identifier must be length "+T.FILE_IDENTIFIER_LENGTH);for(var e=0;e<T.FILE_IDENTIFIER_LENGTH;e++)if(i.charCodeAt(e)!=this.readInt8(this.position_+T.SIZEOF_INT+e))return!1;return!0};T.ByteBuffer.prototype.createLong=function(i,e){return T.Long.create(i,e)}});var F,Pr=O(()=>{"use strict";yn();(e=>{let i;(t=>{let o;(n=>{let r;(A=>(A[A.UNDEFINED=0]="UNDEFINED",A[A.FLOAT=1]="FLOAT",A[A.INT=2]="INT",A[A.STRING=3]="STRING",A[A.TENSOR=4]="TENSOR",A[A.GRAPH=5]="GRAPH",A[A.FLOATS=6]="FLOATS",A[A.INTS=7]="INTS",A[A.STRINGS=8]="STRINGS",A[A.TENSORS=9]="TENSORS",A[A.GRAPHS=10]="GRAPHS",A[A.SPARSE_TENSOR=11]="SPARSE_TENSOR",A[A.SPARSE_TENSORS=12]="SPARSE_TENSORS"))(r=n.AttributeType||={})})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{let r;(l=>(l[l.UNKNOWN=0]="UNKNOWN",l[l.VALUE=1]="VALUE",l[l.PARAM=2]="PARAM"))(r=n.DimensionValueType||={})})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{let r;(M=>(M[M.UNDEFINED=0]="UNDEFINED",M[M.FLOAT=1]="FLOAT",M[M.UINT8=2]="UINT8",M[M.INT8=3]="INT8",M[M.UINT16=4]="UINT16",M[M.INT16=5]="INT16",M[M.INT32=6]="INT32",M[M.INT64=7]="INT64",M[M.STRING=8]="STRING",M[M.BOOL=9]="BOOL",M[M.FLOAT16=10]="FLOAT16",M[M.DOUBLE=11]="DOUBLE",M[M.UINT32=12]="UINT32",M[M.UINT64=13]="UINT64",M[M.COMPLEX64=14]="COMPLEX64",M[M.COMPLEX128=15]="COMPLEX128",M[M.BFLOAT16=16]="BFLOAT16",M[M.FLOAT8E4M3FN=17]="FLOAT8E4M3FN",M[M.FLOAT8E4M3FNUZ=18]="FLOAT8E4M3FNUZ",M[M.FLOAT8E5M2=19]="FLOAT8E5M2",M[M.FLOAT8E5M2FNUZ=20]="FLOAT8E5M2FNUZ"))(r=n.TensorDataType||={})})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{let r;(u=>(u[u.Primitive=0]="Primitive",u[u.Fused=1]="Fused"))(r=n.NodeType||={})})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{let r;(f=>(f[f.NONE=0]="NONE",f[f.tensor_type=1]="tensor_type",f[f.sequence_type=2]="sequence_type",f[f.map_type=3]="map_type"))(r=n.TypeInfoValue||={})})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsShape(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsShape(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}dim(a,u){let l=this.bb.__offset(this.bb_pos,4);return l?(u||new e.experimental.fbs.Dimension).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}dimLength(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.__vector_len(this.bb_pos+a):0}static startShape(a){a.startObject(1)}static addDim(a,u){a.addFieldOffset(0,u,0)}static createDimVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startDimVector(a,u){a.startVector(4,u,4)}static endShape(a){return a.endObject()}static createShape(a,u){return r.startShape(a),r.addDim(a,u),r.endShape(a)}}n.Shape=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsDimension(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsDimension(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}value(a){let u=this.bb.__offset(this.bb_pos,4);return u?(a||new e.experimental.fbs.DimensionValue).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}denotation(a){let u=this.bb.__offset(this.bb_pos,6);return u?this.bb.__string(this.bb_pos+u,a):null}static startDimension(a){a.startObject(2)}static addValue(a,u){a.addFieldOffset(0,u,0)}static addDenotation(a,u){a.addFieldOffset(1,u,0)}static endDimension(a){return a.endObject()}static createDimension(a,u,l){return r.startDimension(a),r.addValue(a,u),r.addDenotation(a,l),r.endDimension(a)}}n.Dimension=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsDimensionValue(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsDimensionValue(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}dimType(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.readInt8(this.bb_pos+a):0}dimValue(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.readInt64(this.bb_pos+a):this.bb.createLong(0,0)}dimParam(a){let u=this.bb.__offset(this.bb_pos,8);return u?this.bb.__string(this.bb_pos+u,a):null}static startDimensionValue(a){a.startObject(3)}static addDimType(a,u){a.addFieldInt8(0,u,0)}static addDimValue(a,u){a.addFieldInt64(1,u,a.createLong(0,0))}static addDimParam(a,u){a.addFieldOffset(2,u,0)}static endDimensionValue(a){return a.endObject()}static createDimensionValue(a,u,l,f){return r.startDimensionValue(a),r.addDimType(a,u),r.addDimValue(a,l),r.addDimParam(a,f),r.endDimensionValue(a)}}n.DimensionValue=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsTensorTypeAndShape(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsTensorTypeAndShape(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}elemType(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.readInt32(this.bb_pos+a):0}shape(a){let u=this.bb.__offset(this.bb_pos,6);return u?(a||new e.experimental.fbs.Shape).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}static startTensorTypeAndShape(a){a.startObject(2)}static addElemType(a,u){a.addFieldInt32(0,u,0)}static addShape(a,u){a.addFieldOffset(1,u,0)}static endTensorTypeAndShape(a){return a.endObject()}static createTensorTypeAndShape(a,u,l){return r.startTensorTypeAndShape(a),r.addElemType(a,u),r.addShape(a,l),r.endTensorTypeAndShape(a)}}n.TensorTypeAndShape=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsMapType(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsMapType(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}keyType(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.readInt32(this.bb_pos+a):0}valueType(a){let u=this.bb.__offset(this.bb_pos,6);return u?(a||new e.experimental.fbs.TypeInfo).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}static startMapType(a){a.startObject(2)}static addKeyType(a,u){a.addFieldInt32(0,u,0)}static addValueType(a,u){a.addFieldOffset(1,u,0)}static endMapType(a){return a.endObject()}static createMapType(a,u,l){return r.startMapType(a),r.addKeyType(a,u),r.addValueType(a,l),r.endMapType(a)}}n.MapType=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsSequenceType(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsSequenceType(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}elemType(a){let u=this.bb.__offset(this.bb_pos,4);return u?(a||new e.experimental.fbs.TypeInfo).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}static startSequenceType(a){a.startObject(1)}static addElemType(a,u){a.addFieldOffset(0,u,0)}static endSequenceType(a){return a.endObject()}static createSequenceType(a,u){return r.startSequenceType(a),r.addElemType(a,u),r.endSequenceType(a)}}n.SequenceType=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}nodeIndex(){return this.bb.readUint32(this.bb_pos)}srcArgIndex(){return this.bb.readInt32(this.bb_pos+4)}dstArgIndex(){return this.bb.readInt32(this.bb_pos+8)}static createEdgeEnd(a,u,l,f){return a.prep(4,12),a.writeInt32(f),a.writeInt32(l),a.writeInt32(u),a.offset()}}n.EdgeEnd=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsNodeEdge(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsNodeEdge(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}nodeIndex(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.readUint32(this.bb_pos+a):0}inputEdges(a,u){let l=this.bb.__offset(this.bb_pos,6);return l?(u||new e.experimental.fbs.EdgeEnd).__init(this.bb.__vector(this.bb_pos+l)+a*12,this.bb):null}inputEdgesLength(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.__vector_len(this.bb_pos+a):0}outputEdges(a,u){let l=this.bb.__offset(this.bb_pos,8);return l?(u||new e.experimental.fbs.EdgeEnd).__init(this.bb.__vector(this.bb_pos+l)+a*12,this.bb):null}outputEdgesLength(){let a=this.bb.__offset(this.bb_pos,8);return a?this.bb.__vector_len(this.bb_pos+a):0}static startNodeEdge(a){a.startObject(3)}static addNodeIndex(a,u){a.addFieldInt32(0,u,0)}static addInputEdges(a,u){a.addFieldOffset(1,u,0)}static startInputEdgesVector(a,u){a.startVector(12,u,4)}static addOutputEdges(a,u){a.addFieldOffset(2,u,0)}static startOutputEdgesVector(a,u){a.startVector(12,u,4)}static endNodeEdge(a){return a.endObject()}static createNodeEdge(a,u,l,f){return r.startNodeEdge(a),r.addNodeIndex(a,u),r.addInputEdges(a,l),r.addOutputEdges(a,f),r.endNodeEdge(a)}}n.NodeEdge=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsNode(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsNode(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}name(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}docString(a){let u=this.bb.__offset(this.bb_pos,6);return u?this.bb.__string(this.bb_pos+u,a):null}domain(a){let u=this.bb.__offset(this.bb_pos,8);return u?this.bb.__string(this.bb_pos+u,a):null}sinceVersion(){let a=this.bb.__offset(this.bb_pos,10);return a?this.bb.readInt32(this.bb_pos+a):0}index(){let a=this.bb.__offset(this.bb_pos,12);return a?this.bb.readUint32(this.bb_pos+a):0}opType(a){let u=this.bb.__offset(this.bb_pos,14);return u?this.bb.__string(this.bb_pos+u,a):null}type(){let a=this.bb.__offset(this.bb_pos,16);return a?this.bb.readInt32(this.bb_pos+a):0}executionProviderType(a){let u=this.bb.__offset(this.bb_pos,18);return u?this.bb.__string(this.bb_pos+u,a):null}inputs(a,u){let l=this.bb.__offset(this.bb_pos,20);return l?this.bb.__string(this.bb.__vector(this.bb_pos+l)+a*4,u):null}inputsLength(){let a=this.bb.__offset(this.bb_pos,20);return a?this.bb.__vector_len(this.bb_pos+a):0}outputs(a,u){let l=this.bb.__offset(this.bb_pos,22);return l?this.bb.__string(this.bb.__vector(this.bb_pos+l)+a*4,u):null}outputsLength(){let a=this.bb.__offset(this.bb_pos,22);return a?this.bb.__vector_len(this.bb_pos+a):0}attributes(a,u){let l=this.bb.__offset(this.bb_pos,24);return l?(u||new e.experimental.fbs.Attribute).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}attributesLength(){let a=this.bb.__offset(this.bb_pos,24);return a?this.bb.__vector_len(this.bb_pos+a):0}inputArgCounts(a){let u=this.bb.__offset(this.bb_pos,26);return u?this.bb.readInt32(this.bb.__vector(this.bb_pos+u)+a*4):0}inputArgCountsLength(){let a=this.bb.__offset(this.bb_pos,26);return a?this.bb.__vector_len(this.bb_pos+a):0}inputArgCountsArray(){let a=this.bb.__offset(this.bb_pos,26);return a?new Int32Array(this.bb.bytes().buffer,this.bb.bytes().byteOffset+this.bb.__vector(this.bb_pos+a),this.bb.__vector_len(this.bb_pos+a)):null}implicitInputs(a,u){let l=this.bb.__offset(this.bb_pos,28);return l?this.bb.__string(this.bb.__vector(this.bb_pos+l)+a*4,u):null}implicitInputsLength(){let a=this.bb.__offset(this.bb_pos,28);return a?this.bb.__vector_len(this.bb_pos+a):0}static startNode(a){a.startObject(13)}static addName(a,u){a.addFieldOffset(0,u,0)}static addDocString(a,u){a.addFieldOffset(1,u,0)}static addDomain(a,u){a.addFieldOffset(2,u,0)}static addSinceVersion(a,u){a.addFieldInt32(3,u,0)}static addIndex(a,u){a.addFieldInt32(4,u,0)}static addOpType(a,u){a.addFieldOffset(5,u,0)}static addType(a,u){a.addFieldInt32(6,u,0)}static addExecutionProviderType(a,u){a.addFieldOffset(7,u,0)}static addInputs(a,u){a.addFieldOffset(8,u,0)}static createInputsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startInputsVector(a,u){a.startVector(4,u,4)}static addOutputs(a,u){a.addFieldOffset(9,u,0)}static createOutputsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startOutputsVector(a,u){a.startVector(4,u,4)}static addAttributes(a,u){a.addFieldOffset(10,u,0)}static createAttributesVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startAttributesVector(a,u){a.startVector(4,u,4)}static addInputArgCounts(a,u){a.addFieldOffset(11,u,0)}static createInputArgCountsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addInt32(u[l]);return a.endVector()}static startInputArgCountsVector(a,u){a.startVector(4,u,4)}static addImplicitInputs(a,u){a.addFieldOffset(12,u,0)}static createImplicitInputsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startImplicitInputsVector(a,u){a.startVector(4,u,4)}static endNode(a){return a.endObject()}static createNode(a,u,l,f,p,d,y,w,v,S,D,P,A,G){return r.startNode(a),r.addName(a,u),r.addDocString(a,l),r.addDomain(a,f),r.addSinceVersion(a,p),r.addIndex(a,d),r.addOpType(a,y),r.addType(a,w),r.addExecutionProviderType(a,v),r.addInputs(a,S),r.addOutputs(a,D),r.addAttributes(a,P),r.addInputArgCounts(a,A),r.addImplicitInputs(a,G),r.endNode(a)}}n.Node=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsValueInfo(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsValueInfo(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}name(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}docString(a){let u=this.bb.__offset(this.bb_pos,6);return u?this.bb.__string(this.bb_pos+u,a):null}type(a){let u=this.bb.__offset(this.bb_pos,8);return u?(a||new e.experimental.fbs.TypeInfo).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}static startValueInfo(a){a.startObject(3)}static addName(a,u){a.addFieldOffset(0,u,0)}static addDocString(a,u){a.addFieldOffset(1,u,0)}static addType(a,u){a.addFieldOffset(2,u,0)}static endValueInfo(a){return a.endObject()}static createValueInfo(a,u,l,f){return r.startValueInfo(a),r.addName(a,u),r.addDocString(a,l),r.addType(a,f),r.endValueInfo(a)}}n.ValueInfo=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsTypeInfo(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsTypeInfo(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}denotation(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}valueType(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.readUint8(this.bb_pos+a):0}value(a){let u=this.bb.__offset(this.bb_pos,8);return u?this.bb.__union(a,this.bb_pos+u):null}static startTypeInfo(a){a.startObject(3)}static addDenotation(a,u){a.addFieldOffset(0,u,0)}static addValueType(a,u){a.addFieldInt8(1,u,0)}static addValue(a,u){a.addFieldOffset(2,u,0)}static endTypeInfo(a){return a.endObject()}static createTypeInfo(a,u,l,f){return r.startTypeInfo(a),r.addDenotation(a,u),r.addValueType(a,l),r.addValue(a,f),r.endTypeInfo(a)}}n.TypeInfo=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsOperatorSetId(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsOperatorSetId(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}domain(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}version(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.readInt64(this.bb_pos+a):this.bb.createLong(0,0)}static startOperatorSetId(a){a.startObject(2)}static addDomain(a,u){a.addFieldOffset(0,u,0)}static addVersion(a,u){a.addFieldInt64(1,u,a.createLong(0,0))}static endOperatorSetId(a){return a.endObject()}static createOperatorSetId(a,u,l){return r.startOperatorSetId(a),r.addDomain(a,u),r.addVersion(a,l),r.endOperatorSetId(a)}}n.OperatorSetId=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsTensor(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsTensor(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}name(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}docString(a){let u=this.bb.__offset(this.bb_pos,6);return u?this.bb.__string(this.bb_pos+u,a):null}dims(a){let u=this.bb.__offset(this.bb_pos,8);return u?this.bb.readInt64(this.bb.__vector(this.bb_pos+u)+a*8):this.bb.createLong(0,0)}dimsLength(){let a=this.bb.__offset(this.bb_pos,8);return a?this.bb.__vector_len(this.bb_pos+a):0}dataType(){let a=this.bb.__offset(this.bb_pos,10);return a?this.bb.readInt32(this.bb_pos+a):0}rawData(a){let u=this.bb.__offset(this.bb_pos,12);return u?this.bb.readUint8(this.bb.__vector(this.bb_pos+u)+a):0}rawDataLength(){let a=this.bb.__offset(this.bb_pos,12);return a?this.bb.__vector_len(this.bb_pos+a):0}rawDataArray(){let a=this.bb.__offset(this.bb_pos,12);return a?new Uint8Array(this.bb.bytes().buffer,this.bb.bytes().byteOffset+this.bb.__vector(this.bb_pos+a),this.bb.__vector_len(this.bb_pos+a)):null}stringData(a,u){let l=this.bb.__offset(this.bb_pos,14);return l?this.bb.__string(this.bb.__vector(this.bb_pos+l)+a*4,u):null}stringDataLength(){let a=this.bb.__offset(this.bb_pos,14);return a?this.bb.__vector_len(this.bb_pos+a):0}static startTensor(a){a.startObject(6)}static addName(a,u){a.addFieldOffset(0,u,0)}static addDocString(a,u){a.addFieldOffset(1,u,0)}static addDims(a,u){a.addFieldOffset(2,u,0)}static createDimsVector(a,u){a.startVector(8,u.length,8);for(let l=u.length-1;l>=0;l--)a.addInt64(u[l]);return a.endVector()}static startDimsVector(a,u){a.startVector(8,u,8)}static addDataType(a,u){a.addFieldInt32(3,u,0)}static addRawData(a,u){a.addFieldOffset(4,u,0)}static createRawDataVector(a,u){a.startVector(1,u.length,1);for(let l=u.length-1;l>=0;l--)a.addInt8(u[l]);return a.endVector()}static startRawDataVector(a,u){a.startVector(1,u,1)}static addStringData(a,u){a.addFieldOffset(5,u,0)}static createStringDataVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startStringDataVector(a,u){a.startVector(4,u,4)}static endTensor(a){return a.endObject()}static createTensor(a,u,l,f,p,d,y){return r.startTensor(a),r.addName(a,u),r.addDocString(a,l),r.addDims(a,f),r.addDataType(a,p),r.addRawData(a,d),r.addStringData(a,y),r.endTensor(a)}}n.Tensor=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsSparseTensor(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsSparseTensor(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}values(a){let u=this.bb.__offset(this.bb_pos,4);return u?(a||new e.experimental.fbs.Tensor).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}indices(a){let u=this.bb.__offset(this.bb_pos,6);return u?(a||new e.experimental.fbs.Tensor).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}dims(a){let u=this.bb.__offset(this.bb_pos,8);return u?this.bb.readInt64(this.bb.__vector(this.bb_pos+u)+a*8):this.bb.createLong(0,0)}dimsLength(){let a=this.bb.__offset(this.bb_pos,8);return a?this.bb.__vector_len(this.bb_pos+a):0}static startSparseTensor(a){a.startObject(3)}static addValues(a,u){a.addFieldOffset(0,u,0)}static addIndices(a,u){a.addFieldOffset(1,u,0)}static addDims(a,u){a.addFieldOffset(2,u,0)}static createDimsVector(a,u){a.startVector(8,u.length,8);for(let l=u.length-1;l>=0;l--)a.addInt64(u[l]);return a.endVector()}static startDimsVector(a,u){a.startVector(8,u,8)}static endSparseTensor(a){return a.endObject()}static createSparseTensor(a,u,l,f){return r.startSparseTensor(a),r.addValues(a,u),r.addIndices(a,l),r.addDims(a,f),r.endSparseTensor(a)}}n.SparseTensor=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsAttribute(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsAttribute(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}name(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}docString(a){let u=this.bb.__offset(this.bb_pos,6);return u?this.bb.__string(this.bb_pos+u,a):null}type(){let a=this.bb.__offset(this.bb_pos,8);return a?this.bb.readInt32(this.bb_pos+a):0}f(){let a=this.bb.__offset(this.bb_pos,10);return a?this.bb.readFloat32(this.bb_pos+a):0}i(){let a=this.bb.__offset(this.bb_pos,12);return a?this.bb.readInt64(this.bb_pos+a):this.bb.createLong(0,0)}s(a){let u=this.bb.__offset(this.bb_pos,14);return u?this.bb.__string(this.bb_pos+u,a):null}t(a){let u=this.bb.__offset(this.bb_pos,16);return u?(a||new e.experimental.fbs.Tensor).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}g(a){let u=this.bb.__offset(this.bb_pos,18);return u?(a||new e.experimental.fbs.Graph).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}floats(a){let u=this.bb.__offset(this.bb_pos,20);return u?this.bb.readFloat32(this.bb.__vector(this.bb_pos+u)+a*4):0}floatsLength(){let a=this.bb.__offset(this.bb_pos,20);return a?this.bb.__vector_len(this.bb_pos+a):0}floatsArray(){let a=this.bb.__offset(this.bb_pos,20);return a?new Float32Array(this.bb.bytes().buffer,this.bb.bytes().byteOffset+this.bb.__vector(this.bb_pos+a),this.bb.__vector_len(this.bb_pos+a)):null}ints(a){let u=this.bb.__offset(this.bb_pos,22);return u?this.bb.readInt64(this.bb.__vector(this.bb_pos+u)+a*8):this.bb.createLong(0,0)}intsLength(){let a=this.bb.__offset(this.bb_pos,22);return a?this.bb.__vector_len(this.bb_pos+a):0}strings(a,u){let l=this.bb.__offset(this.bb_pos,24);return l?this.bb.__string(this.bb.__vector(this.bb_pos+l)+a*4,u):null}stringsLength(){let a=this.bb.__offset(this.bb_pos,24);return a?this.bb.__vector_len(this.bb_pos+a):0}tensors(a,u){let l=this.bb.__offset(this.bb_pos,26);return l?(u||new e.experimental.fbs.Tensor).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}tensorsLength(){let a=this.bb.__offset(this.bb_pos,26);return a?this.bb.__vector_len(this.bb_pos+a):0}graphs(a,u){let l=this.bb.__offset(this.bb_pos,28);return l?(u||new e.experimental.fbs.Graph).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}graphsLength(){let a=this.bb.__offset(this.bb_pos,28);return a?this.bb.__vector_len(this.bb_pos+a):0}static startAttribute(a){a.startObject(13)}static addName(a,u){a.addFieldOffset(0,u,0)}static addDocString(a,u){a.addFieldOffset(1,u,0)}static addType(a,u){a.addFieldInt32(2,u,0)}static addF(a,u){a.addFieldFloat32(3,u,0)}static addI(a,u){a.addFieldInt64(4,u,a.createLong(0,0))}static addS(a,u){a.addFieldOffset(5,u,0)}static addT(a,u){a.addFieldOffset(6,u,0)}static addG(a,u){a.addFieldOffset(7,u,0)}static addFloats(a,u){a.addFieldOffset(8,u,0)}static createFloatsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addFloat32(u[l]);return a.endVector()}static startFloatsVector(a,u){a.startVector(4,u,4)}static addInts(a,u){a.addFieldOffset(9,u,0)}static createIntsVector(a,u){a.startVector(8,u.length,8);for(let l=u.length-1;l>=0;l--)a.addInt64(u[l]);return a.endVector()}static startIntsVector(a,u){a.startVector(8,u,8)}static addStrings(a,u){a.addFieldOffset(10,u,0)}static createStringsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startStringsVector(a,u){a.startVector(4,u,4)}static addTensors(a,u){a.addFieldOffset(11,u,0)}static createTensorsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startTensorsVector(a,u){a.startVector(4,u,4)}static addGraphs(a,u){a.addFieldOffset(12,u,0)}static createGraphsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startGraphsVector(a,u){a.startVector(4,u,4)}static endAttribute(a){return a.endObject()}static createAttribute(a,u,l,f,p,d,y,w,v,S,D,P,A,G){return r.startAttribute(a),r.addName(a,u),r.addDocString(a,l),r.addType(a,f),r.addF(a,p),r.addI(a,d),r.addS(a,y),r.addT(a,w),r.addG(a,v),r.addFloats(a,S),r.addInts(a,D),r.addStrings(a,P),r.addTensors(a,A),r.addGraphs(a,G),r.endAttribute(a)}}n.Attribute=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsGraph(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsGraph(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}initializers(a,u){let l=this.bb.__offset(this.bb_pos,4);return l?(u||new e.experimental.fbs.Tensor).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}initializersLength(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.__vector_len(this.bb_pos+a):0}nodeArgs(a,u){let l=this.bb.__offset(this.bb_pos,6);return l?(u||new e.experimental.fbs.ValueInfo).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}nodeArgsLength(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.__vector_len(this.bb_pos+a):0}nodes(a,u){let l=this.bb.__offset(this.bb_pos,8);return l?(u||new e.experimental.fbs.Node).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}nodesLength(){let a=this.bb.__offset(this.bb_pos,8);return a?this.bb.__vector_len(this.bb_pos+a):0}maxNodeIndex(){let a=this.bb.__offset(this.bb_pos,10);return a?this.bb.readUint32(this.bb_pos+a):0}nodeEdges(a,u){let l=this.bb.__offset(this.bb_pos,12);return l?(u||new e.experimental.fbs.NodeEdge).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}nodeEdgesLength(){let a=this.bb.__offset(this.bb_pos,12);return a?this.bb.__vector_len(this.bb_pos+a):0}inputs(a,u){let l=this.bb.__offset(this.bb_pos,14);return l?this.bb.__string(this.bb.__vector(this.bb_pos+l)+a*4,u):null}inputsLength(){let a=this.bb.__offset(this.bb_pos,14);return a?this.bb.__vector_len(this.bb_pos+a):0}outputs(a,u){let l=this.bb.__offset(this.bb_pos,16);return l?this.bb.__string(this.bb.__vector(this.bb_pos+l)+a*4,u):null}outputsLength(){let a=this.bb.__offset(this.bb_pos,16);return a?this.bb.__vector_len(this.bb_pos+a):0}sparseInitializers(a,u){let l=this.bb.__offset(this.bb_pos,18);return l?(u||new e.experimental.fbs.SparseTensor).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}sparseInitializersLength(){let a=this.bb.__offset(this.bb_pos,18);return a?this.bb.__vector_len(this.bb_pos+a):0}static startGraph(a){a.startObject(8)}static addInitializers(a,u){a.addFieldOffset(0,u,0)}static createInitializersVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startInitializersVector(a,u){a.startVector(4,u,4)}static addNodeArgs(a,u){a.addFieldOffset(1,u,0)}static createNodeArgsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startNodeArgsVector(a,u){a.startVector(4,u,4)}static addNodes(a,u){a.addFieldOffset(2,u,0)}static createNodesVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startNodesVector(a,u){a.startVector(4,u,4)}static addMaxNodeIndex(a,u){a.addFieldInt32(3,u,0)}static addNodeEdges(a,u){a.addFieldOffset(4,u,0)}static createNodeEdgesVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startNodeEdgesVector(a,u){a.startVector(4,u,4)}static addInputs(a,u){a.addFieldOffset(5,u,0)}static createInputsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startInputsVector(a,u){a.startVector(4,u,4)}static addOutputs(a,u){a.addFieldOffset(6,u,0)}static createOutputsVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startOutputsVector(a,u){a.startVector(4,u,4)}static addSparseInitializers(a,u){a.addFieldOffset(7,u,0)}static createSparseInitializersVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startSparseInitializersVector(a,u){a.startVector(4,u,4)}static endGraph(a){return a.endObject()}static createGraph(a,u,l,f,p,d,y,w,v){return r.startGraph(a),r.addInitializers(a,u),r.addNodeArgs(a,l),r.addNodes(a,f),r.addMaxNodeIndex(a,p),r.addNodeEdges(a,d),r.addInputs(a,y),r.addOutputs(a,w),r.addSparseInitializers(a,v),r.endGraph(a)}}n.Graph=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsModel(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsModel(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}irVersion(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.readInt64(this.bb_pos+a):this.bb.createLong(0,0)}opsetImport(a,u){let l=this.bb.__offset(this.bb_pos,6);return l?(u||new e.experimental.fbs.OperatorSetId).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}opsetImportLength(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.__vector_len(this.bb_pos+a):0}producerName(a){let u=this.bb.__offset(this.bb_pos,8);return u?this.bb.__string(this.bb_pos+u,a):null}producerVersion(a){let u=this.bb.__offset(this.bb_pos,10);return u?this.bb.__string(this.bb_pos+u,a):null}domain(a){let u=this.bb.__offset(this.bb_pos,12);return u?this.bb.__string(this.bb_pos+u,a):null}modelVersion(){let a=this.bb.__offset(this.bb_pos,14);return a?this.bb.readInt64(this.bb_pos+a):this.bb.createLong(0,0)}docString(a){let u=this.bb.__offset(this.bb_pos,16);return u?this.bb.__string(this.bb_pos+u,a):null}graph(a){let u=this.bb.__offset(this.bb_pos,18);return u?(a||new e.experimental.fbs.Graph).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}graphDocString(a){let u=this.bb.__offset(this.bb_pos,20);return u?this.bb.__string(this.bb_pos+u,a):null}static startModel(a){a.startObject(9)}static addIrVersion(a,u){a.addFieldInt64(0,u,a.createLong(0,0))}static addOpsetImport(a,u){a.addFieldOffset(1,u,0)}static createOpsetImportVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startOpsetImportVector(a,u){a.startVector(4,u,4)}static addProducerName(a,u){a.addFieldOffset(2,u,0)}static addProducerVersion(a,u){a.addFieldOffset(3,u,0)}static addDomain(a,u){a.addFieldOffset(4,u,0)}static addModelVersion(a,u){a.addFieldInt64(5,u,a.createLong(0,0))}static addDocString(a,u){a.addFieldOffset(6,u,0)}static addGraph(a,u){a.addFieldOffset(7,u,0)}static addGraphDocString(a,u){a.addFieldOffset(8,u,0)}static endModel(a){return a.endObject()}static createModel(a,u,l,f,p,d,y,w,v,S){return r.startModel(a),r.addIrVersion(a,u),r.addOpsetImport(a,l),r.addProducerName(a,f),r.addProducerVersion(a,p),r.addDomain(a,d),r.addModelVersion(a,y),r.addDocString(a,w),r.addGraph(a,v),r.addGraphDocString(a,S),r.endModel(a)}}n.Model=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsKernelCreateInfos(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsKernelCreateInfos(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}nodeIndices(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.readUint32(this.bb.__vector(this.bb_pos+u)+a*4):0}nodeIndicesLength(){let a=this.bb.__offset(this.bb_pos,4);return a?this.bb.__vector_len(this.bb_pos+a):0}nodeIndicesArray(){let a=this.bb.__offset(this.bb_pos,4);return a?new Uint32Array(this.bb.bytes().buffer,this.bb.bytes().byteOffset+this.bb.__vector(this.bb_pos+a),this.bb.__vector_len(this.bb_pos+a)):null}kernelDefHashes(a){let u=this.bb.__offset(this.bb_pos,6);return u?this.bb.readUint64(this.bb.__vector(this.bb_pos+u)+a*8):this.bb.createLong(0,0)}kernelDefHashesLength(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.__vector_len(this.bb_pos+a):0}static startKernelCreateInfos(a){a.startObject(2)}static addNodeIndices(a,u){a.addFieldOffset(0,u,0)}static createNodeIndicesVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addInt32(u[l]);return a.endVector()}static startNodeIndicesVector(a,u){a.startVector(4,u,4)}static addKernelDefHashes(a,u){a.addFieldOffset(1,u,0)}static createKernelDefHashesVector(a,u){a.startVector(8,u.length,8);for(let l=u.length-1;l>=0;l--)a.addInt64(u[l]);return a.endVector()}static startKernelDefHashesVector(a,u){a.startVector(8,u,8)}static endKernelCreateInfos(a){return a.endObject()}static createKernelCreateInfos(a,u,l){return r.startKernelCreateInfos(a),r.addNodeIndices(a,u),r.addKernelDefHashes(a,l),r.endKernelCreateInfos(a)}}n.KernelCreateInfos=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsSubGraphSessionState(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsSubGraphSessionState(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}graphId(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}sessionState(a){let u=this.bb.__offset(this.bb_pos,6);return u?(a||new e.experimental.fbs.SessionState).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}static startSubGraphSessionState(a){a.startObject(2)}static addGraphId(a,u){a.addFieldOffset(0,u,0)}static addSessionState(a,u){a.addFieldOffset(1,u,0)}static endSubGraphSessionState(a){let u=a.endObject();return a.requiredField(u,4),u}static createSubGraphSessionState(a,u,l){return r.startSubGraphSessionState(a),r.addGraphId(a,u),r.addSessionState(a,l),r.endSubGraphSessionState(a)}}n.SubGraphSessionState=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsSessionState(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsSessionState(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}kernels(a){let u=this.bb.__offset(this.bb_pos,4);return u?(a||new e.experimental.fbs.KernelCreateInfos).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}subGraphSessionStates(a,u){let l=this.bb.__offset(this.bb_pos,6);return l?(u||new e.experimental.fbs.SubGraphSessionState).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos+l)+a*4),this.bb):null}subGraphSessionStatesLength(){let a=this.bb.__offset(this.bb_pos,6);return a?this.bb.__vector_len(this.bb_pos+a):0}static startSessionState(a){a.startObject(2)}static addKernels(a,u){a.addFieldOffset(0,u,0)}static addSubGraphSessionStates(a,u){a.addFieldOffset(1,u,0)}static createSubGraphSessionStatesVector(a,u){a.startVector(4,u.length,4);for(let l=u.length-1;l>=0;l--)a.addOffset(u[l]);return a.endVector()}static startSubGraphSessionStatesVector(a,u){a.startVector(4,u,4)}static endSessionState(a){return a.endObject()}static createSessionState(a,u,l){return r.startSessionState(a),r.addKernels(a,u),r.addSubGraphSessionStates(a,l),r.endSessionState(a)}}n.SessionState=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={});(e=>{let i;(t=>{let o;(n=>{class r{constructor(){this.bb=null;this.bb_pos=0}__init(a,u){return this.bb_pos=a,this.bb=u,this}static getRootAsInferenceSession(a,u){return(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static getSizePrefixedRootAsInferenceSession(a,u){return a.setPosition(a.position()+T.SIZE_PREFIX_LENGTH),(u||new r).__init(a.readInt32(a.position())+a.position(),a)}static bufferHasIdentifier(a){return a.__has_identifier("ORTM")}ortVersion(a){let u=this.bb.__offset(this.bb_pos,4);return u?this.bb.__string(this.bb_pos+u,a):null}model(a){let u=this.bb.__offset(this.bb_pos,6);return u?(a||new e.experimental.fbs.Model).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}sessionState(a){let u=this.bb.__offset(this.bb_pos,8);return u?(a||new e.experimental.fbs.SessionState).__init(this.bb.__indirect(this.bb_pos+u),this.bb):null}static startInferenceSession(a){a.startObject(3)}static addOrtVersion(a,u){a.addFieldOffset(0,u,0)}static addModel(a,u){a.addFieldOffset(1,u,0)}static addSessionState(a,u){a.addFieldOffset(2,u,0)}static endInferenceSession(a){return a.endObject()}static finishInferenceSessionBuffer(a,u){a.finish(u,"ORTM")}static finishSizePrefixedInferenceSessionBuffer(a,u){a.finish(u,"ORTM",!0)}static createInferenceSession(a,u,l,f){return r.startInferenceSession(a),r.addOrtVersion(a,u),r.addModel(a,l),r.addSessionState(a,f),r.endInferenceSession(a)}}n.InferenceSession=r})(o=t.fbs||={})})(i=e.experimental||={})})(F||={})});var Ws=mt((Ry,zs)=>{"use strict";zs.exports=th;function th(i,e){for(var o=new Array(arguments.length-1),t=0,r=2,n=!0;r<arguments.length;)o[t++]=arguments[r++];return new Promise(function(a,u){o[t]=function(f){if(n)if(n=!1,f)u(f);else{for(var p=new Array(arguments.length-1),d=0;d<p.length;)p[d++]=arguments[d];a.apply(null,p)}};try{i.apply(e||null,o)}catch(l){n&&(n=!1,u(l))}})}});var Xs=mt(js=>{"use strict";var xn=js;xn.length=function(e){var o=e.length;if(!o)return 0;for(var t=0;--o%4>1&&e.charAt(o)==="=";)++t;return Math.ceil(e.length*3)/4-t};var nr=new Array(64),qs=new Array(123);for(ee=0;ee<64;)qs[nr[ee]=ee<26?ee+65:ee<52?ee+71:ee<62?ee-4:ee-59|43]=ee++;var ee;xn.encode=function(e,o,t){for(var r=null,n=[],s=0,a=0,u;o<t;){var l=e[o++];switch(a){case 0:n[s++]=nr[l>>2],u=(l&3)<<4,a=1;break;case 1:n[s++]=nr[u|l>>4],u=(l&15)<<2,a=2;break;case 2:n[s++]=nr[u|l>>6],n[s++]=nr[l&63],a=0;break}s>8191&&((r||(r=[])).push(String.fromCharCode.apply(String,n)),s=0)}return a&&(n[s++]=nr[u],n[s++]=61,a===1&&(n[s++]=61)),r?(s&&r.push(String.fromCharCode.apply(String,n.slice(0,s))),r.join("")):String.fromCharCode.apply(String,n.slice(0,s))};var Hs="invalid encoding";xn.decode=function(e,o,t){for(var r=t,n=0,s,a=0;a<e.length;){var u=e.charCodeAt(a++);if(u===61&&n>1)break;if((u=qs[u])===void 0)throw Error(Hs);switch(n){case 0:s=u,n=1;break;case 1:o[t++]=s<<2|(u&48)>>4,s=u,n=2;break;case 2:o[t++]=(s&15)<<4|(u&60)>>2,s=u,n=3;break;case 3:o[t++]=(s&3)<<6|u,n=0;break}}if(n===1)throw Error(Hs);return t-r};xn.test=function(e){return/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(e)}});var Js=mt((My,Ks)=>{"use strict";Ks.exports=Tn;function Tn(){this._listeners={}}Tn.prototype.on=function(e,o,t){return(this._listeners[e]||(this._listeners[e]=[])).push({fn:o,ctx:t||this}),this};Tn.prototype.off=function(e,o){if(e===void 0)this._listeners={};else if(o===void 0)this._listeners[e]=[];else for(var t=this._listeners[e],r=0;r<t.length;)t[r].fn===o?t.splice(r,1):++r;return this};Tn.prototype.emit=function(e){var o=this._listeners[e];if(o){for(var t=[],r=1;r<arguments.length;)t.push(arguments[r++]);for(r=0;r<o.length;)o[r].fn.apply(o[r++].ctx,t)}return this}});var nu=mt((Uy,ru)=>{"use strict";ru.exports=Ys(Ys);function Ys(i){return typeof Float32Array<"u"?function(){var e=new Float32Array([-0]),o=new Uint8Array(e.buffer),t=o[3]===128;function r(u,l,f){e[0]=u,l[f]=o[0],l[f+1]=o[1],l[f+2]=o[2],l[f+3]=o[3]}function n(u,l,f){e[0]=u,l[f]=o[3],l[f+1]=o[2],l[f+2]=o[1],l[f+3]=o[0]}i.writeFloatLE=t?r:n,i.writeFloatBE=t?n:r;function s(u,l){return o[0]=u[l],o[1]=u[l+1],o[2]=u[l+2],o[3]=u[l+3],e[0]}function a(u,l){return o[3]=u[l],o[2]=u[l+1],o[1]=u[l+2],o[0]=u[l+3],e[0]}i.readFloatLE=t?s:a,i.readFloatBE=t?a:s}():function(){function e(t,r,n,s){var a=r<0?1:0;if(a&&(r=-r),r===0)t(1/r>0?0:2147483648,n,s);else if(isNaN(r))t(2143289344,n,s);else if(r>34028234663852886e22)t((a<<31|2139095040)>>>0,n,s);else if(r<11754943508222875e-54)t((a<<31|Math.round(r/1401298464324817e-60))>>>0,n,s);else{var u=Math.floor(Math.log(r)/Math.LN2),l=Math.round(r*Math.pow(2,-u)*8388608)&8388607;t((a<<31|u+127<<23|l)>>>0,n,s)}}i.writeFloatLE=e.bind(null,Zs),i.writeFloatBE=e.bind(null,Qs);function o(t,r,n){var s=t(r,n),a=(s>>31)*2+1,u=s>>>23&255,l=s&8388607;return u===255?l?NaN:a*(1/0):u===0?a*1401298464324817e-60*l:a*Math.pow(2,u-150)*(l+8388608)}i.readFloatLE=o.bind(null,tu),i.readFloatBE=o.bind(null,eu)}(),typeof Float64Array<"u"?function(){var e=new Float64Array([-0]),o=new Uint8Array(e.buffer),t=o[7]===128;function r(u,l,f){e[0]=u,l[f]=o[0],l[f+1]=o[1],l[f+2]=o[2],l[f+3]=o[3],l[f+4]=o[4],l[f+5]=o[5],l[f+6]=o[6],l[f+7]=o[7]}function n(u,l,f){e[0]=u,l[f]=o[7],l[f+1]=o[6],l[f+2]=o[5],l[f+3]=o[4],l[f+4]=o[3],l[f+5]=o[2],l[f+6]=o[1],l[f+7]=o[0]}i.writeDoubleLE=t?r:n,i.writeDoubleBE=t?n:r;function s(u,l){return o[0]=u[l],o[1]=u[l+1],o[2]=u[l+2],o[3]=u[l+3],o[4]=u[l+4],o[5]=u[l+5],o[6]=u[l+6],o[7]=u[l+7],e[0]}function a(u,l){return o[7]=u[l],o[6]=u[l+1],o[5]=u[l+2],o[4]=u[l+3],o[3]=u[l+4],o[2]=u[l+5],o[1]=u[l+6],o[0]=u[l+7],e[0]}i.readDoubleLE=t?s:a,i.readDoubleBE=t?a:s}():function(){function e(t,r,n,s,a,u){var l=s<0?1:0;if(l&&(s=-s),s===0)t(0,a,u+r),t(1/s>0?0:2147483648,a,u+n);else if(isNaN(s))t(0,a,u+r),t(2146959360,a,u+n);else if(s>17976931348623157e292)t(0,a,u+r),t((l<<31|2146435072)>>>0,a,u+n);else{var f;if(s<22250738585072014e-324)f=s/5e-324,t(f>>>0,a,u+r),t((l<<31|f/4294967296)>>>0,a,u+n);else{var p=Math.floor(Math.log(s)/Math.LN2);p===1024&&(p=1023),f=s*Math.pow(2,-p),t(f*4503599627370496>>>0,a,u+r),t((l<<31|p+1023<<20|f*1048576&1048575)>>>0,a,u+n)}}}i.writeDoubleLE=e.bind(null,Zs,0,4),i.writeDoubleBE=e.bind(null,Qs,4,0);function o(t,r,n,s,a){var u=t(s,a+r),l=t(s,a+n),f=(l>>31)*2+1,p=l>>>20&2047,d=4294967296*(l&1048575)+u;return p===2047?d?NaN:f*(1/0):p===0?f*5e-324*d:f*Math.pow(2,p-1075)*(d+4503599627370496)}i.readDoubleLE=o.bind(null,tu,0,4),i.readDoubleBE=o.bind(null,eu,4,0)}(),i}function Zs(i,e,o){e[o]=i&255,e[o+1]=i>>>8&255,e[o+2]=i>>>16&255,e[o+3]=i>>>24}function Qs(i,e,o){e[o]=i>>>24,e[o+1]=i>>>16&255,e[o+2]=i>>>8&255,e[o+3]=i&255}function tu(i,e){return(i[e]|i[e+1]<<8|i[e+2]<<16|i[e+3]<<24)>>>0}function eu(i,e){return(i[e]<<24|i[e+1]<<16|i[e+2]<<8|i[e+3])>>>0}});var ou=mt((exports,module)=>{"use strict";module.exports=inquire;function inquire(moduleName){try{var mod=eval("quire".replace(/^/,"re"))(moduleName);if(mod&&(mod.length||Object.keys(mod).length))return mod}catch(i){}return null}});var au=mt(iu=>{"use strict";var Vo=iu;Vo.length=function(e){for(var o=0,t=0,r=0;r<e.length;++r)t=e.charCodeAt(r),t<128?o+=1:t<2048?o+=2:(t&64512)===55296&&(e.charCodeAt(r+1)&64512)===56320?(++r,o+=4):o+=3;return o};Vo.read=function(e,o,t){var r=t-o;if(r<1)return"";for(var n=null,s=[],a=0,u;o<t;)u=e[o++],u<128?s[a++]=u:u>191&&u<224?s[a++]=(u&31)<<6|e[o++]&63:u>239&&u<365?(u=((u&7)<<18|(e[o++]&63)<<12|(e[o++]&63)<<6|e[o++]&63)-65536,s[a++]=55296+(u>>10),s[a++]=56320+(u&1023)):s[a++]=(u&15)<<12|(e[o++]&63)<<6|e[o++]&63,a>8191&&((n||(n=[])).push(String.fromCharCode.apply(String,s)),a=0);return n?(a&&n.push(String.fromCharCode.apply(String,s.slice(0,a))),n.join("")):String.fromCharCode.apply(String,s.slice(0,a))};Vo.write=function(e,o,t){for(var r=t,n,s,a=0;a<e.length;++a)n=e.charCodeAt(a),n<128?o[t++]=n:n<2048?(o[t++]=n>>6|192,o[t++]=n&63|128):(n&64512)===55296&&((s=e.charCodeAt(a+1))&64512)===56320?(n=65536+((n&1023)<<10)+(s&1023),++a,o[t++]=n>>18|240,o[t++]=n>>12&63|128,o[t++]=n>>6&63|128,o[t++]=n&63|128):(o[t++]=n>>12|224,o[t++]=n>>6&63|128,o[t++]=n&63|128);return t-r}});var uu=mt((zy,su)=>{"use strict";su.exports=eh;function eh(i,e,o){var t=o||8192,r=t>>>1,n=null,s=t;return function(u){if(u<1||u>r)return i(u);s+u>t&&(n=i(t),s=0);var l=e.call(n,s,s+=u);return s&7&&(s=(s|7)+1),l}}});var fu=mt((Wy,lu)=>{"use strict";lu.exports=Tt;var Er=Oe();function Tt(i,e){this.lo=i>>>0,this.hi=e>>>0}var Ce=Tt.zero=new Tt(0,0);Ce.toNumber=function(){return 0};Ce.zzEncode=Ce.zzDecode=function(){return this};Ce.length=function(){return 1};var rh=Tt.zeroHash="\0\0\0\0\0\0\0\0";Tt.fromNumber=function(e){if(e===0)return Ce;var o=e<0;o&&(e=-e);var t=e>>>0,r=(e-t)/4294967296>>>0;return o&&(r=~r>>>0,t=~t>>>0,++t>4294967295&&(t=0,++r>4294967295&&(r=0))),new Tt(t,r)};Tt.from=function(e){if(typeof e=="number")return Tt.fromNumber(e);if(Er.isString(e))if(Er.Long)e=Er.Long.fromString(e);else return Tt.fromNumber(parseInt(e,10));return e.low||e.high?new Tt(e.low>>>0,e.high>>>0):Ce};Tt.prototype.toNumber=function(e){if(!e&&this.hi>>>31){var o=~this.lo+1>>>0,t=~this.hi>>>0;return o||(t=t+1>>>0),-(o+t*4294967296)}return this.lo+this.hi*4294967296};Tt.prototype.toLong=function(e){return Er.Long?new Er.Long(this.lo|0,this.hi|0,!!e):{low:this.lo|0,high:this.hi|0,unsigned:!!e}};var _e=String.prototype.charCodeAt;Tt.fromHash=function(e){return e===rh?Ce:new Tt((_e.call(e,0)|_e.call(e,1)<<8|_e.call(e,2)<<16|_e.call(e,3)<<24)>>>0,(_e.call(e,4)|_e.call(e,5)<<8|_e.call(e,6)<<16|_e.call(e,7)<<24)>>>0)};Tt.prototype.toHash=function(){return String.fromCharCode(this.lo&255,this.lo>>>8&255,this.lo>>>16&255,this.lo>>>24,this.hi&255,this.hi>>>8&255,this.hi>>>16&255,this.hi>>>24)};Tt.prototype.zzEncode=function(){var e=this.hi>>31;return this.hi=((this.hi<<1|this.lo>>>31)^e)>>>0,this.lo=(this.lo<<1^e)>>>0,this};Tt.prototype.zzDecode=function(){var e=-(this.lo&1);return this.lo=((this.lo>>>1|this.hi<<31)^e)>>>0,this.hi=(this.hi>>>1^e)>>>0,this};Tt.prototype.length=function(){var e=this.lo,o=(this.lo>>>28|this.hi<<4)>>>0,t=this.hi>>>24;return t===0?o===0?e<16384?e<128?1:2:e<2097152?3:4:o<16384?o<128?5:6:o<2097152?7:8:t<128?9:10}});var Oe=mt(zo=>{"use strict";var C=zo;C.asPromise=Ws();C.base64=Xs();C.EventEmitter=Js();C.float=nu();C.inquire=ou();C.utf8=au();C.pool=uu();C.LongBits=fu();C.isNode=!!(typeof global<"u"&&global&&global.process&&global.process.versions&&global.process.versions.node);C.global=C.isNode&&global||typeof window<"u"&&window||typeof self<"u"&&self||zo;C.emptyArray=Object.freeze?Object.freeze([]):[];C.emptyObject=Object.freeze?Object.freeze({}):{};C.isInteger=Number.isInteger||function(e){return typeof e=="number"&&isFinite(e)&&Math.floor(e)===e};C.isString=function(e){return typeof e=="string"||e instanceof String};C.isObject=function(e){return e&&typeof e=="object"};C.isset=C.isSet=function(e,o){var t=e[o];return t!=null&&e.hasOwnProperty(o)?typeof t!="object"||(Array.isArray(t)?t.length:Object.keys(t).length)>0:!1};C.Buffer=function(){try{var i=C.inquire("buffer").Buffer;return i.prototype.utf8Write?i:null}catch{return null}}();C._Buffer_from=null;C._Buffer_allocUnsafe=null;C.newBuffer=function(e){return typeof e=="number"?C.Buffer?C._Buffer_allocUnsafe(e):new C.Array(e):C.Buffer?C._Buffer_from(e):typeof Uint8Array>"u"?e:new Uint8Array(e)};C.Array=typeof Uint8Array<"u"?Uint8Array:Array;C.Long=C.global.dcodeIO&&C.global.dcodeIO.Long||C.global.Long||C.inquire("long");C.key2Re=/^true|false|0|1$/;C.key32Re=/^-?(?:0|[1-9][0-9]*)$/;C.key64Re=/^(?:[\\x00-\\xff]{8}|-?(?:0|[1-9][0-9]*))$/;C.longToHash=function(e){return e?C.LongBits.from(e).toHash():C.LongBits.zeroHash};C.longFromHash=function(e,o){var t=C.LongBits.fromHash(e);return C.Long?C.Long.fromBits(t.lo,t.hi,o):t.toNumber(!!o)};function cu(i,e,o){for(var t=Object.keys(e),r=0;r<t.length;++r)(i[t[r]]===void 0||!o)&&(i[t[r]]=e[t[r]]);return i}C.merge=cu;C.lcFirst=function(e){return e.charAt(0).toLowerCase()+e.substring(1)};function pu(i){function e(o,t){if(!(this instanceof e))return new e(o,t);Object.defineProperty(this,"message",{get:function(){return o}}),Error.captureStackTrace?Error.captureStackTrace(this,e):Object.defineProperty(this,"stack",{value:new Error().stack||""}),t&&cu(this,t)}return e.prototype=Object.create(Error.prototype,{constructor:{value:e,writable:!0,enumerable:!1,configurable:!0},name:{get:function(){return i},set:void 0,enumerable:!1,configurable:!0},toString:{value:function(){return this.name+": "+this.message},writable:!0,enumerable:!1,configurable:!0}}),e}C.newError=pu;C.ProtocolError=pu("ProtocolError");C.oneOfGetter=function(e){for(var o={},t=0;t<e.length;++t)o[e[t]]=1;return function(){for(var r=Object.keys(this),n=r.length-1;n>-1;--n)if(o[r[n]]===1&&this[r[n]]!==void 0&&this[r[n]]!==null)return r[n]}};C.oneOfSetter=function(e){return function(o){for(var t=0;t<e.length;++t)e[t]!==o&&delete this[e[t]]}};C.toJSONOptions={longs:String,enums:String,bytes:String,json:!0};C._configure=function(){var i=C.Buffer;if(!i){C._Buffer_from=C._Buffer_allocUnsafe=null;return}C._Buffer_from=i.from!==Uint8Array.from&&i.from||function(o,t){return new i(o,t)},C._Buffer_allocUnsafe=i.allocUnsafe||function(o){return new i(o)}}});var Jo=mt((qy,bu)=>{"use strict";bu.exports=X;var qt=Oe(),Wo,wn=qt.LongBits,du=qt.base64,hu=qt.utf8;function Dr(i,e,o){this.fn=i,this.len=e,this.next=void 0,this.val=o}function qo(){}function nh(i){this.head=i.head,this.tail=i.tail,this.len=i.len,this.next=i.states}function X(){this.len=0,this.head=new Dr(qo,0,0),this.tail=this.head,this.states=null}var mu=function(){return qt.Buffer?function(){return(X.create=function(){return new Wo})()}:function(){return new X}};X.create=mu();X.alloc=function(e){return new qt.Array(e)};qt.Array!==Array&&(X.alloc=qt.pool(X.alloc,qt.Array.prototype.subarray));X.prototype._push=function(e,o,t){return this.tail=this.tail.next=new Dr(e,o,t),this.len+=o,this};function jo(i,e,o){e[o]=i&255}function oh(i,e,o){for(;i>127;)e[o++]=i&127|128,i>>>=7;e[o]=i}function Xo(i,e){this.len=i,this.next=void 0,this.val=e}Xo.prototype=Object.create(Dr.prototype);Xo.prototype.fn=oh;X.prototype.uint32=function(e){return this.len+=(this.tail=this.tail.next=new Xo((e=e>>>0)<128?1:e<16384?2:e<2097152?3:e<268435456?4:5,e)).len,this};X.prototype.int32=function(e){return e<0?this._push(Ko,10,wn.fromNumber(e)):this.uint32(e)};X.prototype.sint32=function(e){return this.uint32((e<<1^e>>31)>>>0)};function Ko(i,e,o){for(;i.hi;)e[o++]=i.lo&127|128,i.lo=(i.lo>>>7|i.hi<<25)>>>0,i.hi>>>=7;for(;i.lo>127;)e[o++]=i.lo&127|128,i.lo=i.lo>>>7;e[o++]=i.lo}X.prototype.uint64=function(e){var o=wn.from(e);return this._push(Ko,o.length(),o)};X.prototype.int64=X.prototype.uint64;X.prototype.sint64=function(e){var o=wn.from(e).zzEncode();return this._push(Ko,o.length(),o)};X.prototype.bool=function(e){return this._push(jo,1,e?1:0)};function Ho(i,e,o){e[o]=i&255,e[o+1]=i>>>8&255,e[o+2]=i>>>16&255,e[o+3]=i>>>24}X.prototype.fixed32=function(e){return this._push(Ho,4,e>>>0)};X.prototype.sfixed32=X.prototype.fixed32;X.prototype.fixed64=function(e){var o=wn.from(e);return this._push(Ho,4,o.lo)._push(Ho,4,o.hi)};X.prototype.sfixed64=X.prototype.fixed64;X.prototype.float=function(e){return this._push(qt.float.writeFloatLE,4,e)};X.prototype.double=function(e){return this._push(qt.float.writeDoubleLE,8,e)};var ih=qt.Array.prototype.set?function(e,o,t){o.set(e,t)}:function(e,o,t){for(var r=0;r<e.length;++r)o[t+r]=e[r]};X.prototype.bytes=function(e){var o=e.length>>>0;if(!o)return this._push(jo,1,0);if(qt.isString(e)){var t=X.alloc(o=du.length(e));du.decode(e,t,0),e=t}return this.uint32(o)._push(ih,o,e)};X.prototype.string=function(e){var o=hu.length(e);return o?this.uint32(o)._push(hu.write,o,e):this._push(jo,1,0)};X.prototype.fork=function(){return this.states=new nh(this),this.head=this.tail=new Dr(qo,0,0),this.len=0,this};X.prototype.reset=function(){return this.states?(this.head=this.states.head,this.tail=this.states.tail,this.len=this.states.len,this.states=this.states.next):(this.head=this.tail=new Dr(qo,0,0),this.len=0),this};X.prototype.ldelim=function(){var e=this.head,o=this.tail,t=this.len;return this.reset().uint32(t),t&&(this.tail.next=e.next,this.tail=o,this.len+=t),this};X.prototype.finish=function(){for(var e=this.head.next,o=this.constructor.alloc(this.len),t=0;e;)e.fn(e.val,o,t),t+=e.len,e=e.next;return o};X._configure=function(i){Wo=i,X.create=mu(),Wo._configure()}});var xu=mt((jy,yu)=>{"use strict";yu.exports=se;var gu=Jo();(se.prototype=Object.create(gu.prototype)).constructor=se;var Se=Oe();function se(){gu.call(this)}se._configure=function(){se.alloc=Se._Buffer_allocUnsafe,se.writeBytesBuffer=Se.Buffer&&Se.Buffer.prototype instanceof Uint8Array&&Se.Buffer.prototype.set.name==="set"?function(e,o,t){o.set(e,t)}:function(e,o,t){if(e.copy)e.copy(o,t,0,e.length);else for(var r=0;r<e.length;)o[t++]=e[r++]}};se.prototype.bytes=function(e){Se.isString(e)&&(e=Se._Buffer_from(e,"base64"));var o=e.length>>>0;return this.uint32(o),o&&this._push(se.writeBytesBuffer,o,e),this};function ah(i,e,o){i.length<40?Se.utf8.write(i,e,o):e.utf8Write?e.utf8Write(i,o):e.write(i,o)}se.prototype.string=function(e){var o=Se.Buffer.byteLength(e);return this.uint32(o),o&&this._push(ah,o,e),this};se._configure()});var Qo=mt((Xy,_u)=>{"use strict";_u.exports=ct;var re=Oe(),Zo,vu=re.LongBits,sh=re.utf8;function ne(i,e){return RangeError("index out of range: "+i.pos+" + "+(e||1)+" > "+i.len)}function ct(i){this.buf=i,this.pos=0,this.len=i.length}var Tu=typeof Uint8Array<"u"?function(e){if(e instanceof Uint8Array||Array.isArray(e))return new ct(e);throw Error("illegal buffer")}:function(e){if(Array.isArray(e))return new ct(e);throw Error("illegal buffer")},Iu=function(){return re.Buffer?function(o){return(ct.create=function(r){return re.Buffer.isBuffer(r)?new Zo(r):Tu(r)})(o)}:Tu};ct.create=Iu();ct.prototype._slice=re.Array.prototype.subarray||re.Array.prototype.slice;ct.prototype.uint32=function(){var e=4294967295;return function(){if(e=(this.buf[this.pos]&127)>>>0,this.buf[this.pos++]<128||(e=(e|(this.buf[this.pos]&127)<<7)>>>0,this.buf[this.pos++]<128)||(e=(e|(this.buf[this.pos]&127)<<14)>>>0,this.buf[this.pos++]<128)||(e=(e|(this.buf[this.pos]&127)<<21)>>>0,this.buf[this.pos++]<128)||(e=(e|(this.buf[this.pos]&15)<<28)>>>0,this.buf[this.pos++]<128))return e;if((this.pos+=5)>this.len)throw this.pos=this.len,ne(this,10);return e}}();ct.prototype.int32=function(){return this.uint32()|0};ct.prototype.sint32=function(){var e=this.uint32();return e>>>1^-(e&1)|0};function Yo(){var i=new vu(0,0),e=0;if(this.len-this.pos>4){for(;e<4;++e)if(i.lo=(i.lo|(this.buf[this.pos]&127)<<e*7)>>>0,this.buf[this.pos++]<128)return i;if(i.lo=(i.lo|(this.buf[this.pos]&127)<<28)>>>0,i.hi=(i.hi|(this.buf[this.pos]&127)>>4)>>>0,this.buf[this.pos++]<128)return i;e=0}else{for(;e<3;++e){if(this.pos>=this.len)throw ne(this);if(i.lo=(i.lo|(this.buf[this.pos]&127)<<e*7)>>>0,this.buf[this.pos++]<128)return i}return i.lo=(i.lo|(this.buf[this.pos++]&127)<<e*7)>>>0,i}if(this.len-this.pos>4){for(;e<5;++e)if(i.hi=(i.hi|(this.buf[this.pos]&127)<<e*7+3)>>>0,this.buf[this.pos++]<128)return i}else for(;e<5;++e){if(this.pos>=this.len)throw ne(this);if(i.hi=(i.hi|(this.buf[this.pos]&127)<<e*7+3)>>>0,this.buf[this.pos++]<128)return i}throw Error("invalid varint encoding")}ct.prototype.bool=function(){return this.uint32()!==0};function vn(i,e){return(i[e-4]|i[e-3]<<8|i[e-2]<<16|i[e-1]<<24)>>>0}ct.prototype.fixed32=function(){if(this.pos+4>this.len)throw ne(this,4);return vn(this.buf,this.pos+=4)};ct.prototype.sfixed32=function(){if(this.pos+4>this.len)throw ne(this,4);return vn(this.buf,this.pos+=4)|0};function wu(){if(this.pos+8>this.len)throw ne(this,8);return new vu(vn(this.buf,this.pos+=4),vn(this.buf,this.pos+=4))}ct.prototype.float=function(){if(this.pos+4>this.len)throw ne(this,4);var e=re.float.readFloatLE(this.buf,this.pos);return this.pos+=4,e};ct.prototype.double=function(){if(this.pos+8>this.len)throw ne(this,4);var e=re.float.readDoubleLE(this.buf,this.pos);return this.pos+=8,e};ct.prototype.bytes=function(){var e=this.uint32(),o=this.pos,t=this.pos+e;if(t>this.len)throw ne(this,e);if(this.pos+=e,Array.isArray(this.buf))return this.buf.slice(o,t);if(o===t){var r=re.Buffer;return r?r.alloc(0):new this.buf.constructor(0)}return this._slice.call(this.buf,o,t)};ct.prototype.string=function(){var e=this.bytes();return sh.read(e,0,e.length)};ct.prototype.skip=function(e){if(typeof e=="number"){if(this.pos+e>this.len)throw ne(this,e);this.pos+=e}else do if(this.pos>=this.len)throw ne(this);while(this.buf[this.pos++]&128);return this};ct.prototype.skipType=function(i){switch(i){case 0:this.skip();break;case 1:this.skip(8);break;case 2:this.skip(this.uint32());break;case 3:for(;(i=this.uint32()&7)!==4;)this.skipType(i);break;case 5:this.skip(4);break;default:throw Error("invalid wire type "+i+" at offset "+this.pos)}return this};ct._configure=function(i){Zo=i,ct.create=Iu(),Zo._configure();var e=re.Long?"toLong":"toNumber";re.merge(ct.prototype,{int64:function(){return Yo.call(this)[e](!1)},uint64:function(){return Yo.call(this)[e](!0)},sint64:function(){return Yo.call(this).zzDecode()[e](!1)},fixed64:function(){return wu.call(this)[e](!0)},sfixed64:function(){return wu.call(this)[e](!1)}})}});var Pu=mt((Ky,Au)=>{"use strict";Au.exports=Ne;var Su=Qo();(Ne.prototype=Object.create(Su.prototype)).constructor=Ne;var Ou=Oe();function Ne(i){Su.call(this,i)}Ne._configure=function(){Ou.Buffer&&(Ne.prototype._slice=Ou.Buffer.prototype.slice)};Ne.prototype.string=function(){var e=this.uint32();return this.buf.utf8Slice?this.buf.utf8Slice(this.pos,this.pos=Math.min(this.pos+e,this.len)):this.buf.toString("utf-8",this.pos,this.pos=Math.min(this.pos+e,this.len))};Ne._configure()});var Du=mt((Jy,Eu)=>{"use strict";Eu.exports=Lr;var ti=Oe();(Lr.prototype=Object.create(ti.EventEmitter.prototype)).constructor=Lr;function Lr(i,e,o){if(typeof i!="function")throw TypeError("rpcImpl must be a function");ti.EventEmitter.call(this),this.rpcImpl=i,this.requestDelimited=!!e,this.responseDelimited=!!o}Lr.prototype.rpcCall=function i(e,o,t,r,n){if(!r)throw TypeError("request must be specified");var s=this;if(!n)return ti.asPromise(i,s,e,o,t,r);if(!s.rpcImpl){setTimeout(function(){n(Error("already ended"))},0);return}try{return s.rpcImpl(e,o[s.requestDelimited?"encodeDelimited":"encode"](r).finish(),function(u,l){if(u)return s.emit("error",u,e),n(u);if(l===null){s.end(!0);return}if(!(l instanceof t))try{l=t[s.responseDelimited?"decodeDelimited":"decode"](l)}catch(f){return s.emit("error",f,e),n(f)}return s.emit("data",l,e),n(null,l)})}catch(a){s.emit("error",a,e),setTimeout(function(){n(a)},0);return}};Lr.prototype.end=function(e){return this.rpcImpl&&(e||this.rpcImpl(null,null,null),this.rpcImpl=null,this.emit("end").off()),this}});var $u=mt(Lu=>{"use strict";var uh=Lu;uh.Service=Du()});var Bu=mt((Zy,ku)=>{"use strict";ku.exports={}});var Nu=mt(Cu=>{"use strict";var Ft=Cu;Ft.build="minimal";Ft.Writer=Jo();Ft.BufferWriter=xu();Ft.Reader=Qo();Ft.BufferReader=Pu();Ft.util=Oe();Ft.rpc=$u();Ft.roots=Bu();Ft.configure=Fu;function Fu(){Ft.util._configure(),Ft.Writer._configure(Ft.BufferWriter),Ft.Reader._configure(Ft.BufferReader)}Fu()});var Gu=mt((tx,Ru)=>{"use strict";Ru.exports=Nu()});var or=mt((ex,Mu)=>{"use strict";var ot=Gu(),$=ot.Reader,pt=ot.Writer,b=ot.util,h=ot.roots.default||(ot.roots.default={});h.onnx=function(){var i={};return i.Version=function(){var e={},o=Object.create(e);return o[e[0]="_START_VERSION"]=0,o[e[1]="IR_VERSION_2017_10_10"]=1,o[e[2]="IR_VERSION_2017_10_30"]=2,o[e[3]="IR_VERSION_2017_11_3"]=3,o[e[4]="IR_VERSION_2019_1_22"]=4,o[e[5]="IR_VERSION_2019_3_18"]=5,o[e[6]="IR_VERSION_2019_9_19"]=6,o[e[7]="IR_VERSION_2020_5_8"]=7,o[e[8]="IR_VERSION_2021_7_30"]=8,o[e[9]="IR_VERSION"]=9,o}(),i.AttributeProto=function(){function e(o){if(this.floats=[],this.ints=[],this.strings=[],this.tensors=[],this.graphs=[],this.sparseTensors=[],this.typeProtos=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.name="",e.prototype.refAttrName="",e.prototype.docString="",e.prototype.type=0,e.prototype.f=0,e.prototype.i=b.Long?b.Long.fromBits(0,0,!1):0,e.prototype.s=b.newBuffer([]),e.prototype.t=null,e.prototype.g=null,e.prototype.sparseTensor=null,e.prototype.tp=null,e.prototype.floats=b.emptyArray,e.prototype.ints=b.emptyArray,e.prototype.strings=b.emptyArray,e.prototype.tensors=b.emptyArray,e.prototype.graphs=b.emptyArray,e.prototype.sparseTensors=b.emptyArray,e.prototype.typeProtos=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.name!=null&&Object.hasOwnProperty.call(t,"name")&&r.uint32(10).string(t.name),t.f!=null&&Object.hasOwnProperty.call(t,"f")&&r.uint32(21).float(t.f),t.i!=null&&Object.hasOwnProperty.call(t,"i")&&r.uint32(24).int64(t.i),t.s!=null&&Object.hasOwnProperty.call(t,"s")&&r.uint32(34).bytes(t.s),t.t!=null&&Object.hasOwnProperty.call(t,"t")&&h.onnx.TensorProto.encode(t.t,r.uint32(42).fork()).ldelim(),t.g!=null&&Object.hasOwnProperty.call(t,"g")&&h.onnx.GraphProto.encode(t.g,r.uint32(50).fork()).ldelim(),t.floats!=null&&t.floats.length){r.uint32(58).fork();for(var n=0;n<t.floats.length;++n)r.float(t.floats[n]);r.ldelim()}if(t.ints!=null&&t.ints.length){r.uint32(66).fork();for(var n=0;n<t.ints.length;++n)r.int64(t.ints[n]);r.ldelim()}if(t.strings!=null&&t.strings.length)for(var n=0;n<t.strings.length;++n)r.uint32(74).bytes(t.strings[n]);if(t.tensors!=null&&t.tensors.length)for(var n=0;n<t.tensors.length;++n)h.onnx.TensorProto.encode(t.tensors[n],r.uint32(82).fork()).ldelim();if(t.graphs!=null&&t.graphs.length)for(var n=0;n<t.graphs.length;++n)h.onnx.GraphProto.encode(t.graphs[n],r.uint32(90).fork()).ldelim();if(t.docString!=null&&Object.hasOwnProperty.call(t,"docString")&&r.uint32(106).string(t.docString),t.tp!=null&&Object.hasOwnProperty.call(t,"tp")&&h.onnx.TypeProto.encode(t.tp,r.uint32(114).fork()).ldelim(),t.typeProtos!=null&&t.typeProtos.length)for(var n=0;n<t.typeProtos.length;++n)h.onnx.TypeProto.encode(t.typeProtos[n],r.uint32(122).fork()).ldelim();if(t.type!=null&&Object.hasOwnProperty.call(t,"type")&&r.uint32(160).int32(t.type),t.refAttrName!=null&&Object.hasOwnProperty.call(t,"refAttrName")&&r.uint32(170).string(t.refAttrName),t.sparseTensor!=null&&Object.hasOwnProperty.call(t,"sparseTensor")&&h.onnx.SparseTensorProto.encode(t.sparseTensor,r.uint32(178).fork()).ldelim(),t.sparseTensors!=null&&t.sparseTensors.length)for(var n=0;n<t.sparseTensors.length;++n)h.onnx.SparseTensorProto.encode(t.sparseTensors[n],r.uint32(186).fork()).ldelim();return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.AttributeProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.name=t.string();break}case 21:{s.refAttrName=t.string();break}case 13:{s.docString=t.string();break}case 20:{s.type=t.int32();break}case 2:{s.f=t.float();break}case 3:{s.i=t.int64();break}case 4:{s.s=t.bytes();break}case 5:{s.t=h.onnx.TensorProto.decode(t,t.uint32());break}case 6:{s.g=h.onnx.GraphProto.decode(t,t.uint32());break}case 22:{s.sparseTensor=h.onnx.SparseTensorProto.decode(t,t.uint32());break}case 14:{s.tp=h.onnx.TypeProto.decode(t,t.uint32());break}case 7:{if(s.floats&&s.floats.length||(s.floats=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.floats.push(t.float());else s.floats.push(t.float());break}case 8:{if(s.ints&&s.ints.length||(s.ints=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.ints.push(t.int64());else s.ints.push(t.int64());break}case 9:{s.strings&&s.strings.length||(s.strings=[]),s.strings.push(t.bytes());break}case 10:{s.tensors&&s.tensors.length||(s.tensors=[]),s.tensors.push(h.onnx.TensorProto.decode(t,t.uint32()));break}case 11:{s.graphs&&s.graphs.length||(s.graphs=[]),s.graphs.push(h.onnx.GraphProto.decode(t,t.uint32()));break}case 23:{s.sparseTensors&&s.sparseTensors.length||(s.sparseTensors=[]),s.sparseTensors.push(h.onnx.SparseTensorProto.decode(t,t.uint32()));break}case 15:{s.typeProtos&&s.typeProtos.length||(s.typeProtos=[]),s.typeProtos.push(h.onnx.TypeProto.decode(t,t.uint32()));break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.name!=null&&t.hasOwnProperty("name")&&!b.isString(t.name))return"name: string expected";if(t.refAttrName!=null&&t.hasOwnProperty("refAttrName")&&!b.isString(t.refAttrName))return"refAttrName: string expected";if(t.docString!=null&&t.hasOwnProperty("docString")&&!b.isString(t.docString))return"docString: string expected";if(t.type!=null&&t.hasOwnProperty("type"))switch(t.type){default:return"type: enum value expected";case 0:case 1:case 2:case 3:case 4:case 5:case 11:case 13:case 6:case 7:case 8:case 9:case 10:case 12:case 14:break}if(t.f!=null&&t.hasOwnProperty("f")&&typeof t.f!="number")return"f: number expected";if(t.i!=null&&t.hasOwnProperty("i")&&!b.isInteger(t.i)&&!(t.i&&b.isInteger(t.i.low)&&b.isInteger(t.i.high)))return"i: integer|Long expected";if(t.s!=null&&t.hasOwnProperty("s")&&!(t.s&&typeof t.s.length=="number"||b.isString(t.s)))return"s: buffer expected";if(t.t!=null&&t.hasOwnProperty("t")){var r=h.onnx.TensorProto.verify(t.t);if(r)return"t."+r}if(t.g!=null&&t.hasOwnProperty("g")){var r=h.onnx.GraphProto.verify(t.g);if(r)return"g."+r}if(t.sparseTensor!=null&&t.hasOwnProperty("sparseTensor")){var r=h.onnx.SparseTensorProto.verify(t.sparseTensor);if(r)return"sparseTensor."+r}if(t.tp!=null&&t.hasOwnProperty("tp")){var r=h.onnx.TypeProto.verify(t.tp);if(r)return"tp."+r}if(t.floats!=null&&t.hasOwnProperty("floats")){if(!Array.isArray(t.floats))return"floats: array expected";for(var n=0;n<t.floats.length;++n)if(typeof t.floats[n]!="number")return"floats: number[] expected"}if(t.ints!=null&&t.hasOwnProperty("ints")){if(!Array.isArray(t.ints))return"ints: array expected";for(var n=0;n<t.ints.length;++n)if(!b.isInteger(t.ints[n])&&!(t.ints[n]&&b.isInteger(t.ints[n].low)&&b.isInteger(t.ints[n].high)))return"ints: integer|Long[] expected"}if(t.strings!=null&&t.hasOwnProperty("strings")){if(!Array.isArray(t.strings))return"strings: array expected";for(var n=0;n<t.strings.length;++n)if(!(t.strings[n]&&typeof t.strings[n].length=="number"||b.isString(t.strings[n])))return"strings: buffer[] expected"}if(t.tensors!=null&&t.hasOwnProperty("tensors")){if(!Array.isArray(t.tensors))return"tensors: array expected";for(var n=0;n<t.tensors.length;++n){var r=h.onnx.TensorProto.verify(t.tensors[n]);if(r)return"tensors."+r}}if(t.graphs!=null&&t.hasOwnProperty("graphs")){if(!Array.isArray(t.graphs))return"graphs: array expected";for(var n=0;n<t.graphs.length;++n){var r=h.onnx.GraphProto.verify(t.graphs[n]);if(r)return"graphs."+r}}if(t.sparseTensors!=null&&t.hasOwnProperty("sparseTensors")){if(!Array.isArray(t.sparseTensors))return"sparseTensors: array expected";for(var n=0;n<t.sparseTensors.length;++n){var r=h.onnx.SparseTensorProto.verify(t.sparseTensors[n]);if(r)return"sparseTensors."+r}}if(t.typeProtos!=null&&t.hasOwnProperty("typeProtos")){if(!Array.isArray(t.typeProtos))return"typeProtos: array expected";for(var n=0;n<t.typeProtos.length;++n){var r=h.onnx.TypeProto.verify(t.typeProtos[n]);if(r)return"typeProtos."+r}}return null},e.fromObject=function(t){if(t instanceof h.onnx.AttributeProto)return t;var r=new h.onnx.AttributeProto;switch(t.name!=null&&(r.name=String(t.name)),t.refAttrName!=null&&(r.refAttrName=String(t.refAttrName)),t.docString!=null&&(r.docString=String(t.docString)),t.type){default:if(typeof t.type=="number"){r.type=t.type;break}break;case"UNDEFINED":case 0:r.type=0;break;case"FLOAT":case 1:r.type=1;break;case"INT":case 2:r.type=2;break;case"STRING":case 3:r.type=3;break;case"TENSOR":case 4:r.type=4;break;case"GRAPH":case 5:r.type=5;break;case"SPARSE_TENSOR":case 11:r.type=11;break;case"TYPE_PROTO":case 13:r.type=13;break;case"FLOATS":case 6:r.type=6;break;case"INTS":case 7:r.type=7;break;case"STRINGS":case 8:r.type=8;break;case"TENSORS":case 9:r.type=9;break;case"GRAPHS":case 10:r.type=10;break;case"SPARSE_TENSORS":case 12:r.type=12;break;case"TYPE_PROTOS":case 14:r.type=14;break}if(t.f!=null&&(r.f=Number(t.f)),t.i!=null&&(b.Long?(r.i=b.Long.fromValue(t.i)).unsigned=!1:typeof t.i=="string"?r.i=parseInt(t.i,10):typeof t.i=="number"?r.i=t.i:typeof t.i=="object"&&(r.i=new b.LongBits(t.i.low>>>0,t.i.high>>>0).toNumber())),t.s!=null&&(typeof t.s=="string"?b.base64.decode(t.s,r.s=b.newBuffer(b.base64.length(t.s)),0):t.s.length>=0&&(r.s=t.s)),t.t!=null){if(typeof t.t!="object")throw TypeError(".onnx.AttributeProto.t: object expected");r.t=h.onnx.TensorProto.fromObject(t.t)}if(t.g!=null){if(typeof t.g!="object")throw TypeError(".onnx.AttributeProto.g: object expected");r.g=h.onnx.GraphProto.fromObject(t.g)}if(t.sparseTensor!=null){if(typeof t.sparseTensor!="object")throw TypeError(".onnx.AttributeProto.sparseTensor: object expected");r.sparseTensor=h.onnx.SparseTensorProto.fromObject(t.sparseTensor)}if(t.tp!=null){if(typeof t.tp!="object")throw TypeError(".onnx.AttributeProto.tp: object expected");r.tp=h.onnx.TypeProto.fromObject(t.tp)}if(t.floats){if(!Array.isArray(t.floats))throw TypeError(".onnx.AttributeProto.floats: array expected");r.floats=[];for(var n=0;n<t.floats.length;++n)r.floats[n]=Number(t.floats[n])}if(t.ints){if(!Array.isArray(t.ints))throw TypeError(".onnx.AttributeProto.ints: array expected");r.ints=[];for(var n=0;n<t.ints.length;++n)b.Long?(r.ints[n]=b.Long.fromValue(t.ints[n])).unsigned=!1:typeof t.ints[n]=="string"?r.ints[n]=parseInt(t.ints[n],10):typeof t.ints[n]=="number"?r.ints[n]=t.ints[n]:typeof t.ints[n]=="object"&&(r.ints[n]=new b.LongBits(t.ints[n].low>>>0,t.ints[n].high>>>0).toNumber())}if(t.strings){if(!Array.isArray(t.strings))throw TypeError(".onnx.AttributeProto.strings: array expected");r.strings=[];for(var n=0;n<t.strings.length;++n)typeof t.strings[n]=="string"?b.base64.decode(t.strings[n],r.strings[n]=b.newBuffer(b.base64.length(t.strings[n])),0):t.strings[n].length>=0&&(r.strings[n]=t.strings[n])}if(t.tensors){if(!Array.isArray(t.tensors))throw TypeError(".onnx.AttributeProto.tensors: array expected");r.tensors=[];for(var n=0;n<t.tensors.length;++n){if(typeof t.tensors[n]!="object")throw TypeError(".onnx.AttributeProto.tensors: object expected");r.tensors[n]=h.onnx.TensorProto.fromObject(t.tensors[n])}}if(t.graphs){if(!Array.isArray(t.graphs))throw TypeError(".onnx.AttributeProto.graphs: array expected");r.graphs=[];for(var n=0;n<t.graphs.length;++n){if(typeof t.graphs[n]!="object")throw TypeError(".onnx.AttributeProto.graphs: object expected");r.graphs[n]=h.onnx.GraphProto.fromObject(t.graphs[n])}}if(t.sparseTensors){if(!Array.isArray(t.sparseTensors))throw TypeError(".onnx.AttributeProto.sparseTensors: array expected");r.sparseTensors=[];for(var n=0;n<t.sparseTensors.length;++n){if(typeof t.sparseTensors[n]!="object")throw TypeError(".onnx.AttributeProto.sparseTensors: object expected");r.sparseTensors[n]=h.onnx.SparseTensorProto.fromObject(t.sparseTensors[n])}}if(t.typeProtos){if(!Array.isArray(t.typeProtos))throw TypeError(".onnx.AttributeProto.typeProtos: array expected");r.typeProtos=[];for(var n=0;n<t.typeProtos.length;++n){if(typeof t.typeProtos[n]!="object")throw TypeError(".onnx.AttributeProto.typeProtos: object expected");r.typeProtos[n]=h.onnx.TypeProto.fromObject(t.typeProtos[n])}}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.floats=[],n.ints=[],n.strings=[],n.tensors=[],n.graphs=[],n.typeProtos=[],n.sparseTensors=[]),r.defaults){if(n.name="",n.f=0,b.Long){var s=new b.Long(0,0,!1);n.i=r.longs===String?s.toString():r.longs===Number?s.toNumber():s}else n.i=r.longs===String?"0":0;r.bytes===String?n.s="":(n.s=[],r.bytes!==Array&&(n.s=b.newBuffer(n.s))),n.t=null,n.g=null,n.docString="",n.tp=null,n.type=r.enums===String?"UNDEFINED":0,n.refAttrName="",n.sparseTensor=null}if(t.name!=null&&t.hasOwnProperty("name")&&(n.name=t.name),t.f!=null&&t.hasOwnProperty("f")&&(n.f=r.json&&!isFinite(t.f)?String(t.f):t.f),t.i!=null&&t.hasOwnProperty("i")&&(typeof t.i=="number"?n.i=r.longs===String?String(t.i):t.i:n.i=r.longs===String?b.Long.prototype.toString.call(t.i):r.longs===Number?new b.LongBits(t.i.low>>>0,t.i.high>>>0).toNumber():t.i),t.s!=null&&t.hasOwnProperty("s")&&(n.s=r.bytes===String?b.base64.encode(t.s,0,t.s.length):r.bytes===Array?Array.prototype.slice.call(t.s):t.s),t.t!=null&&t.hasOwnProperty("t")&&(n.t=h.onnx.TensorProto.toObject(t.t,r)),t.g!=null&&t.hasOwnProperty("g")&&(n.g=h.onnx.GraphProto.toObject(t.g,r)),t.floats&&t.floats.length){n.floats=[];for(var a=0;a<t.floats.length;++a)n.floats[a]=r.json&&!isFinite(t.floats[a])?String(t.floats[a]):t.floats[a]}if(t.ints&&t.ints.length){n.ints=[];for(var a=0;a<t.ints.length;++a)typeof t.ints[a]=="number"?n.ints[a]=r.longs===String?String(t.ints[a]):t.ints[a]:n.ints[a]=r.longs===String?b.Long.prototype.toString.call(t.ints[a]):r.longs===Number?new b.LongBits(t.ints[a].low>>>0,t.ints[a].high>>>0).toNumber():t.ints[a]}if(t.strings&&t.strings.length){n.strings=[];for(var a=0;a<t.strings.length;++a)n.strings[a]=r.bytes===String?b.base64.encode(t.strings[a],0,t.strings[a].length):r.bytes===Array?Array.prototype.slice.call(t.strings[a]):t.strings[a]}if(t.tensors&&t.tensors.length){n.tensors=[];for(var a=0;a<t.tensors.length;++a)n.tensors[a]=h.onnx.TensorProto.toObject(t.tensors[a],r)}if(t.graphs&&t.graphs.length){n.graphs=[];for(var a=0;a<t.graphs.length;++a)n.graphs[a]=h.onnx.GraphProto.toObject(t.graphs[a],r)}if(t.docString!=null&&t.hasOwnProperty("docString")&&(n.docString=t.docString),t.tp!=null&&t.hasOwnProperty("tp")&&(n.tp=h.onnx.TypeProto.toObject(t.tp,r)),t.typeProtos&&t.typeProtos.length){n.typeProtos=[];for(var a=0;a<t.typeProtos.length;++a)n.typeProtos[a]=h.onnx.TypeProto.toObject(t.typeProtos[a],r)}if(t.type!=null&&t.hasOwnProperty("type")&&(n.type=r.enums===String?h.onnx.AttributeProto.AttributeType[t.type]===void 0?t.type:h.onnx.AttributeProto.AttributeType[t.type]:t.type),t.refAttrName!=null&&t.hasOwnProperty("refAttrName")&&(n.refAttrName=t.refAttrName),t.sparseTensor!=null&&t.hasOwnProperty("sparseTensor")&&(n.sparseTensor=h.onnx.SparseTensorProto.toObject(t.sparseTensor,r)),t.sparseTensors&&t.sparseTensors.length){n.sparseTensors=[];for(var a=0;a<t.sparseTensors.length;++a)n.sparseTensors[a]=h.onnx.SparseTensorProto.toObject(t.sparseTensors[a],r)}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.AttributeProto"},e.AttributeType=function(){var o={},t=Object.create(o);return t[o[0]="UNDEFINED"]=0,t[o[1]="FLOAT"]=1,t[o[2]="INT"]=2,t[o[3]="STRING"]=3,t[o[4]="TENSOR"]=4,t[o[5]="GRAPH"]=5,t[o[11]="SPARSE_TENSOR"]=11,t[o[13]="TYPE_PROTO"]=13,t[o[6]="FLOATS"]=6,t[o[7]="INTS"]=7,t[o[8]="STRINGS"]=8,t[o[9]="TENSORS"]=9,t[o[10]="GRAPHS"]=10,t[o[12]="SPARSE_TENSORS"]=12,t[o[14]="TYPE_PROTOS"]=14,t}(),e}(),i.ValueInfoProto=function(){function e(o){if(o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.name="",e.prototype.type=null,e.prototype.docString="",e.create=function(t){return new e(t)},e.encode=function(t,r){return r||(r=pt.create()),t.name!=null&&Object.hasOwnProperty.call(t,"name")&&r.uint32(10).string(t.name),t.type!=null&&Object.hasOwnProperty.call(t,"type")&&h.onnx.TypeProto.encode(t.type,r.uint32(18).fork()).ldelim(),t.docString!=null&&Object.hasOwnProperty.call(t,"docString")&&r.uint32(26).string(t.docString),r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.ValueInfoProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.name=t.string();break}case 2:{s.type=h.onnx.TypeProto.decode(t,t.uint32());break}case 3:{s.docString=t.string();break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.name!=null&&t.hasOwnProperty("name")&&!b.isString(t.name))return"name: string expected";if(t.type!=null&&t.hasOwnProperty("type")){var r=h.onnx.TypeProto.verify(t.type);if(r)return"type."+r}return t.docString!=null&&t.hasOwnProperty("docString")&&!b.isString(t.docString)?"docString: string expected":null},e.fromObject=function(t){if(t instanceof h.onnx.ValueInfoProto)return t;var r=new h.onnx.ValueInfoProto;if(t.name!=null&&(r.name=String(t.name)),t.type!=null){if(typeof t.type!="object")throw TypeError(".onnx.ValueInfoProto.type: object expected");r.type=h.onnx.TypeProto.fromObject(t.type)}return t.docString!=null&&(r.docString=String(t.docString)),r},e.toObject=function(t,r){r||(r={});var n={};return r.defaults&&(n.name="",n.type=null,n.docString=""),t.name!=null&&t.hasOwnProperty("name")&&(n.name=t.name),t.type!=null&&t.hasOwnProperty("type")&&(n.type=h.onnx.TypeProto.toObject(t.type,r)),t.docString!=null&&t.hasOwnProperty("docString")&&(n.docString=t.docString),n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.ValueInfoProto"},e}(),i.NodeProto=function(){function e(o){if(this.input=[],this.output=[],this.attribute=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.input=b.emptyArray,e.prototype.output=b.emptyArray,e.prototype.name="",e.prototype.opType="",e.prototype.domain="",e.prototype.attribute=b.emptyArray,e.prototype.docString="",e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.input!=null&&t.input.length)for(var n=0;n<t.input.length;++n)r.uint32(10).string(t.input[n]);if(t.output!=null&&t.output.length)for(var n=0;n<t.output.length;++n)r.uint32(18).string(t.output[n]);if(t.name!=null&&Object.hasOwnProperty.call(t,"name")&&r.uint32(26).string(t.name),t.opType!=null&&Object.hasOwnProperty.call(t,"opType")&&r.uint32(34).string(t.opType),t.attribute!=null&&t.attribute.length)for(var n=0;n<t.attribute.length;++n)h.onnx.AttributeProto.encode(t.attribute[n],r.uint32(42).fork()).ldelim();return t.docString!=null&&Object.hasOwnProperty.call(t,"docString")&&r.uint32(50).string(t.docString),t.domain!=null&&Object.hasOwnProperty.call(t,"domain")&&r.uint32(58).string(t.domain),r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.NodeProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.input&&s.input.length||(s.input=[]),s.input.push(t.string());break}case 2:{s.output&&s.output.length||(s.output=[]),s.output.push(t.string());break}case 3:{s.name=t.string();break}case 4:{s.opType=t.string();break}case 7:{s.domain=t.string();break}case 5:{s.attribute&&s.attribute.length||(s.attribute=[]),s.attribute.push(h.onnx.AttributeProto.decode(t,t.uint32()));break}case 6:{s.docString=t.string();break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.input!=null&&t.hasOwnProperty("input")){if(!Array.isArray(t.input))return"input: array expected";for(var r=0;r<t.input.length;++r)if(!b.isString(t.input[r]))return"input: string[] expected"}if(t.output!=null&&t.hasOwnProperty("output")){if(!Array.isArray(t.output))return"output: array expected";for(var r=0;r<t.output.length;++r)if(!b.isString(t.output[r]))return"output: string[] expected"}if(t.name!=null&&t.hasOwnProperty("name")&&!b.isString(t.name))return"name: string expected";if(t.opType!=null&&t.hasOwnProperty("opType")&&!b.isString(t.opType))return"opType: string expected";if(t.domain!=null&&t.hasOwnProperty("domain")&&!b.isString(t.domain))return"domain: string expected";if(t.attribute!=null&&t.hasOwnProperty("attribute")){if(!Array.isArray(t.attribute))return"attribute: array expected";for(var r=0;r<t.attribute.length;++r){var n=h.onnx.AttributeProto.verify(t.attribute[r]);if(n)return"attribute."+n}}return t.docString!=null&&t.hasOwnProperty("docString")&&!b.isString(t.docString)?"docString: string expected":null},e.fromObject=function(t){if(t instanceof h.onnx.NodeProto)return t;var r=new h.onnx.NodeProto;if(t.input){if(!Array.isArray(t.input))throw TypeError(".onnx.NodeProto.input: array expected");r.input=[];for(var n=0;n<t.input.length;++n)r.input[n]=String(t.input[n])}if(t.output){if(!Array.isArray(t.output))throw TypeError(".onnx.NodeProto.output: array expected");r.output=[];for(var n=0;n<t.output.length;++n)r.output[n]=String(t.output[n])}if(t.name!=null&&(r.name=String(t.name)),t.opType!=null&&(r.opType=String(t.opType)),t.domain!=null&&(r.domain=String(t.domain)),t.attribute){if(!Array.isArray(t.attribute))throw TypeError(".onnx.NodeProto.attribute: array expected");r.attribute=[];for(var n=0;n<t.attribute.length;++n){if(typeof t.attribute[n]!="object")throw TypeError(".onnx.NodeProto.attribute: object expected");r.attribute[n]=h.onnx.AttributeProto.fromObject(t.attribute[n])}}return t.docString!=null&&(r.docString=String(t.docString)),r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.input=[],n.output=[],n.attribute=[]),r.defaults&&(n.name="",n.opType="",n.docString="",n.domain=""),t.input&&t.input.length){n.input=[];for(var s=0;s<t.input.length;++s)n.input[s]=t.input[s]}if(t.output&&t.output.length){n.output=[];for(var s=0;s<t.output.length;++s)n.output[s]=t.output[s]}if(t.name!=null&&t.hasOwnProperty("name")&&(n.name=t.name),t.opType!=null&&t.hasOwnProperty("opType")&&(n.opType=t.opType),t.attribute&&t.attribute.length){n.attribute=[];for(var s=0;s<t.attribute.length;++s)n.attribute[s]=h.onnx.AttributeProto.toObject(t.attribute[s],r)}return t.docString!=null&&t.hasOwnProperty("docString")&&(n.docString=t.docString),t.domain!=null&&t.hasOwnProperty("domain")&&(n.domain=t.domain),n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.NodeProto"},e}(),i.TrainingInfoProto=function(){function e(o){if(this.initializationBinding=[],this.updateBinding=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.initialization=null,e.prototype.algorithm=null,e.prototype.initializationBinding=b.emptyArray,e.prototype.updateBinding=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.initialization!=null&&Object.hasOwnProperty.call(t,"initialization")&&h.onnx.GraphProto.encode(t.initialization,r.uint32(10).fork()).ldelim(),t.algorithm!=null&&Object.hasOwnProperty.call(t,"algorithm")&&h.onnx.GraphProto.encode(t.algorithm,r.uint32(18).fork()).ldelim(),t.initializationBinding!=null&&t.initializationBinding.length)for(var n=0;n<t.initializationBinding.length;++n)h.onnx.StringStringEntryProto.encode(t.initializationBinding[n],r.uint32(26).fork()).ldelim();if(t.updateBinding!=null&&t.updateBinding.length)for(var n=0;n<t.updateBinding.length;++n)h.onnx.StringStringEntryProto.encode(t.updateBinding[n],r.uint32(34).fork()).ldelim();return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.TrainingInfoProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.initialization=h.onnx.GraphProto.decode(t,t.uint32());break}case 2:{s.algorithm=h.onnx.GraphProto.decode(t,t.uint32());break}case 3:{s.initializationBinding&&s.initializationBinding.length||(s.initializationBinding=[]),s.initializationBinding.push(h.onnx.StringStringEntryProto.decode(t,t.uint32()));break}case 4:{s.updateBinding&&s.updateBinding.length||(s.updateBinding=[]),s.updateBinding.push(h.onnx.StringStringEntryProto.decode(t,t.uint32()));break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.initialization!=null&&t.hasOwnProperty("initialization")){var r=h.onnx.GraphProto.verify(t.initialization);if(r)return"initialization."+r}if(t.algorithm!=null&&t.hasOwnProperty("algorithm")){var r=h.onnx.GraphProto.verify(t.algorithm);if(r)return"algorithm."+r}if(t.initializationBinding!=null&&t.hasOwnProperty("initializationBinding")){if(!Array.isArray(t.initializationBinding))return"initializationBinding: array expected";for(var n=0;n<t.initializationBinding.length;++n){var r=h.onnx.StringStringEntryProto.verify(t.initializationBinding[n]);if(r)return"initializationBinding."+r}}if(t.updateBinding!=null&&t.hasOwnProperty("updateBinding")){if(!Array.isArray(t.updateBinding))return"updateBinding: array expected";for(var n=0;n<t.updateBinding.length;++n){var r=h.onnx.StringStringEntryProto.verify(t.updateBinding[n]);if(r)return"updateBinding."+r}}return null},e.fromObject=function(t){if(t instanceof h.onnx.TrainingInfoProto)return t;var r=new h.onnx.TrainingInfoProto;if(t.initialization!=null){if(typeof t.initialization!="object")throw TypeError(".onnx.TrainingInfoProto.initialization: object expected");r.initialization=h.onnx.GraphProto.fromObject(t.initialization)}if(t.algorithm!=null){if(typeof t.algorithm!="object")throw TypeError(".onnx.TrainingInfoProto.algorithm: object expected");r.algorithm=h.onnx.GraphProto.fromObject(t.algorithm)}if(t.initializationBinding){if(!Array.isArray(t.initializationBinding))throw TypeError(".onnx.TrainingInfoProto.initializationBinding: array expected");r.initializationBinding=[];for(var n=0;n<t.initializationBinding.length;++n){if(typeof t.initializationBinding[n]!="object")throw TypeError(".onnx.TrainingInfoProto.initializationBinding: object expected");r.initializationBinding[n]=h.onnx.StringStringEntryProto.fromObject(t.initializationBinding[n])}}if(t.updateBinding){if(!Array.isArray(t.updateBinding))throw TypeError(".onnx.TrainingInfoProto.updateBinding: array expected");r.updateBinding=[];for(var n=0;n<t.updateBinding.length;++n){if(typeof t.updateBinding[n]!="object")throw TypeError(".onnx.TrainingInfoProto.updateBinding: object expected");r.updateBinding[n]=h.onnx.StringStringEntryProto.fromObject(t.updateBinding[n])}}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.initializationBinding=[],n.updateBinding=[]),r.defaults&&(n.initialization=null,n.algorithm=null),t.initialization!=null&&t.hasOwnProperty("initialization")&&(n.initialization=h.onnx.GraphProto.toObject(t.initialization,r)),t.algorithm!=null&&t.hasOwnProperty("algorithm")&&(n.algorithm=h.onnx.GraphProto.toObject(t.algorithm,r)),t.initializationBinding&&t.initializationBinding.length){n.initializationBinding=[];for(var s=0;s<t.initializationBinding.length;++s)n.initializationBinding[s]=h.onnx.StringStringEntryProto.toObject(t.initializationBinding[s],r)}if(t.updateBinding&&t.updateBinding.length){n.updateBinding=[];for(var s=0;s<t.updateBinding.length;++s)n.updateBinding[s]=h.onnx.StringStringEntryProto.toObject(t.updateBinding[s],r)}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.TrainingInfoProto"},e}(),i.ModelProto=function(){function e(o){if(this.opsetImport=[],this.metadataProps=[],this.trainingInfo=[],this.functions=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.irVersion=b.Long?b.Long.fromBits(0,0,!1):0,e.prototype.opsetImport=b.emptyArray,e.prototype.producerName="",e.prototype.producerVersion="",e.prototype.domain="",e.prototype.modelVersion=b.Long?b.Long.fromBits(0,0,!1):0,e.prototype.docString="",e.prototype.graph=null,e.prototype.metadataProps=b.emptyArray,e.prototype.trainingInfo=b.emptyArray,e.prototype.functions=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.irVersion!=null&&Object.hasOwnProperty.call(t,"irVersion")&&r.uint32(8).int64(t.irVersion),t.producerName!=null&&Object.hasOwnProperty.call(t,"producerName")&&r.uint32(18).string(t.producerName),t.producerVersion!=null&&Object.hasOwnProperty.call(t,"producerVersion")&&r.uint32(26).string(t.producerVersion),t.domain!=null&&Object.hasOwnProperty.call(t,"domain")&&r.uint32(34).string(t.domain),t.modelVersion!=null&&Object.hasOwnProperty.call(t,"modelVersion")&&r.uint32(40).int64(t.modelVersion),t.docString!=null&&Object.hasOwnProperty.call(t,"docString")&&r.uint32(50).string(t.docString),t.graph!=null&&Object.hasOwnProperty.call(t,"graph")&&h.onnx.GraphProto.encode(t.graph,r.uint32(58).fork()).ldelim(),t.opsetImport!=null&&t.opsetImport.length)for(var n=0;n<t.opsetImport.length;++n)h.onnx.OperatorSetIdProto.encode(t.opsetImport[n],r.uint32(66).fork()).ldelim();if(t.metadataProps!=null&&t.metadataProps.length)for(var n=0;n<t.metadataProps.length;++n)h.onnx.StringStringEntryProto.encode(t.metadataProps[n],r.uint32(114).fork()).ldelim();if(t.trainingInfo!=null&&t.trainingInfo.length)for(var n=0;n<t.trainingInfo.length;++n)h.onnx.TrainingInfoProto.encode(t.trainingInfo[n],r.uint32(162).fork()).ldelim();if(t.functions!=null&&t.functions.length)for(var n=0;n<t.functions.length;++n)h.onnx.FunctionProto.encode(t.functions[n],r.uint32(202).fork()).ldelim();return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.ModelProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.irVersion=t.int64();break}case 8:{s.opsetImport&&s.opsetImport.length||(s.opsetImport=[]),s.opsetImport.push(h.onnx.OperatorSetIdProto.decode(t,t.uint32()));break}case 2:{s.producerName=t.string();break}case 3:{s.producerVersion=t.string();break}case 4:{s.domain=t.string();break}case 5:{s.modelVersion=t.int64();break}case 6:{s.docString=t.string();break}case 7:{s.graph=h.onnx.GraphProto.decode(t,t.uint32());break}case 14:{s.metadataProps&&s.metadataProps.length||(s.metadataProps=[]),s.metadataProps.push(h.onnx.StringStringEntryProto.decode(t,t.uint32()));break}case 20:{s.trainingInfo&&s.trainingInfo.length||(s.trainingInfo=[]),s.trainingInfo.push(h.onnx.TrainingInfoProto.decode(t,t.uint32()));break}case 25:{s.functions&&s.functions.length||(s.functions=[]),s.functions.push(h.onnx.FunctionProto.decode(t,t.uint32()));break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.irVersion!=null&&t.hasOwnProperty("irVersion")&&!b.isInteger(t.irVersion)&&!(t.irVersion&&b.isInteger(t.irVersion.low)&&b.isInteger(t.irVersion.high)))return"irVersion: integer|Long expected";if(t.opsetImport!=null&&t.hasOwnProperty("opsetImport")){if(!Array.isArray(t.opsetImport))return"opsetImport: array expected";for(var r=0;r<t.opsetImport.length;++r){var n=h.onnx.OperatorSetIdProto.verify(t.opsetImport[r]);if(n)return"opsetImport."+n}}if(t.producerName!=null&&t.hasOwnProperty("producerName")&&!b.isString(t.producerName))return"producerName: string expected";if(t.producerVersion!=null&&t.hasOwnProperty("producerVersion")&&!b.isString(t.producerVersion))return"producerVersion: string expected";if(t.domain!=null&&t.hasOwnProperty("domain")&&!b.isString(t.domain))return"domain: string expected";if(t.modelVersion!=null&&t.hasOwnProperty("modelVersion")&&!b.isInteger(t.modelVersion)&&!(t.modelVersion&&b.isInteger(t.modelVersion.low)&&b.isInteger(t.modelVersion.high)))return"modelVersion: integer|Long expected";if(t.docString!=null&&t.hasOwnProperty("docString")&&!b.isString(t.docString))return"docString: string expected";if(t.graph!=null&&t.hasOwnProperty("graph")){var n=h.onnx.GraphProto.verify(t.graph);if(n)return"graph."+n}if(t.metadataProps!=null&&t.hasOwnProperty("metadataProps")){if(!Array.isArray(t.metadataProps))return"metadataProps: array expected";for(var r=0;r<t.metadataProps.length;++r){var n=h.onnx.StringStringEntryProto.verify(t.metadataProps[r]);if(n)return"metadataProps."+n}}if(t.trainingInfo!=null&&t.hasOwnProperty("trainingInfo")){if(!Array.isArray(t.trainingInfo))return"trainingInfo: array expected";for(var r=0;r<t.trainingInfo.length;++r){var n=h.onnx.TrainingInfoProto.verify(t.trainingInfo[r]);if(n)return"trainingInfo."+n}}if(t.functions!=null&&t.hasOwnProperty("functions")){if(!Array.isArray(t.functions))return"functions: array expected";for(var r=0;r<t.functions.length;++r){var n=h.onnx.FunctionProto.verify(t.functions[r]);if(n)return"functions."+n}}return null},e.fromObject=function(t){if(t instanceof h.onnx.ModelProto)return t;var r=new h.onnx.ModelProto;if(t.irVersion!=null&&(b.Long?(r.irVersion=b.Long.fromValue(t.irVersion)).unsigned=!1:typeof t.irVersion=="string"?r.irVersion=parseInt(t.irVersion,10):typeof t.irVersion=="number"?r.irVersion=t.irVersion:typeof t.irVersion=="object"&&(r.irVersion=new b.LongBits(t.irVersion.low>>>0,t.irVersion.high>>>0).toNumber())),t.opsetImport){if(!Array.isArray(t.opsetImport))throw TypeError(".onnx.ModelProto.opsetImport: array expected");r.opsetImport=[];for(var n=0;n<t.opsetImport.length;++n){if(typeof t.opsetImport[n]!="object")throw TypeError(".onnx.ModelProto.opsetImport: object expected");r.opsetImport[n]=h.onnx.OperatorSetIdProto.fromObject(t.opsetImport[n])}}if(t.producerName!=null&&(r.producerName=String(t.producerName)),t.producerVersion!=null&&(r.producerVersion=String(t.producerVersion)),t.domain!=null&&(r.domain=String(t.domain)),t.modelVersion!=null&&(b.Long?(r.modelVersion=b.Long.fromValue(t.modelVersion)).unsigned=!1:typeof t.modelVersion=="string"?r.modelVersion=parseInt(t.modelVersion,10):typeof t.modelVersion=="number"?r.modelVersion=t.modelVersion:typeof t.modelVersion=="object"&&(r.modelVersion=new b.LongBits(t.modelVersion.low>>>0,t.modelVersion.high>>>0).toNumber())),t.docString!=null&&(r.docString=String(t.docString)),t.graph!=null){if(typeof t.graph!="object")throw TypeError(".onnx.ModelProto.graph: object expected");r.graph=h.onnx.GraphProto.fromObject(t.graph)}if(t.metadataProps){if(!Array.isArray(t.metadataProps))throw TypeError(".onnx.ModelProto.metadataProps: array expected");r.metadataProps=[];for(var n=0;n<t.metadataProps.length;++n){if(typeof t.metadataProps[n]!="object")throw TypeError(".onnx.ModelProto.metadataProps: object expected");r.metadataProps[n]=h.onnx.StringStringEntryProto.fromObject(t.metadataProps[n])}}if(t.trainingInfo){if(!Array.isArray(t.trainingInfo))throw TypeError(".onnx.ModelProto.trainingInfo: array expected");r.trainingInfo=[];for(var n=0;n<t.trainingInfo.length;++n){if(typeof t.trainingInfo[n]!="object")throw TypeError(".onnx.ModelProto.trainingInfo: object expected");r.trainingInfo[n]=h.onnx.TrainingInfoProto.fromObject(t.trainingInfo[n])}}if(t.functions){if(!Array.isArray(t.functions))throw TypeError(".onnx.ModelProto.functions: array expected");r.functions=[];for(var n=0;n<t.functions.length;++n){if(typeof t.functions[n]!="object")throw TypeError(".onnx.ModelProto.functions: object expected");r.functions[n]=h.onnx.FunctionProto.fromObject(t.functions[n])}}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.opsetImport=[],n.metadataProps=[],n.trainingInfo=[],n.functions=[]),r.defaults){if(b.Long){var s=new b.Long(0,0,!1);n.irVersion=r.longs===String?s.toString():r.longs===Number?s.toNumber():s}else n.irVersion=r.longs===String?"0":0;if(n.producerName="",n.producerVersion="",n.domain="",b.Long){var s=new b.Long(0,0,!1);n.modelVersion=r.longs===String?s.toString():r.longs===Number?s.toNumber():s}else n.modelVersion=r.longs===String?"0":0;n.docString="",n.graph=null}if(t.irVersion!=null&&t.hasOwnProperty("irVersion")&&(typeof t.irVersion=="number"?n.irVersion=r.longs===String?String(t.irVersion):t.irVersion:n.irVersion=r.longs===String?b.Long.prototype.toString.call(t.irVersion):r.longs===Number?new b.LongBits(t.irVersion.low>>>0,t.irVersion.high>>>0).toNumber():t.irVersion),t.producerName!=null&&t.hasOwnProperty("producerName")&&(n.producerName=t.producerName),t.producerVersion!=null&&t.hasOwnProperty("producerVersion")&&(n.producerVersion=t.producerVersion),t.domain!=null&&t.hasOwnProperty("domain")&&(n.domain=t.domain),t.modelVersion!=null&&t.hasOwnProperty("modelVersion")&&(typeof t.modelVersion=="number"?n.modelVersion=r.longs===String?String(t.modelVersion):t.modelVersion:n.modelVersion=r.longs===String?b.Long.prototype.toString.call(t.modelVersion):r.longs===Number?new b.LongBits(t.modelVersion.low>>>0,t.modelVersion.high>>>0).toNumber():t.modelVersion),t.docString!=null&&t.hasOwnProperty("docString")&&(n.docString=t.docString),t.graph!=null&&t.hasOwnProperty("graph")&&(n.graph=h.onnx.GraphProto.toObject(t.graph,r)),t.opsetImport&&t.opsetImport.length){n.opsetImport=[];for(var a=0;a<t.opsetImport.length;++a)n.opsetImport[a]=h.onnx.OperatorSetIdProto.toObject(t.opsetImport[a],r)}if(t.metadataProps&&t.metadataProps.length){n.metadataProps=[];for(var a=0;a<t.metadataProps.length;++a)n.metadataProps[a]=h.onnx.StringStringEntryProto.toObject(t.metadataProps[a],r)}if(t.trainingInfo&&t.trainingInfo.length){n.trainingInfo=[];for(var a=0;a<t.trainingInfo.length;++a)n.trainingInfo[a]=h.onnx.TrainingInfoProto.toObject(t.trainingInfo[a],r)}if(t.functions&&t.functions.length){n.functions=[];for(var a=0;a<t.functions.length;++a)n.functions[a]=h.onnx.FunctionProto.toObject(t.functions[a],r)}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.ModelProto"},e}(),i.StringStringEntryProto=function(){function e(o){if(o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.key="",e.prototype.value="",e.create=function(t){return new e(t)},e.encode=function(t,r){return r||(r=pt.create()),t.key!=null&&Object.hasOwnProperty.call(t,"key")&&r.uint32(10).string(t.key),t.value!=null&&Object.hasOwnProperty.call(t,"value")&&r.uint32(18).string(t.value),r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.StringStringEntryProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.key=t.string();break}case 2:{s.value=t.string();break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){return typeof t!="object"||t===null?"object expected":t.key!=null&&t.hasOwnProperty("key")&&!b.isString(t.key)?"key: string expected":t.value!=null&&t.hasOwnProperty("value")&&!b.isString(t.value)?"value: string expected":null},e.fromObject=function(t){if(t instanceof h.onnx.StringStringEntryProto)return t;var r=new h.onnx.StringStringEntryProto;return t.key!=null&&(r.key=String(t.key)),t.value!=null&&(r.value=String(t.value)),r},e.toObject=function(t,r){r||(r={});var n={};return r.defaults&&(n.key="",n.value=""),t.key!=null&&t.hasOwnProperty("key")&&(n.key=t.key),t.value!=null&&t.hasOwnProperty("value")&&(n.value=t.value),n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.StringStringEntryProto"},e}(),i.TensorAnnotation=function(){function e(o){if(this.quantParameterTensorNames=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.tensorName="",e.prototype.quantParameterTensorNames=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.tensorName!=null&&Object.hasOwnProperty.call(t,"tensorName")&&r.uint32(10).string(t.tensorName),t.quantParameterTensorNames!=null&&t.quantParameterTensorNames.length)for(var n=0;n<t.quantParameterTensorNames.length;++n)h.onnx.StringStringEntryProto.encode(t.quantParameterTensorNames[n],r.uint32(18).fork()).ldelim();return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.TensorAnnotation;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.tensorName=t.string();break}case 2:{s.quantParameterTensorNames&&s.quantParameterTensorNames.length||(s.quantParameterTensorNames=[]),s.quantParameterTensorNames.push(h.onnx.StringStringEntryProto.decode(t,t.uint32()));break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.tensorName!=null&&t.hasOwnProperty("tensorName")&&!b.isString(t.tensorName))return"tensorName: string expected";if(t.quantParameterTensorNames!=null&&t.hasOwnProperty("quantParameterTensorNames")){if(!Array.isArray(t.quantParameterTensorNames))return"quantParameterTensorNames: array expected";for(var r=0;r<t.quantParameterTensorNames.length;++r){var n=h.onnx.StringStringEntryProto.verify(t.quantParameterTensorNames[r]);if(n)return"quantParameterTensorNames."+n}}return null},e.fromObject=function(t){if(t instanceof h.onnx.TensorAnnotation)return t;var r=new h.onnx.TensorAnnotation;if(t.tensorName!=null&&(r.tensorName=String(t.tensorName)),t.quantParameterTensorNames){if(!Array.isArray(t.quantParameterTensorNames))throw TypeError(".onnx.TensorAnnotation.quantParameterTensorNames: array expected");r.quantParameterTensorNames=[];for(var n=0;n<t.quantParameterTensorNames.length;++n){if(typeof t.quantParameterTensorNames[n]!="object")throw TypeError(".onnx.TensorAnnotation.quantParameterTensorNames: object expected");r.quantParameterTensorNames[n]=h.onnx.StringStringEntryProto.fromObject(t.quantParameterTensorNames[n])}}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.quantParameterTensorNames=[]),r.defaults&&(n.tensorName=""),t.tensorName!=null&&t.hasOwnProperty("tensorName")&&(n.tensorName=t.tensorName),t.quantParameterTensorNames&&t.quantParameterTensorNames.length){n.quantParameterTensorNames=[];for(var s=0;s<t.quantParameterTensorNames.length;++s)n.quantParameterTensorNames[s]=h.onnx.StringStringEntryProto.toObject(t.quantParameterTensorNames[s],r)}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.TensorAnnotation"},e}(),i.GraphProto=function(){function e(o){if(this.node=[],this.initializer=[],this.sparseInitializer=[],this.input=[],this.output=[],this.valueInfo=[],this.quantizationAnnotation=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.node=b.emptyArray,e.prototype.name="",e.prototype.initializer=b.emptyArray,e.prototype.sparseInitializer=b.emptyArray,e.prototype.docString="",e.prototype.input=b.emptyArray,e.prototype.output=b.emptyArray,e.prototype.valueInfo=b.emptyArray,e.prototype.quantizationAnnotation=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.node!=null&&t.node.length)for(var n=0;n<t.node.length;++n)h.onnx.NodeProto.encode(t.node[n],r.uint32(10).fork()).ldelim();if(t.name!=null&&Object.hasOwnProperty.call(t,"name")&&r.uint32(18).string(t.name),t.initializer!=null&&t.initializer.length)for(var n=0;n<t.initializer.length;++n)h.onnx.TensorProto.encode(t.initializer[n],r.uint32(42).fork()).ldelim();if(t.docString!=null&&Object.hasOwnProperty.call(t,"docString")&&r.uint32(82).string(t.docString),t.input!=null&&t.input.length)for(var n=0;n<t.input.length;++n)h.onnx.ValueInfoProto.encode(t.input[n],r.uint32(90).fork()).ldelim();if(t.output!=null&&t.output.length)for(var n=0;n<t.output.length;++n)h.onnx.ValueInfoProto.encode(t.output[n],r.uint32(98).fork()).ldelim();if(t.valueInfo!=null&&t.valueInfo.length)for(var n=0;n<t.valueInfo.length;++n)h.onnx.ValueInfoProto.encode(t.valueInfo[n],r.uint32(106).fork()).ldelim();if(t.quantizationAnnotation!=null&&t.quantizationAnnotation.length)for(var n=0;n<t.quantizationAnnotation.length;++n)h.onnx.TensorAnnotation.encode(t.quantizationAnnotation[n],r.uint32(114).fork()).ldelim();if(t.sparseInitializer!=null&&t.sparseInitializer.length)for(var n=0;n<t.sparseInitializer.length;++n)h.onnx.SparseTensorProto.encode(t.sparseInitializer[n],r.uint32(122).fork()).ldelim();return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.GraphProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.node&&s.node.length||(s.node=[]),s.node.push(h.onnx.NodeProto.decode(t,t.uint32()));break}case 2:{s.name=t.string();break}case 5:{s.initializer&&s.initializer.length||(s.initializer=[]),s.initializer.push(h.onnx.TensorProto.decode(t,t.uint32()));break}case 15:{s.sparseInitializer&&s.sparseInitializer.length||(s.sparseInitializer=[]),s.sparseInitializer.push(h.onnx.SparseTensorProto.decode(t,t.uint32()));break}case 10:{s.docString=t.string();break}case 11:{s.input&&s.input.length||(s.input=[]),s.input.push(h.onnx.ValueInfoProto.decode(t,t.uint32()));break}case 12:{s.output&&s.output.length||(s.output=[]),s.output.push(h.onnx.ValueInfoProto.decode(t,t.uint32()));break}case 13:{s.valueInfo&&s.valueInfo.length||(s.valueInfo=[]),s.valueInfo.push(h.onnx.ValueInfoProto.decode(t,t.uint32()));break}case 14:{s.quantizationAnnotation&&s.quantizationAnnotation.length||(s.quantizationAnnotation=[]),s.quantizationAnnotation.push(h.onnx.TensorAnnotation.decode(t,t.uint32()));break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.node!=null&&t.hasOwnProperty("node")){if(!Array.isArray(t.node))return"node: array expected";for(var r=0;r<t.node.length;++r){var n=h.onnx.NodeProto.verify(t.node[r]);if(n)return"node."+n}}if(t.name!=null&&t.hasOwnProperty("name")&&!b.isString(t.name))return"name: string expected";if(t.initializer!=null&&t.hasOwnProperty("initializer")){if(!Array.isArray(t.initializer))return"initializer: array expected";for(var r=0;r<t.initializer.length;++r){var n=h.onnx.TensorProto.verify(t.initializer[r]);if(n)return"initializer."+n}}if(t.sparseInitializer!=null&&t.hasOwnProperty("sparseInitializer")){if(!Array.isArray(t.sparseInitializer))return"sparseInitializer: array expected";for(var r=0;r<t.sparseInitializer.length;++r){var n=h.onnx.SparseTensorProto.verify(t.sparseInitializer[r]);if(n)return"sparseInitializer."+n}}if(t.docString!=null&&t.hasOwnProperty("docString")&&!b.isString(t.docString))return"docString: string expected";if(t.input!=null&&t.hasOwnProperty("input")){if(!Array.isArray(t.input))return"input: array expected";for(var r=0;r<t.input.length;++r){var n=h.onnx.ValueInfoProto.verify(t.input[r]);if(n)return"input."+n}}if(t.output!=null&&t.hasOwnProperty("output")){if(!Array.isArray(t.output))return"output: array expected";for(var r=0;r<t.output.length;++r){var n=h.onnx.ValueInfoProto.verify(t.output[r]);if(n)return"output."+n}}if(t.valueInfo!=null&&t.hasOwnProperty("valueInfo")){if(!Array.isArray(t.valueInfo))return"valueInfo: array expected";for(var r=0;r<t.valueInfo.length;++r){var n=h.onnx.ValueInfoProto.verify(t.valueInfo[r]);if(n)return"valueInfo."+n}}if(t.quantizationAnnotation!=null&&t.hasOwnProperty("quantizationAnnotation")){if(!Array.isArray(t.quantizationAnnotation))return"quantizationAnnotation: array expected";for(var r=0;r<t.quantizationAnnotation.length;++r){var n=h.onnx.TensorAnnotation.verify(t.quantizationAnnotation[r]);if(n)return"quantizationAnnotation."+n}}return null},e.fromObject=function(t){if(t instanceof h.onnx.GraphProto)return t;var r=new h.onnx.GraphProto;if(t.node){if(!Array.isArray(t.node))throw TypeError(".onnx.GraphProto.node: array expected");r.node=[];for(var n=0;n<t.node.length;++n){if(typeof t.node[n]!="object")throw TypeError(".onnx.GraphProto.node: object expected");r.node[n]=h.onnx.NodeProto.fromObject(t.node[n])}}if(t.name!=null&&(r.name=String(t.name)),t.initializer){if(!Array.isArray(t.initializer))throw TypeError(".onnx.GraphProto.initializer: array expected");r.initializer=[];for(var n=0;n<t.initializer.length;++n){if(typeof t.initializer[n]!="object")throw TypeError(".onnx.GraphProto.initializer: object expected");r.initializer[n]=h.onnx.TensorProto.fromObject(t.initializer[n])}}if(t.sparseInitializer){if(!Array.isArray(t.sparseInitializer))throw TypeError(".onnx.GraphProto.sparseInitializer: array expected");r.sparseInitializer=[];for(var n=0;n<t.sparseInitializer.length;++n){if(typeof t.sparseInitializer[n]!="object")throw TypeError(".onnx.GraphProto.sparseInitializer: object expected");r.sparseInitializer[n]=h.onnx.SparseTensorProto.fromObject(t.sparseInitializer[n])}}if(t.docString!=null&&(r.docString=String(t.docString)),t.input){if(!Array.isArray(t.input))throw TypeError(".onnx.GraphProto.input: array expected");r.input=[];for(var n=0;n<t.input.length;++n){if(typeof t.input[n]!="object")throw TypeError(".onnx.GraphProto.input: object expected");r.input[n]=h.onnx.ValueInfoProto.fromObject(t.input[n])}}if(t.output){if(!Array.isArray(t.output))throw TypeError(".onnx.GraphProto.output: array expected");r.output=[];for(var n=0;n<t.output.length;++n){if(typeof t.output[n]!="object")throw TypeError(".onnx.GraphProto.output: object expected");r.output[n]=h.onnx.ValueInfoProto.fromObject(t.output[n])}}if(t.valueInfo){if(!Array.isArray(t.valueInfo))throw TypeError(".onnx.GraphProto.valueInfo: array expected");r.valueInfo=[];for(var n=0;n<t.valueInfo.length;++n){if(typeof t.valueInfo[n]!="object")throw TypeError(".onnx.GraphProto.valueInfo: object expected");r.valueInfo[n]=h.onnx.ValueInfoProto.fromObject(t.valueInfo[n])}}if(t.quantizationAnnotation){if(!Array.isArray(t.quantizationAnnotation))throw TypeError(".onnx.GraphProto.quantizationAnnotation: array expected");r.quantizationAnnotation=[];for(var n=0;n<t.quantizationAnnotation.length;++n){if(typeof t.quantizationAnnotation[n]!="object")throw TypeError(".onnx.GraphProto.quantizationAnnotation: object expected");r.quantizationAnnotation[n]=h.onnx.TensorAnnotation.fromObject(t.quantizationAnnotation[n])}}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.node=[],n.initializer=[],n.input=[],n.output=[],n.valueInfo=[],n.quantizationAnnotation=[],n.sparseInitializer=[]),r.defaults&&(n.name="",n.docString=""),t.node&&t.node.length){n.node=[];for(var s=0;s<t.node.length;++s)n.node[s]=h.onnx.NodeProto.toObject(t.node[s],r)}if(t.name!=null&&t.hasOwnProperty("name")&&(n.name=t.name),t.initializer&&t.initializer.length){n.initializer=[];for(var s=0;s<t.initializer.length;++s)n.initializer[s]=h.onnx.TensorProto.toObject(t.initializer[s],r)}if(t.docString!=null&&t.hasOwnProperty("docString")&&(n.docString=t.docString),t.input&&t.input.length){n.input=[];for(var s=0;s<t.input.length;++s)n.input[s]=h.onnx.ValueInfoProto.toObject(t.input[s],r)}if(t.output&&t.output.length){n.output=[];for(var s=0;s<t.output.length;++s)n.output[s]=h.onnx.ValueInfoProto.toObject(t.output[s],r)}if(t.valueInfo&&t.valueInfo.length){n.valueInfo=[];for(var s=0;s<t.valueInfo.length;++s)n.valueInfo[s]=h.onnx.ValueInfoProto.toObject(t.valueInfo[s],r)}if(t.quantizationAnnotation&&t.quantizationAnnotation.length){n.quantizationAnnotation=[];for(var s=0;s<t.quantizationAnnotation.length;++s)n.quantizationAnnotation[s]=h.onnx.TensorAnnotation.toObject(t.quantizationAnnotation[s],r)}if(t.sparseInitializer&&t.sparseInitializer.length){n.sparseInitializer=[];for(var s=0;s<t.sparseInitializer.length;++s)n.sparseInitializer[s]=h.onnx.SparseTensorProto.toObject(t.sparseInitializer[s],r)}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.GraphProto"},e}(),i.TensorProto=function(){function e(o){if(this.dims=[],this.floatData=[],this.int32Data=[],this.stringData=[],this.int64Data=[],this.externalData=[],this.doubleData=[],this.uint64Data=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.dims=b.emptyArray,e.prototype.dataType=0,e.prototype.segment=null,e.prototype.floatData=b.emptyArray,e.prototype.int32Data=b.emptyArray,e.prototype.stringData=b.emptyArray,e.prototype.int64Data=b.emptyArray,e.prototype.name="",e.prototype.docString="",e.prototype.rawData=b.newBuffer([]),e.prototype.externalData=b.emptyArray,e.prototype.dataLocation=0,e.prototype.doubleData=b.emptyArray,e.prototype.uint64Data=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.dims!=null&&t.dims.length){r.uint32(10).fork();for(var n=0;n<t.dims.length;++n)r.int64(t.dims[n]);r.ldelim()}if(t.dataType!=null&&Object.hasOwnProperty.call(t,"dataType")&&r.uint32(16).int32(t.dataType),t.segment!=null&&Object.hasOwnProperty.call(t,"segment")&&h.onnx.TensorProto.Segment.encode(t.segment,r.uint32(26).fork()).ldelim(),t.floatData!=null&&t.floatData.length){r.uint32(34).fork();for(var n=0;n<t.floatData.length;++n)r.float(t.floatData[n]);r.ldelim()}if(t.int32Data!=null&&t.int32Data.length){r.uint32(42).fork();for(var n=0;n<t.int32Data.length;++n)r.int32(t.int32Data[n]);r.ldelim()}if(t.stringData!=null&&t.stringData.length)for(var n=0;n<t.stringData.length;++n)r.uint32(50).bytes(t.stringData[n]);if(t.int64Data!=null&&t.int64Data.length){r.uint32(58).fork();for(var n=0;n<t.int64Data.length;++n)r.int64(t.int64Data[n]);r.ldelim()}if(t.name!=null&&Object.hasOwnProperty.call(t,"name")&&r.uint32(66).string(t.name),t.rawData!=null&&Object.hasOwnProperty.call(t,"rawData")&&r.uint32(74).bytes(t.rawData),t.doubleData!=null&&t.doubleData.length){r.uint32(82).fork();for(var n=0;n<t.doubleData.length;++n)r.double(t.doubleData[n]);r.ldelim()}if(t.uint64Data!=null&&t.uint64Data.length){r.uint32(90).fork();for(var n=0;n<t.uint64Data.length;++n)r.uint64(t.uint64Data[n]);r.ldelim()}if(t.docString!=null&&Object.hasOwnProperty.call(t,"docString")&&r.uint32(98).string(t.docString),t.externalData!=null&&t.externalData.length)for(var n=0;n<t.externalData.length;++n)h.onnx.StringStringEntryProto.encode(t.externalData[n],r.uint32(106).fork()).ldelim();return t.dataLocation!=null&&Object.hasOwnProperty.call(t,"dataLocation")&&r.uint32(112).int32(t.dataLocation),r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.TensorProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{if(s.dims&&s.dims.length||(s.dims=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.dims.push(t.int64());else s.dims.push(t.int64());break}case 2:{s.dataType=t.int32();break}case 3:{s.segment=h.onnx.TensorProto.Segment.decode(t,t.uint32());break}case 4:{if(s.floatData&&s.floatData.length||(s.floatData=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.floatData.push(t.float());else s.floatData.push(t.float());break}case 5:{if(s.int32Data&&s.int32Data.length||(s.int32Data=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.int32Data.push(t.int32());else s.int32Data.push(t.int32());break}case 6:{s.stringData&&s.stringData.length||(s.stringData=[]),s.stringData.push(t.bytes());break}case 7:{if(s.int64Data&&s.int64Data.length||(s.int64Data=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.int64Data.push(t.int64());else s.int64Data.push(t.int64());break}case 8:{s.name=t.string();break}case 12:{s.docString=t.string();break}case 9:{s.rawData=t.bytes();break}case 13:{s.externalData&&s.externalData.length||(s.externalData=[]),s.externalData.push(h.onnx.StringStringEntryProto.decode(t,t.uint32()));break}case 14:{s.dataLocation=t.int32();break}case 10:{if(s.doubleData&&s.doubleData.length||(s.doubleData=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.doubleData.push(t.double());else s.doubleData.push(t.double());break}case 11:{if(s.uint64Data&&s.uint64Data.length||(s.uint64Data=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.uint64Data.push(t.uint64());else s.uint64Data.push(t.uint64());break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.dims!=null&&t.hasOwnProperty("dims")){if(!Array.isArray(t.dims))return"dims: array expected";for(var r=0;r<t.dims.length;++r)if(!b.isInteger(t.dims[r])&&!(t.dims[r]&&b.isInteger(t.dims[r].low)&&b.isInteger(t.dims[r].high)))return"dims: integer|Long[] expected"}if(t.dataType!=null&&t.hasOwnProperty("dataType")&&!b.isInteger(t.dataType))return"dataType: integer expected";if(t.segment!=null&&t.hasOwnProperty("segment")){var n=h.onnx.TensorProto.Segment.verify(t.segment);if(n)return"segment."+n}if(t.floatData!=null&&t.hasOwnProperty("floatData")){if(!Array.isArray(t.floatData))return"floatData: array expected";for(var r=0;r<t.floatData.length;++r)if(typeof t.floatData[r]!="number")return"floatData: number[] expected"}if(t.int32Data!=null&&t.hasOwnProperty("int32Data")){if(!Array.isArray(t.int32Data))return"int32Data: array expected";for(var r=0;r<t.int32Data.length;++r)if(!b.isInteger(t.int32Data[r]))return"int32Data: integer[] expected"}if(t.stringData!=null&&t.hasOwnProperty("stringData")){if(!Array.isArray(t.stringData))return"stringData: array expected";for(var r=0;r<t.stringData.length;++r)if(!(t.stringData[r]&&typeof t.stringData[r].length=="number"||b.isString(t.stringData[r])))return"stringData: buffer[] expected"}if(t.int64Data!=null&&t.hasOwnProperty("int64Data")){if(!Array.isArray(t.int64Data))return"int64Data: array expected";for(var r=0;r<t.int64Data.length;++r)if(!b.isInteger(t.int64Data[r])&&!(t.int64Data[r]&&b.isInteger(t.int64Data[r].low)&&b.isInteger(t.int64Data[r].high)))return"int64Data: integer|Long[] expected"}if(t.name!=null&&t.hasOwnProperty("name")&&!b.isString(t.name))return"name: string expected";if(t.docString!=null&&t.hasOwnProperty("docString")&&!b.isString(t.docString))return"docString: string expected";if(t.rawData!=null&&t.hasOwnProperty("rawData")&&!(t.rawData&&typeof t.rawData.length=="number"||b.isString(t.rawData)))return"rawData: buffer expected";if(t.externalData!=null&&t.hasOwnProperty("externalData")){if(!Array.isArray(t.externalData))return"externalData: array expected";for(var r=0;r<t.externalData.length;++r){var n=h.onnx.StringStringEntryProto.verify(t.externalData[r]);if(n)return"externalData."+n}}if(t.dataLocation!=null&&t.hasOwnProperty("dataLocation"))switch(t.dataLocation){default:return"dataLocation: enum value expected";case 0:case 1:break}if(t.doubleData!=null&&t.hasOwnProperty("doubleData")){if(!Array.isArray(t.doubleData))return"doubleData: array expected";for(var r=0;r<t.doubleData.length;++r)if(typeof t.doubleData[r]!="number")return"doubleData: number[] expected"}if(t.uint64Data!=null&&t.hasOwnProperty("uint64Data")){if(!Array.isArray(t.uint64Data))return"uint64Data: array expected";for(var r=0;r<t.uint64Data.length;++r)if(!b.isInteger(t.uint64Data[r])&&!(t.uint64Data[r]&&b.isInteger(t.uint64Data[r].low)&&b.isInteger(t.uint64Data[r].high)))return"uint64Data: integer|Long[] expected"}return null},e.fromObject=function(t){if(t instanceof h.onnx.TensorProto)return t;var r=new h.onnx.TensorProto;if(t.dims){if(!Array.isArray(t.dims))throw TypeError(".onnx.TensorProto.dims: array expected");r.dims=[];for(var n=0;n<t.dims.length;++n)b.Long?(r.dims[n]=b.Long.fromValue(t.dims[n])).unsigned=!1:typeof t.dims[n]=="string"?r.dims[n]=parseInt(t.dims[n],10):typeof t.dims[n]=="number"?r.dims[n]=t.dims[n]:typeof t.dims[n]=="object"&&(r.dims[n]=new b.LongBits(t.dims[n].low>>>0,t.dims[n].high>>>0).toNumber())}if(t.dataType!=null&&(r.dataType=t.dataType|0),t.segment!=null){if(typeof t.segment!="object")throw TypeError(".onnx.TensorProto.segment: object expected");r.segment=h.onnx.TensorProto.Segment.fromObject(t.segment)}if(t.floatData){if(!Array.isArray(t.floatData))throw TypeError(".onnx.TensorProto.floatData: array expected");r.floatData=[];for(var n=0;n<t.floatData.length;++n)r.floatData[n]=Number(t.floatData[n])}if(t.int32Data){if(!Array.isArray(t.int32Data))throw TypeError(".onnx.TensorProto.int32Data: array expected");r.int32Data=[];for(var n=0;n<t.int32Data.length;++n)r.int32Data[n]=t.int32Data[n]|0}if(t.stringData){if(!Array.isArray(t.stringData))throw TypeError(".onnx.TensorProto.stringData: array expected");r.stringData=[];for(var n=0;n<t.stringData.length;++n)typeof t.stringData[n]=="string"?b.base64.decode(t.stringData[n],r.stringData[n]=b.newBuffer(b.base64.length(t.stringData[n])),0):t.stringData[n].length>=0&&(r.stringData[n]=t.stringData[n])}if(t.int64Data){if(!Array.isArray(t.int64Data))throw TypeError(".onnx.TensorProto.int64Data: array expected");r.int64Data=[];for(var n=0;n<t.int64Data.length;++n)b.Long?(r.int64Data[n]=b.Long.fromValue(t.int64Data[n])).unsigned=!1:typeof t.int64Data[n]=="string"?r.int64Data[n]=parseInt(t.int64Data[n],10):typeof t.int64Data[n]=="number"?r.int64Data[n]=t.int64Data[n]:typeof t.int64Data[n]=="object"&&(r.int64Data[n]=new b.LongBits(t.int64Data[n].low>>>0,t.int64Data[n].high>>>0).toNumber())}if(t.name!=null&&(r.name=String(t.name)),t.docString!=null&&(r.docString=String(t.docString)),t.rawData!=null&&(typeof t.rawData=="string"?b.base64.decode(t.rawData,r.rawData=b.newBuffer(b.base64.length(t.rawData)),0):t.rawData.length>=0&&(r.rawData=t.rawData)),t.externalData){if(!Array.isArray(t.externalData))throw TypeError(".onnx.TensorProto.externalData: array expected");r.externalData=[];for(var n=0;n<t.externalData.length;++n){if(typeof t.externalData[n]!="object")throw TypeError(".onnx.TensorProto.externalData: object expected");r.externalData[n]=h.onnx.StringStringEntryProto.fromObject(t.externalData[n])}}switch(t.dataLocation){default:if(typeof t.dataLocation=="number"){r.dataLocation=t.dataLocation;break}break;case"DEFAULT":case 0:r.dataLocation=0;break;case"EXTERNAL":case 1:r.dataLocation=1;break}if(t.doubleData){if(!Array.isArray(t.doubleData))throw TypeError(".onnx.TensorProto.doubleData: array expected");r.doubleData=[];for(var n=0;n<t.doubleData.length;++n)r.doubleData[n]=Number(t.doubleData[n])}if(t.uint64Data){if(!Array.isArray(t.uint64Data))throw TypeError(".onnx.TensorProto.uint64Data: array expected");r.uint64Data=[];for(var n=0;n<t.uint64Data.length;++n)b.Long?(r.uint64Data[n]=b.Long.fromValue(t.uint64Data[n])).unsigned=!0:typeof t.uint64Data[n]=="string"?r.uint64Data[n]=parseInt(t.uint64Data[n],10):typeof t.uint64Data[n]=="number"?r.uint64Data[n]=t.uint64Data[n]:typeof t.uint64Data[n]=="object"&&(r.uint64Data[n]=new b.LongBits(t.uint64Data[n].low>>>0,t.uint64Data[n].high>>>0).toNumber(!0))}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.dims=[],n.floatData=[],n.int32Data=[],n.stringData=[],n.int64Data=[],n.doubleData=[],n.uint64Data=[],n.externalData=[]),r.defaults&&(n.dataType=0,n.segment=null,n.name="",r.bytes===String?n.rawData="":(n.rawData=[],r.bytes!==Array&&(n.rawData=b.newBuffer(n.rawData))),n.docString="",n.dataLocation=r.enums===String?"DEFAULT":0),t.dims&&t.dims.length){n.dims=[];for(var s=0;s<t.dims.length;++s)typeof t.dims[s]=="number"?n.dims[s]=r.longs===String?String(t.dims[s]):t.dims[s]:n.dims[s]=r.longs===String?b.Long.prototype.toString.call(t.dims[s]):r.longs===Number?new b.LongBits(t.dims[s].low>>>0,t.dims[s].high>>>0).toNumber():t.dims[s]}if(t.dataType!=null&&t.hasOwnProperty("dataType")&&(n.dataType=t.dataType),t.segment!=null&&t.hasOwnProperty("segment")&&(n.segment=h.onnx.TensorProto.Segment.toObject(t.segment,r)),t.floatData&&t.floatData.length){n.floatData=[];for(var s=0;s<t.floatData.length;++s)n.floatData[s]=r.json&&!isFinite(t.floatData[s])?String(t.floatData[s]):t.floatData[s]}if(t.int32Data&&t.int32Data.length){n.int32Data=[];for(var s=0;s<t.int32Data.length;++s)n.int32Data[s]=t.int32Data[s]}if(t.stringData&&t.stringData.length){n.stringData=[];for(var s=0;s<t.stringData.length;++s)n.stringData[s]=r.bytes===String?b.base64.encode(t.stringData[s],0,t.stringData[s].length):r.bytes===Array?Array.prototype.slice.call(t.stringData[s]):t.stringData[s]}if(t.int64Data&&t.int64Data.length){n.int64Data=[];for(var s=0;s<t.int64Data.length;++s)typeof t.int64Data[s]=="number"?n.int64Data[s]=r.longs===String?String(t.int64Data[s]):t.int64Data[s]:n.int64Data[s]=r.longs===String?b.Long.prototype.toString.call(t.int64Data[s]):r.longs===Number?new b.LongBits(t.int64Data[s].low>>>0,t.int64Data[s].high>>>0).toNumber():t.int64Data[s]}if(t.name!=null&&t.hasOwnProperty("name")&&(n.name=t.name),t.rawData!=null&&t.hasOwnProperty("rawData")&&(n.rawData=r.bytes===String?b.base64.encode(t.rawData,0,t.rawData.length):r.bytes===Array?Array.prototype.slice.call(t.rawData):t.rawData),t.doubleData&&t.doubleData.length){n.doubleData=[];for(var s=0;s<t.doubleData.length;++s)n.doubleData[s]=r.json&&!isFinite(t.doubleData[s])?String(t.doubleData[s]):t.doubleData[s]}if(t.uint64Data&&t.uint64Data.length){n.uint64Data=[];for(var s=0;s<t.uint64Data.length;++s)typeof t.uint64Data[s]=="number"?n.uint64Data[s]=r.longs===String?String(t.uint64Data[s]):t.uint64Data[s]:n.uint64Data[s]=r.longs===String?b.Long.prototype.toString.call(t.uint64Data[s]):r.longs===Number?new b.LongBits(t.uint64Data[s].low>>>0,t.uint64Data[s].high>>>0).toNumber(!0):t.uint64Data[s]}if(t.docString!=null&&t.hasOwnProperty("docString")&&(n.docString=t.docString),t.externalData&&t.externalData.length){n.externalData=[];for(var s=0;s<t.externalData.length;++s)n.externalData[s]=h.onnx.StringStringEntryProto.toObject(t.externalData[s],r)}return t.dataLocation!=null&&t.hasOwnProperty("dataLocation")&&(n.dataLocation=r.enums===String?h.onnx.TensorProto.DataLocation[t.dataLocation]===void 0?t.dataLocation:h.onnx.TensorProto.DataLocation[t.dataLocation]:t.dataLocation),n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.TensorProto"},e.DataType=function(){var o={},t=Object.create(o);return t[o[0]="UNDEFINED"]=0,t[o[1]="FLOAT"]=1,t[o[2]="UINT8"]=2,t[o[3]="INT8"]=3,t[o[4]="UINT16"]=4,t[o[5]="INT16"]=5,t[o[6]="INT32"]=6,t[o[7]="INT64"]=7,t[o[8]="STRING"]=8,t[o[9]="BOOL"]=9,t[o[10]="FLOAT16"]=10,t[o[11]="DOUBLE"]=11,t[o[12]="UINT32"]=12,t[o[13]="UINT64"]=13,t[o[14]="COMPLEX64"]=14,t[o[15]="COMPLEX128"]=15,t[o[16]="BFLOAT16"]=16,t[o[17]="FLOAT8E4M3FN"]=17,t[o[18]="FLOAT8E4M3FNUZ"]=18,t[o[19]="FLOAT8E5M2"]=19,t[o[20]="FLOAT8E5M2FNUZ"]=20,t}(),e.Segment=function(){function o(t){if(t)for(var r=Object.keys(t),n=0;n<r.length;++n)t[r[n]]!=null&&(this[r[n]]=t[r[n]])}return o.prototype.begin=b.Long?b.Long.fromBits(0,0,!1):0,o.prototype.end=b.Long?b.Long.fromBits(0,0,!1):0,o.create=function(r){return new o(r)},o.encode=function(r,n){return n||(n=pt.create()),r.begin!=null&&Object.hasOwnProperty.call(r,"begin")&&n.uint32(8).int64(r.begin),r.end!=null&&Object.hasOwnProperty.call(r,"end")&&n.uint32(16).int64(r.end),n},o.encodeDelimited=function(r,n){return this.encode(r,n).ldelim()},o.decode=function(r,n){r instanceof $||(r=$.create(r));for(var s=n===void 0?r.len:r.pos+n,a=new h.onnx.TensorProto.Segment;r.pos<s;){var u=r.uint32();switch(u>>>3){case 1:{a.begin=r.int64();break}case 2:{a.end=r.int64();break}default:r.skipType(u&7);break}}return a},o.decodeDelimited=function(r){return r instanceof $||(r=new $(r)),this.decode(r,r.uint32())},o.verify=function(r){return typeof r!="object"||r===null?"object expected":r.begin!=null&&r.hasOwnProperty("begin")&&!b.isInteger(r.begin)&&!(r.begin&&b.isInteger(r.begin.low)&&b.isInteger(r.begin.high))?"begin: integer|Long expected":r.end!=null&&r.hasOwnProperty("end")&&!b.isInteger(r.end)&&!(r.end&&b.isInteger(r.end.low)&&b.isInteger(r.end.high))?"end: integer|Long expected":null},o.fromObject=function(r){if(r instanceof h.onnx.TensorProto.Segment)return r;var n=new h.onnx.TensorProto.Segment;return r.begin!=null&&(b.Long?(n.begin=b.Long.fromValue(r.begin)).unsigned=!1:typeof r.begin=="string"?n.begin=parseInt(r.begin,10):typeof r.begin=="number"?n.begin=r.begin:typeof r.begin=="object"&&(n.begin=new b.LongBits(r.begin.low>>>0,r.begin.high>>>0).toNumber())),r.end!=null&&(b.Long?(n.end=b.Long.fromValue(r.end)).unsigned=!1:typeof r.end=="string"?n.end=parseInt(r.end,10):typeof r.end=="number"?n.end=r.end:typeof r.end=="object"&&(n.end=new b.LongBits(r.end.low>>>0,r.end.high>>>0).toNumber())),n},o.toObject=function(r,n){n||(n={});var s={};if(n.defaults){if(b.Long){var a=new b.Long(0,0,!1);s.begin=n.longs===String?a.toString():n.longs===Number?a.toNumber():a}else s.begin=n.longs===String?"0":0;if(b.Long){var a=new b.Long(0,0,!1);s.end=n.longs===String?a.toString():n.longs===Number?a.toNumber():a}else s.end=n.longs===String?"0":0}return r.begin!=null&&r.hasOwnProperty("begin")&&(typeof r.begin=="number"?s.begin=n.longs===String?String(r.begin):r.begin:s.begin=n.longs===String?b.Long.prototype.toString.call(r.begin):n.longs===Number?new b.LongBits(r.begin.low>>>0,r.begin.high>>>0).toNumber():r.begin),r.end!=null&&r.hasOwnProperty("end")&&(typeof r.end=="number"?s.end=n.longs===String?String(r.end):r.end:s.end=n.longs===String?b.Long.prototype.toString.call(r.end):n.longs===Number?new b.LongBits(r.end.low>>>0,r.end.high>>>0).toNumber():r.end),s},o.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},o.getTypeUrl=function(r){return r===void 0&&(r="type.googleapis.com"),r+"/onnx.TensorProto.Segment"},o}(),e.DataLocation=function(){var o={},t=Object.create(o);return t[o[0]="DEFAULT"]=0,t[o[1]="EXTERNAL"]=1,t}(),e}(),i.SparseTensorProto=function(){function e(o){if(this.dims=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.values=null,e.prototype.indices=null,e.prototype.dims=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.values!=null&&Object.hasOwnProperty.call(t,"values")&&h.onnx.TensorProto.encode(t.values,r.uint32(10).fork()).ldelim(),t.indices!=null&&Object.hasOwnProperty.call(t,"indices")&&h.onnx.TensorProto.encode(t.indices,r.uint32(18).fork()).ldelim(),t.dims!=null&&t.dims.length){r.uint32(26).fork();for(var n=0;n<t.dims.length;++n)r.int64(t.dims[n]);r.ldelim()}return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.SparseTensorProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.values=h.onnx.TensorProto.decode(t,t.uint32());break}case 2:{s.indices=h.onnx.TensorProto.decode(t,t.uint32());break}case 3:{if(s.dims&&s.dims.length||(s.dims=[]),(a&7)===2)for(var u=t.uint32()+t.pos;t.pos<u;)s.dims.push(t.int64());else s.dims.push(t.int64());break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.values!=null&&t.hasOwnProperty("values")){var r=h.onnx.TensorProto.verify(t.values);if(r)return"values."+r}if(t.indices!=null&&t.hasOwnProperty("indices")){var r=h.onnx.TensorProto.verify(t.indices);if(r)return"indices."+r}if(t.dims!=null&&t.hasOwnProperty("dims")){if(!Array.isArray(t.dims))return"dims: array expected";for(var n=0;n<t.dims.length;++n)if(!b.isInteger(t.dims[n])&&!(t.dims[n]&&b.isInteger(t.dims[n].low)&&b.isInteger(t.dims[n].high)))return"dims: integer|Long[] expected"}return null},e.fromObject=function(t){if(t instanceof h.onnx.SparseTensorProto)return t;var r=new h.onnx.SparseTensorProto;if(t.values!=null){if(typeof t.values!="object")throw TypeError(".onnx.SparseTensorProto.values: object expected");r.values=h.onnx.TensorProto.fromObject(t.values)}if(t.indices!=null){if(typeof t.indices!="object")throw TypeError(".onnx.SparseTensorProto.indices: object expected");r.indices=h.onnx.TensorProto.fromObject(t.indices)}if(t.dims){if(!Array.isArray(t.dims))throw TypeError(".onnx.SparseTensorProto.dims: array expected");r.dims=[];for(var n=0;n<t.dims.length;++n)b.Long?(r.dims[n]=b.Long.fromValue(t.dims[n])).unsigned=!1:typeof t.dims[n]=="string"?r.dims[n]=parseInt(t.dims[n],10):typeof t.dims[n]=="number"?r.dims[n]=t.dims[n]:typeof t.dims[n]=="object"&&(r.dims[n]=new b.LongBits(t.dims[n].low>>>0,t.dims[n].high>>>0).toNumber())}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.dims=[]),r.defaults&&(n.values=null,n.indices=null),t.values!=null&&t.hasOwnProperty("values")&&(n.values=h.onnx.TensorProto.toObject(t.values,r)),t.indices!=null&&t.hasOwnProperty("indices")&&(n.indices=h.onnx.TensorProto.toObject(t.indices,r)),t.dims&&t.dims.length){n.dims=[];for(var s=0;s<t.dims.length;++s)typeof t.dims[s]=="number"?n.dims[s]=r.longs===String?String(t.dims[s]):t.dims[s]:n.dims[s]=r.longs===String?b.Long.prototype.toString.call(t.dims[s]):r.longs===Number?new b.LongBits(t.dims[s].low>>>0,t.dims[s].high>>>0).toNumber():t.dims[s]}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.SparseTensorProto"},e}(),i.TensorShapeProto=function(){function e(o){if(this.dim=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.dim=b.emptyArray,e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.dim!=null&&t.dim.length)for(var n=0;n<t.dim.length;++n)h.onnx.TensorShapeProto.Dimension.encode(t.dim[n],r.uint32(10).fork()).ldelim();return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.TensorShapeProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.dim&&s.dim.length||(s.dim=[]),s.dim.push(h.onnx.TensorShapeProto.Dimension.decode(t,t.uint32()));break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.dim!=null&&t.hasOwnProperty("dim")){if(!Array.isArray(t.dim))return"dim: array expected";for(var r=0;r<t.dim.length;++r){var n=h.onnx.TensorShapeProto.Dimension.verify(t.dim[r]);if(n)return"dim."+n}}return null},e.fromObject=function(t){if(t instanceof h.onnx.TensorShapeProto)return t;var r=new h.onnx.TensorShapeProto;if(t.dim){if(!Array.isArray(t.dim))throw TypeError(".onnx.TensorShapeProto.dim: array expected");r.dim=[];for(var n=0;n<t.dim.length;++n){if(typeof t.dim[n]!="object")throw TypeError(".onnx.TensorShapeProto.dim: object expected");r.dim[n]=h.onnx.TensorShapeProto.Dimension.fromObject(t.dim[n])}}return r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.dim=[]),t.dim&&t.dim.length){n.dim=[];for(var s=0;s<t.dim.length;++s)n.dim[s]=h.onnx.TensorShapeProto.Dimension.toObject(t.dim[s],r)}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.TensorShapeProto"},e.Dimension=function(){function o(r){if(r)for(var n=Object.keys(r),s=0;s<n.length;++s)r[n[s]]!=null&&(this[n[s]]=r[n[s]])}o.prototype.dimValue=null,o.prototype.dimParam=null,o.prototype.denotation="";var t;return Object.defineProperty(o.prototype,"value",{get:b.oneOfGetter(t=["dimValue","dimParam"]),set:b.oneOfSetter(t)}),o.create=function(n){return new o(n)},o.encode=function(n,s){return s||(s=pt.create()),n.dimValue!=null&&Object.hasOwnProperty.call(n,"dimValue")&&s.uint32(8).int64(n.dimValue),n.dimParam!=null&&Object.hasOwnProperty.call(n,"dimParam")&&s.uint32(18).string(n.dimParam),n.denotation!=null&&Object.hasOwnProperty.call(n,"denotation")&&s.uint32(26).string(n.denotation),s},o.encodeDelimited=function(n,s){return this.encode(n,s).ldelim()},o.decode=function(n,s){n instanceof $||(n=$.create(n));for(var a=s===void 0?n.len:n.pos+s,u=new h.onnx.TensorShapeProto.Dimension;n.pos<a;){var l=n.uint32();switch(l>>>3){case 1:{u.dimValue=n.int64();break}case 2:{u.dimParam=n.string();break}case 3:{u.denotation=n.string();break}default:n.skipType(l&7);break}}return u},o.decodeDelimited=function(n){return n instanceof $||(n=new $(n)),this.decode(n,n.uint32())},o.verify=function(n){if(typeof n!="object"||n===null)return"object expected";var s={};if(n.dimValue!=null&&n.hasOwnProperty("dimValue")&&(s.value=1,!b.isInteger(n.dimValue)&&!(n.dimValue&&b.isInteger(n.dimValue.low)&&b.isInteger(n.dimValue.high))))return"dimValue: integer|Long expected";if(n.dimParam!=null&&n.hasOwnProperty("dimParam")){if(s.value===1)return"value: multiple values";if(s.value=1,!b.isString(n.dimParam))return"dimParam: string expected"}return n.denotation!=null&&n.hasOwnProperty("denotation")&&!b.isString(n.denotation)?"denotation: string expected":null},o.fromObject=function(n){if(n instanceof h.onnx.TensorShapeProto.Dimension)return n;var s=new h.onnx.TensorShapeProto.Dimension;return n.dimValue!=null&&(b.Long?(s.dimValue=b.Long.fromValue(n.dimValue)).unsigned=!1:typeof n.dimValue=="string"?s.dimValue=parseInt(n.dimValue,10):typeof n.dimValue=="number"?s.dimValue=n.dimValue:typeof n.dimValue=="object"&&(s.dimValue=new b.LongBits(n.dimValue.low>>>0,n.dimValue.high>>>0).toNumber())),n.dimParam!=null&&(s.dimParam=String(n.dimParam)),n.denotation!=null&&(s.denotation=String(n.denotation)),s},o.toObject=function(n,s){s||(s={});var a={};return s.defaults&&(a.denotation=""),n.dimValue!=null&&n.hasOwnProperty("dimValue")&&(typeof n.dimValue=="number"?a.dimValue=s.longs===String?String(n.dimValue):n.dimValue:a.dimValue=s.longs===String?b.Long.prototype.toString.call(n.dimValue):s.longs===Number?new b.LongBits(n.dimValue.low>>>0,n.dimValue.high>>>0).toNumber():n.dimValue,s.oneofs&&(a.value="dimValue")),n.dimParam!=null&&n.hasOwnProperty("dimParam")&&(a.dimParam=n.dimParam,s.oneofs&&(a.value="dimParam")),n.denotation!=null&&n.hasOwnProperty("denotation")&&(a.denotation=n.denotation),a},o.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},o.getTypeUrl=function(n){return n===void 0&&(n="type.googleapis.com"),n+"/onnx.TensorShapeProto.Dimension"},o}(),e}(),i.TypeProto=function(){function e(t){if(t)for(var r=Object.keys(t),n=0;n<r.length;++n)t[r[n]]!=null&&(this[r[n]]=t[r[n]])}e.prototype.tensorType=null,e.prototype.sequenceType=null,e.prototype.mapType=null,e.prototype.optionalType=null,e.prototype.sparseTensorType=null,e.prototype.denotation="";var o;return Object.defineProperty(e.prototype,"value",{get:b.oneOfGetter(o=["tensorType","sequenceType","mapType","optionalType","sparseTensorType"]),set:b.oneOfSetter(o)}),e.create=function(r){return new e(r)},e.encode=function(r,n){return n||(n=pt.create()),r.tensorType!=null&&Object.hasOwnProperty.call(r,"tensorType")&&h.onnx.TypeProto.Tensor.encode(r.tensorType,n.uint32(10).fork()).ldelim(),r.sequenceType!=null&&Object.hasOwnProperty.call(r,"sequenceType")&&h.onnx.TypeProto.Sequence.encode(r.sequenceType,n.uint32(34).fork()).ldelim(),r.mapType!=null&&Object.hasOwnProperty.call(r,"mapType")&&h.onnx.TypeProto.Map.encode(r.mapType,n.uint32(42).fork()).ldelim(),r.denotation!=null&&Object.hasOwnProperty.call(r,"denotation")&&n.uint32(50).string(r.denotation),r.sparseTensorType!=null&&Object.hasOwnProperty.call(r,"sparseTensorType")&&h.onnx.TypeProto.SparseTensor.encode(r.sparseTensorType,n.uint32(66).fork()).ldelim(),r.optionalType!=null&&Object.hasOwnProperty.call(r,"optionalType")&&h.onnx.TypeProto.Optional.encode(r.optionalType,n.uint32(74).fork()).ldelim(),n},e.encodeDelimited=function(r,n){return this.encode(r,n).ldelim()},e.decode=function(r,n){r instanceof $||(r=$.create(r));for(var s=n===void 0?r.len:r.pos+n,a=new h.onnx.TypeProto;r.pos<s;){var u=r.uint32();switch(u>>>3){case 1:{a.tensorType=h.onnx.TypeProto.Tensor.decode(r,r.uint32());break}case 4:{a.sequenceType=h.onnx.TypeProto.Sequence.decode(r,r.uint32());break}case 5:{a.mapType=h.onnx.TypeProto.Map.decode(r,r.uint32());break}case 9:{a.optionalType=h.onnx.TypeProto.Optional.decode(r,r.uint32());break}case 8:{a.sparseTensorType=h.onnx.TypeProto.SparseTensor.decode(r,r.uint32());break}case 6:{a.denotation=r.string();break}default:r.skipType(u&7);break}}return a},e.decodeDelimited=function(r){return r instanceof $||(r=new $(r)),this.decode(r,r.uint32())},e.verify=function(r){if(typeof r!="object"||r===null)return"object expected";var n={};if(r.tensorType!=null&&r.hasOwnProperty("tensorType")){n.value=1;{var s=h.onnx.TypeProto.Tensor.verify(r.tensorType);if(s)return"tensorType."+s}}if(r.sequenceType!=null&&r.hasOwnProperty("sequenceType")){if(n.value===1)return"value: multiple values";n.value=1;{var s=h.onnx.TypeProto.Sequence.verify(r.sequenceType);if(s)return"sequenceType."+s}}if(r.mapType!=null&&r.hasOwnProperty("mapType")){if(n.value===1)return"value: multiple values";n.value=1;{var s=h.onnx.TypeProto.Map.verify(r.mapType);if(s)return"mapType."+s}}if(r.optionalType!=null&&r.hasOwnProperty("optionalType")){if(n.value===1)return"value: multiple values";n.value=1;{var s=h.onnx.TypeProto.Optional.verify(r.optionalType);if(s)return"optionalType."+s}}if(r.sparseTensorType!=null&&r.hasOwnProperty("sparseTensorType")){if(n.value===1)return"value: multiple values";n.value=1;{var s=h.onnx.TypeProto.SparseTensor.verify(r.sparseTensorType);if(s)return"sparseTensorType."+s}}return r.denotation!=null&&r.hasOwnProperty("denotation")&&!b.isString(r.denotation)?"denotation: string expected":null},e.fromObject=function(r){if(r instanceof h.onnx.TypeProto)return r;var n=new h.onnx.TypeProto;if(r.tensorType!=null){if(typeof r.tensorType!="object")throw TypeError(".onnx.TypeProto.tensorType: object expected");n.tensorType=h.onnx.TypeProto.Tensor.fromObject(r.tensorType)}if(r.sequenceType!=null){if(typeof r.sequenceType!="object")throw TypeError(".onnx.TypeProto.sequenceType: object expected");n.sequenceType=h.onnx.TypeProto.Sequence.fromObject(r.sequenceType)}if(r.mapType!=null){if(typeof r.mapType!="object")throw TypeError(".onnx.TypeProto.mapType: object expected");n.mapType=h.onnx.TypeProto.Map.fromObject(r.mapType)}if(r.optionalType!=null){if(typeof r.optionalType!="object")throw TypeError(".onnx.TypeProto.optionalType: object expected");n.optionalType=h.onnx.TypeProto.Optional.fromObject(r.optionalType)}if(r.sparseTensorType!=null){if(typeof r.sparseTensorType!="object")throw TypeError(".onnx.TypeProto.sparseTensorType: object expected");n.sparseTensorType=h.onnx.TypeProto.SparseTensor.fromObject(r.sparseTensorType)}return r.denotation!=null&&(n.denotation=String(r.denotation)),n},e.toObject=function(r,n){n||(n={});var s={};return n.defaults&&(s.denotation=""),r.tensorType!=null&&r.hasOwnProperty("tensorType")&&(s.tensorType=h.onnx.TypeProto.Tensor.toObject(r.tensorType,n),n.oneofs&&(s.value="tensorType")),r.sequenceType!=null&&r.hasOwnProperty("sequenceType")&&(s.sequenceType=h.onnx.TypeProto.Sequence.toObject(r.sequenceType,n),n.oneofs&&(s.value="sequenceType")),r.mapType!=null&&r.hasOwnProperty("mapType")&&(s.mapType=h.onnx.TypeProto.Map.toObject(r.mapType,n),n.oneofs&&(s.value="mapType")),r.denotation!=null&&r.hasOwnProperty("denotation")&&(s.denotation=r.denotation),r.sparseTensorType!=null&&r.hasOwnProperty("sparseTensorType")&&(s.sparseTensorType=h.onnx.TypeProto.SparseTensor.toObject(r.sparseTensorType,n),n.oneofs&&(s.value="sparseTensorType")),r.optionalType!=null&&r.hasOwnProperty("optionalType")&&(s.optionalType=h.onnx.TypeProto.Optional.toObject(r.optionalType,n),n.oneofs&&(s.value="optionalType")),s},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(r){return r===void 0&&(r="type.googleapis.com"),r+"/onnx.TypeProto"},e.Tensor=function(){function t(r){if(r)for(var n=Object.keys(r),s=0;s<n.length;++s)r[n[s]]!=null&&(this[n[s]]=r[n[s]])}return t.prototype.elemType=0,t.prototype.shape=null,t.create=function(n){return new t(n)},t.encode=function(n,s){return s||(s=pt.create()),n.elemType!=null&&Object.hasOwnProperty.call(n,"elemType")&&s.uint32(8).int32(n.elemType),n.shape!=null&&Object.hasOwnProperty.call(n,"shape")&&h.onnx.TensorShapeProto.encode(n.shape,s.uint32(18).fork()).ldelim(),s},t.encodeDelimited=function(n,s){return this.encode(n,s).ldelim()},t.decode=function(n,s){n instanceof $||(n=$.create(n));for(var a=s===void 0?n.len:n.pos+s,u=new h.onnx.TypeProto.Tensor;n.pos<a;){var l=n.uint32();switch(l>>>3){case 1:{u.elemType=n.int32();break}case 2:{u.shape=h.onnx.TensorShapeProto.decode(n,n.uint32());break}default:n.skipType(l&7);break}}return u},t.decodeDelimited=function(n){return n instanceof $||(n=new $(n)),this.decode(n,n.uint32())},t.verify=function(n){if(typeof n!="object"||n===null)return"object expected";if(n.elemType!=null&&n.hasOwnProperty("elemType")&&!b.isInteger(n.elemType))return"elemType: integer expected";if(n.shape!=null&&n.hasOwnProperty("shape")){var s=h.onnx.TensorShapeProto.verify(n.shape);if(s)return"shape."+s}return null},t.fromObject=function(n){if(n instanceof h.onnx.TypeProto.Tensor)return n;var s=new h.onnx.TypeProto.Tensor;if(n.elemType!=null&&(s.elemType=n.elemType|0),n.shape!=null){if(typeof n.shape!="object")throw TypeError(".onnx.TypeProto.Tensor.shape: object expected");s.shape=h.onnx.TensorShapeProto.fromObject(n.shape)}return s},t.toObject=function(n,s){s||(s={});var a={};return s.defaults&&(a.elemType=0,a.shape=null),n.elemType!=null&&n.hasOwnProperty("elemType")&&(a.elemType=n.elemType),n.shape!=null&&n.hasOwnProperty("shape")&&(a.shape=h.onnx.TensorShapeProto.toObject(n.shape,s)),a},t.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},t.getTypeUrl=function(n){return n===void 0&&(n="type.googleapis.com"),n+"/onnx.TypeProto.Tensor"},t}(),e.Sequence=function(){function t(r){if(r)for(var n=Object.keys(r),s=0;s<n.length;++s)r[n[s]]!=null&&(this[n[s]]=r[n[s]])}return t.prototype.elemType=null,t.create=function(n){return new t(n)},t.encode=function(n,s){return s||(s=pt.create()),n.elemType!=null&&Object.hasOwnProperty.call(n,"elemType")&&h.onnx.TypeProto.encode(n.elemType,s.uint32(10).fork()).ldelim(),s},t.encodeDelimited=function(n,s){return this.encode(n,s).ldelim()},t.decode=function(n,s){n instanceof $||(n=$.create(n));for(var a=s===void 0?n.len:n.pos+s,u=new h.onnx.TypeProto.Sequence;n.pos<a;){var l=n.uint32();switch(l>>>3){case 1:{u.elemType=h.onnx.TypeProto.decode(n,n.uint32());break}default:n.skipType(l&7);break}}return u},t.decodeDelimited=function(n){return n instanceof $||(n=new $(n)),this.decode(n,n.uint32())},t.verify=function(n){if(typeof n!="object"||n===null)return"object expected";if(n.elemType!=null&&n.hasOwnProperty("elemType")){var s=h.onnx.TypeProto.verify(n.elemType);if(s)return"elemType."+s}return null},t.fromObject=function(n){if(n instanceof h.onnx.TypeProto.Sequence)return n;var s=new h.onnx.TypeProto.Sequence;if(n.elemType!=null){if(typeof n.elemType!="object")throw TypeError(".onnx.TypeProto.Sequence.elemType: object expected");s.elemType=h.onnx.TypeProto.fromObject(n.elemType)}return s},t.toObject=function(n,s){s||(s={});var a={};return s.defaults&&(a.elemType=null),n.elemType!=null&&n.hasOwnProperty("elemType")&&(a.elemType=h.onnx.TypeProto.toObject(n.elemType,s)),a},t.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},t.getTypeUrl=function(n){return n===void 0&&(n="type.googleapis.com"),n+"/onnx.TypeProto.Sequence"},t}(),e.Map=function(){function t(r){if(r)for(var n=Object.keys(r),s=0;s<n.length;++s)r[n[s]]!=null&&(this[n[s]]=r[n[s]])}return t.prototype.keyType=0,t.prototype.valueType=null,t.create=function(n){return new t(n)},t.encode=function(n,s){return s||(s=pt.create()),n.keyType!=null&&Object.hasOwnProperty.call(n,"keyType")&&s.uint32(8).int32(n.keyType),n.valueType!=null&&Object.hasOwnProperty.call(n,"valueType")&&h.onnx.TypeProto.encode(n.valueType,s.uint32(18).fork()).ldelim(),s},t.encodeDelimited=function(n,s){return this.encode(n,s).ldelim()},t.decode=function(n,s){n instanceof $||(n=$.create(n));for(var a=s===void 0?n.len:n.pos+s,u=new h.onnx.TypeProto.Map;n.pos<a;){var l=n.uint32();switch(l>>>3){case 1:{u.keyType=n.int32();break}case 2:{u.valueType=h.onnx.TypeProto.decode(n,n.uint32());break}default:n.skipType(l&7);break}}return u},t.decodeDelimited=function(n){return n instanceof $||(n=new $(n)),this.decode(n,n.uint32())},t.verify=function(n){if(typeof n!="object"||n===null)return"object expected";if(n.keyType!=null&&n.hasOwnProperty("keyType")&&!b.isInteger(n.keyType))return"keyType: integer expected";if(n.valueType!=null&&n.hasOwnProperty("valueType")){var s=h.onnx.TypeProto.verify(n.valueType);if(s)return"valueType."+s}return null},t.fromObject=function(n){if(n instanceof h.onnx.TypeProto.Map)return n;var s=new h.onnx.TypeProto.Map;if(n.keyType!=null&&(s.keyType=n.keyType|0),n.valueType!=null){if(typeof n.valueType!="object")throw TypeError(".onnx.TypeProto.Map.valueType: object expected");s.valueType=h.onnx.TypeProto.fromObject(n.valueType)}return s},t.toObject=function(n,s){s||(s={});var a={};return s.defaults&&(a.keyType=0,a.valueType=null),n.keyType!=null&&n.hasOwnProperty("keyType")&&(a.keyType=n.keyType),n.valueType!=null&&n.hasOwnProperty("valueType")&&(a.valueType=h.onnx.TypeProto.toObject(n.valueType,s)),a},t.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},t.getTypeUrl=function(n){return n===void 0&&(n="type.googleapis.com"),n+"/onnx.TypeProto.Map"},t}(),e.Optional=function(){function t(r){if(r)for(var n=Object.keys(r),s=0;s<n.length;++s)r[n[s]]!=null&&(this[n[s]]=r[n[s]])}return t.prototype.elemType=null,t.create=function(n){return new t(n)},t.encode=function(n,s){return s||(s=pt.create()),n.elemType!=null&&Object.hasOwnProperty.call(n,"elemType")&&h.onnx.TypeProto.encode(n.elemType,s.uint32(10).fork()).ldelim(),s},t.encodeDelimited=function(n,s){return this.encode(n,s).ldelim()},t.decode=function(n,s){n instanceof $||(n=$.create(n));for(var a=s===void 0?n.len:n.pos+s,u=new h.onnx.TypeProto.Optional;n.pos<a;){var l=n.uint32();switch(l>>>3){case 1:{u.elemType=h.onnx.TypeProto.decode(n,n.uint32());break}default:n.skipType(l&7);break}}return u},t.decodeDelimited=function(n){return n instanceof $||(n=new $(n)),this.decode(n,n.uint32())},t.verify=function(n){if(typeof n!="object"||n===null)return"object expected";if(n.elemType!=null&&n.hasOwnProperty("elemType")){var s=h.onnx.TypeProto.verify(n.elemType);if(s)return"elemType."+s}return null},t.fromObject=function(n){if(n instanceof h.onnx.TypeProto.Optional)return n;var s=new h.onnx.TypeProto.Optional;if(n.elemType!=null){if(typeof n.elemType!="object")throw TypeError(".onnx.TypeProto.Optional.elemType: object expected");s.elemType=h.onnx.TypeProto.fromObject(n.elemType)}return s},t.toObject=function(n,s){s||(s={});var a={};return s.defaults&&(a.elemType=null),n.elemType!=null&&n.hasOwnProperty("elemType")&&(a.elemType=h.onnx.TypeProto.toObject(n.elemType,s)),a},t.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},t.getTypeUrl=function(n){return n===void 0&&(n="type.googleapis.com"),n+"/onnx.TypeProto.Optional"},t}(),e.SparseTensor=function(){function t(r){if(r)for(var n=Object.keys(r),s=0;s<n.length;++s)r[n[s]]!=null&&(this[n[s]]=r[n[s]])}return t.prototype.elemType=0,t.prototype.shape=null,t.create=function(n){return new t(n)},t.encode=function(n,s){return s||(s=pt.create()),n.elemType!=null&&Object.hasOwnProperty.call(n,"elemType")&&s.uint32(8).int32(n.elemType),n.shape!=null&&Object.hasOwnProperty.call(n,"shape")&&h.onnx.TensorShapeProto.encode(n.shape,s.uint32(18).fork()).ldelim(),s},t.encodeDelimited=function(n,s){return this.encode(n,s).ldelim()},t.decode=function(n,s){n instanceof $||(n=$.create(n));for(var a=s===void 0?n.len:n.pos+s,u=new h.onnx.TypeProto.SparseTensor;n.pos<a;){var l=n.uint32();switch(l>>>3){case 1:{u.elemType=n.int32();break}case 2:{u.shape=h.onnx.TensorShapeProto.decode(n,n.uint32());break}default:n.skipType(l&7);break}}return u},t.decodeDelimited=function(n){return n instanceof $||(n=new $(n)),this.decode(n,n.uint32())},t.verify=function(n){if(typeof n!="object"||n===null)return"object expected";if(n.elemType!=null&&n.hasOwnProperty("elemType")&&!b.isInteger(n.elemType))return"elemType: integer expected";if(n.shape!=null&&n.hasOwnProperty("shape")){var s=h.onnx.TensorShapeProto.verify(n.shape);if(s)return"shape."+s}return null},t.fromObject=function(n){if(n instanceof h.onnx.TypeProto.SparseTensor)return n;var s=new h.onnx.TypeProto.SparseTensor;if(n.elemType!=null&&(s.elemType=n.elemType|0),n.shape!=null){if(typeof n.shape!="object")throw TypeError(".onnx.TypeProto.SparseTensor.shape: object expected");s.shape=h.onnx.TensorShapeProto.fromObject(n.shape)}return s},t.toObject=function(n,s){s||(s={});var a={};return s.defaults&&(a.elemType=0,a.shape=null),n.elemType!=null&&n.hasOwnProperty("elemType")&&(a.elemType=n.elemType),n.shape!=null&&n.hasOwnProperty("shape")&&(a.shape=h.onnx.TensorShapeProto.toObject(n.shape,s)),a},t.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},t.getTypeUrl=function(n){return n===void 0&&(n="type.googleapis.com"),n+"/onnx.TypeProto.SparseTensor"},t}(),e}(),i.OperatorSetIdProto=function(){function e(o){if(o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.domain="",e.prototype.version=b.Long?b.Long.fromBits(0,0,!1):0,e.create=function(t){return new e(t)},e.encode=function(t,r){return r||(r=pt.create()),t.domain!=null&&Object.hasOwnProperty.call(t,"domain")&&r.uint32(10).string(t.domain),t.version!=null&&Object.hasOwnProperty.call(t,"version")&&r.uint32(16).int64(t.version),r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.OperatorSetIdProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.domain=t.string();break}case 2:{s.version=t.int64();break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){return typeof t!="object"||t===null?"object expected":t.domain!=null&&t.hasOwnProperty("domain")&&!b.isString(t.domain)?"domain: string expected":t.version!=null&&t.hasOwnProperty("version")&&!b.isInteger(t.version)&&!(t.version&&b.isInteger(t.version.low)&&b.isInteger(t.version.high))?"version: integer|Long expected":null},e.fromObject=function(t){if(t instanceof h.onnx.OperatorSetIdProto)return t;var r=new h.onnx.OperatorSetIdProto;return t.domain!=null&&(r.domain=String(t.domain)),t.version!=null&&(b.Long?(r.version=b.Long.fromValue(t.version)).unsigned=!1:typeof t.version=="string"?r.version=parseInt(t.version,10):typeof t.version=="number"?r.version=t.version:typeof t.version=="object"&&(r.version=new b.LongBits(t.version.low>>>0,t.version.high>>>0).toNumber())),r},e.toObject=function(t,r){r||(r={});var n={};if(r.defaults)if(n.domain="",b.Long){var s=new b.Long(0,0,!1);n.version=r.longs===String?s.toString():r.longs===Number?s.toNumber():s}else n.version=r.longs===String?"0":0;return t.domain!=null&&t.hasOwnProperty("domain")&&(n.domain=t.domain),t.version!=null&&t.hasOwnProperty("version")&&(typeof t.version=="number"?n.version=r.longs===String?String(t.version):t.version:n.version=r.longs===String?b.Long.prototype.toString.call(t.version):r.longs===Number?new b.LongBits(t.version.low>>>0,t.version.high>>>0).toNumber():t.version),n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.OperatorSetIdProto"},e}(),i.OperatorStatus=function(){var e={},o=Object.create(e);return o[e[0]="EXPERIMENTAL"]=0,o[e[1]="STABLE"]=1,o}(),i.FunctionProto=function(){function e(o){if(this.input=[],this.output=[],this.attribute=[],this.attributeProto=[],this.node=[],this.opsetImport=[],o)for(var t=Object.keys(o),r=0;r<t.length;++r)o[t[r]]!=null&&(this[t[r]]=o[t[r]])}return e.prototype.name="",e.prototype.input=b.emptyArray,e.prototype.output=b.emptyArray,e.prototype.attribute=b.emptyArray,e.prototype.attributeProto=b.emptyArray,e.prototype.node=b.emptyArray,e.prototype.docString="",e.prototype.opsetImport=b.emptyArray,e.prototype.domain="",e.create=function(t){return new e(t)},e.encode=function(t,r){if(r||(r=pt.create()),t.name!=null&&Object.hasOwnProperty.call(t,"name")&&r.uint32(10).string(t.name),t.input!=null&&t.input.length)for(var n=0;n<t.input.length;++n)r.uint32(34).string(t.input[n]);if(t.output!=null&&t.output.length)for(var n=0;n<t.output.length;++n)r.uint32(42).string(t.output[n]);if(t.attribute!=null&&t.attribute.length)for(var n=0;n<t.attribute.length;++n)r.uint32(50).string(t.attribute[n]);if(t.node!=null&&t.node.length)for(var n=0;n<t.node.length;++n)h.onnx.NodeProto.encode(t.node[n],r.uint32(58).fork()).ldelim();if(t.docString!=null&&Object.hasOwnProperty.call(t,"docString")&&r.uint32(66).string(t.docString),t.opsetImport!=null&&t.opsetImport.length)for(var n=0;n<t.opsetImport.length;++n)h.onnx.OperatorSetIdProto.encode(t.opsetImport[n],r.uint32(74).fork()).ldelim();if(t.domain!=null&&Object.hasOwnProperty.call(t,"domain")&&r.uint32(82).string(t.domain),t.attributeProto!=null&&t.attributeProto.length)for(var n=0;n<t.attributeProto.length;++n)h.onnx.AttributeProto.encode(t.attributeProto[n],r.uint32(90).fork()).ldelim();return r},e.encodeDelimited=function(t,r){return this.encode(t,r).ldelim()},e.decode=function(t,r){t instanceof $||(t=$.create(t));for(var n=r===void 0?t.len:t.pos+r,s=new h.onnx.FunctionProto;t.pos<n;){var a=t.uint32();switch(a>>>3){case 1:{s.name=t.string();break}case 4:{s.input&&s.input.length||(s.input=[]),s.input.push(t.string());break}case 5:{s.output&&s.output.length||(s.output=[]),s.output.push(t.string());break}case 6:{s.attribute&&s.attribute.length||(s.attribute=[]),s.attribute.push(t.string());break}case 11:{s.attributeProto&&s.attributeProto.length||(s.attributeProto=[]),s.attributeProto.push(h.onnx.AttributeProto.decode(t,t.uint32()));break}case 7:{s.node&&s.node.length||(s.node=[]),s.node.push(h.onnx.NodeProto.decode(t,t.uint32()));break}case 8:{s.docString=t.string();break}case 9:{s.opsetImport&&s.opsetImport.length||(s.opsetImport=[]),s.opsetImport.push(h.onnx.OperatorSetIdProto.decode(t,t.uint32()));break}case 10:{s.domain=t.string();break}default:t.skipType(a&7);break}}return s},e.decodeDelimited=function(t){return t instanceof $||(t=new $(t)),this.decode(t,t.uint32())},e.verify=function(t){if(typeof t!="object"||t===null)return"object expected";if(t.name!=null&&t.hasOwnProperty("name")&&!b.isString(t.name))return"name: string expected";if(t.input!=null&&t.hasOwnProperty("input")){if(!Array.isArray(t.input))return"input: array expected";for(var r=0;r<t.input.length;++r)if(!b.isString(t.input[r]))return"input: string[] expected"}if(t.output!=null&&t.hasOwnProperty("output")){if(!Array.isArray(t.output))return"output: array expected";for(var r=0;r<t.output.length;++r)if(!b.isString(t.output[r]))return"output: string[] expected"}if(t.attribute!=null&&t.hasOwnProperty("attribute")){if(!Array.isArray(t.attribute))return"attribute: array expected";for(var r=0;r<t.attribute.length;++r)if(!b.isString(t.attribute[r]))return"attribute: string[] expected"}if(t.attributeProto!=null&&t.hasOwnProperty("attributeProto")){if(!Array.isArray(t.attributeProto))return"attributeProto: array expected";for(var r=0;r<t.attributeProto.length;++r){var n=h.onnx.AttributeProto.verify(t.attributeProto[r]);if(n)return"attributeProto."+n}}if(t.node!=null&&t.hasOwnProperty("node")){if(!Array.isArray(t.node))return"node: array expected";for(var r=0;r<t.node.length;++r){var n=h.onnx.NodeProto.verify(t.node[r]);if(n)return"node."+n}}if(t.docString!=null&&t.hasOwnProperty("docString")&&!b.isString(t.docString))return"docString: string expected";if(t.opsetImport!=null&&t.hasOwnProperty("opsetImport")){if(!Array.isArray(t.opsetImport))return"opsetImport: array expected";for(var r=0;r<t.opsetImport.length;++r){var n=h.onnx.OperatorSetIdProto.verify(t.opsetImport[r]);if(n)return"opsetImport."+n}}return t.domain!=null&&t.hasOwnProperty("domain")&&!b.isString(t.domain)?"domain: string expected":null},e.fromObject=function(t){if(t instanceof h.onnx.FunctionProto)return t;var r=new h.onnx.FunctionProto;if(t.name!=null&&(r.name=String(t.name)),t.input){if(!Array.isArray(t.input))throw TypeError(".onnx.FunctionProto.input: array expected");r.input=[];for(var n=0;n<t.input.length;++n)r.input[n]=String(t.input[n])}if(t.output){if(!Array.isArray(t.output))throw TypeError(".onnx.FunctionProto.output: array expected");r.output=[];for(var n=0;n<t.output.length;++n)r.output[n]=String(t.output[n])}if(t.attribute){if(!Array.isArray(t.attribute))throw TypeError(".onnx.FunctionProto.attribute: array expected");r.attribute=[];for(var n=0;n<t.attribute.length;++n)r.attribute[n]=String(t.attribute[n])}if(t.attributeProto){if(!Array.isArray(t.attributeProto))throw TypeError(".onnx.FunctionProto.attributeProto: array expected");r.attributeProto=[];for(var n=0;n<t.attributeProto.length;++n){if(typeof t.attributeProto[n]!="object")throw TypeError(".onnx.FunctionProto.attributeProto: object expected");r.attributeProto[n]=h.onnx.AttributeProto.fromObject(t.attributeProto[n])}}if(t.node){if(!Array.isArray(t.node))throw TypeError(".onnx.FunctionProto.node: array expected");r.node=[];for(var n=0;n<t.node.length;++n){if(typeof t.node[n]!="object")throw TypeError(".onnx.FunctionProto.node: object expected");r.node[n]=h.onnx.NodeProto.fromObject(t.node[n])}}if(t.docString!=null&&(r.docString=String(t.docString)),t.opsetImport){if(!Array.isArray(t.opsetImport))throw TypeError(".onnx.FunctionProto.opsetImport: array expected");r.opsetImport=[];for(var n=0;n<t.opsetImport.length;++n){if(typeof t.opsetImport[n]!="object")throw TypeError(".onnx.FunctionProto.opsetImport: object expected");r.opsetImport[n]=h.onnx.OperatorSetIdProto.fromObject(t.opsetImport[n])}}return t.domain!=null&&(r.domain=String(t.domain)),r},e.toObject=function(t,r){r||(r={});var n={};if((r.arrays||r.defaults)&&(n.input=[],n.output=[],n.attribute=[],n.node=[],n.opsetImport=[],n.attributeProto=[]),r.defaults&&(n.name="",n.docString="",n.domain=""),t.name!=null&&t.hasOwnProperty("name")&&(n.name=t.name),t.input&&t.input.length){n.input=[];for(var s=0;s<t.input.length;++s)n.input[s]=t.input[s]}if(t.output&&t.output.length){n.output=[];for(var s=0;s<t.output.length;++s)n.output[s]=t.output[s]}if(t.attribute&&t.attribute.length){n.attribute=[];for(var s=0;s<t.attribute.length;++s)n.attribute[s]=t.attribute[s]}if(t.node&&t.node.length){n.node=[];for(var s=0;s<t.node.length;++s)n.node[s]=h.onnx.NodeProto.toObject(t.node[s],r)}if(t.docString!=null&&t.hasOwnProperty("docString")&&(n.docString=t.docString),t.opsetImport&&t.opsetImport.length){n.opsetImport=[];for(var s=0;s<t.opsetImport.length;++s)n.opsetImport[s]=h.onnx.OperatorSetIdProto.toObject(t.opsetImport[s],r)}if(t.domain!=null&&t.hasOwnProperty("domain")&&(n.domain=t.domain),t.attributeProto&&t.attributeProto.length){n.attributeProto=[];for(var s=0;s<t.attributeProto.length;++s)n.attributeProto[s]=h.onnx.AttributeProto.toObject(t.attributeProto[s],r)}return n},e.prototype.toJSON=function(){return this.constructor.toObject(this,ot.util.toJSONOptions)},e.getTypeUrl=function(t){return t===void 0&&(t="type.googleapis.com"),t+"/onnx.FunctionProto"},e}(),i}();Mu.exports=h});function ir(i,e){if(!i)throw new Error(typeof e=="string"?e:e())}function kr(i){return new TextDecoder().decode(i)}var it,Re,ei,Lt,In,vt,Ct,B,$r,Ge,Me,Ue,Z=O(()=>{"use strict";yn();Uo();it=Qe(or());Ve();Re=class{static arraysEqual(e,o){if(e.length!==o.length)return!1;for(let t=0;t<e.length;t++)if(e[t]!==o[t])return!1;return!0}},ei=class{static preprocessInputShapes(e,o){let t=e.length===1?[1,e[0]]:e,r=o.length===1?[o[0],1]:o;return[t,r]}static postprocessOutputShape(e,o,t){o===1&&e.splice(e.length-2,1),t===1&&e.pop()}static calcMatMulShape(e,o){return e[1]!==o[0]?void 0:[e[0],o[1]]}},Lt=class i{static calcShape(e,o,t=!1){let r=e.length,n=o.length;if(r===0)return o;if(n===0)return e;let s=Math.max(e.length,o.length),a=new Array(s);if(t){if(r<2||n<2)return;let u=ei.calcMatMulShape([e[r-2],e[r-1]],[o[n-2],o[n-1]]);if(u===void 0)return;[a[s-2],a[s-1]]=u}for(let u=t?3:1;u<=s;u++){let l=r-u<0?1:e[r-u],f=n-u<0?1:o[n-u];if(l!==f&&l>1&&f>1)return;a[s-u]=Math.max(l,f)}return a}static index(e,o){let t=new Array(o.length);return i.fillIndex(e,o,t),t}static fillIndex(e,o,t){let r=e.length-o.length;for(let n=0;n<o.length;n++)t[n]=e[r+n]%o[n]}static calc(e,o,t,r,n){let s=i.calcShape(e.dims,o.dims);if(s){if(r&&!B.areEqual(s,e.dims))return;let a=B.size(s),u=r?e:new bt(s,n||e.type);if(s.length===0)u.set([],t(e.get([]),o.get([])));else{let l=new Array(s.length),f=new Array(e.dims.length),p=new Array(o.dims.length),d=0,y=0,w=!1,v=!1;e.dims.length===0&&(d=e.get([]),w=!0),o.dims.length===0&&(y=o.get([]),v=!0);let S;for(let D=0;D<a;D++){S=D;for(let P=s.length-1;P>=0;P--)l[P]=S%s[P],S=Math.floor(S/s[P]);w||(i.fillIndex(l,e.dims,f),d=e.get(f)),v||(i.fillIndex(l,o.dims,p),y=o.get(p)),u.set(l,t(d,y))}}return u}}static isValidBroadcast(e,o){let t=e.length,r=o.length;if(t>r)return!1;for(let n=1;n<=t;n++)if(e[t-n]!==1&&e[t-n]!==o[r-n])return!1;return!0}static getBroadcastDims(e,o){let t=e.length,r=[];for(let n=0;n<t;n++){let s=t-1-n,a=e[s]||1;(o[o.length-1-n]||1)>1&&a===1&&r.unshift(s)}return r}},In=class{static getShapeOfGemmResult(e,o,t,r,n){if(e.length!==2||t.length!==2)throw new Error("shape need to be of size 2");let s,a,u;o?(s=e[1],a=e[0]):(s=e[0],a=e[1]);let l=-1;if(r?(u=t[0],l=1):(u=t[1],l=0),t[l]!==a)throw new Error("dimension mismatch");if(s<=0||u<=0||a<=0)throw new Error("invalid shape specified");if(n&&!Lt.isValidBroadcast(n,[s,u]))throw new Error("gemm: invalid bias shape for broadcast");return[s,u,a]}},vt=class i{static tensorDataTypeFromProto(e){switch(e){case it.onnx.TensorProto.DataType.INT8:return"int8";case it.onnx.TensorProto.DataType.UINT8:return"uint8";case it.onnx.TensorProto.DataType.BOOL:return"bool";case it.onnx.TensorProto.DataType.INT16:return"int16";case it.onnx.TensorProto.DataType.UINT16:return"uint16";case it.onnx.TensorProto.DataType.INT32:return"int32";case it.onnx.TensorProto.DataType.UINT32:return"uint32";case it.onnx.TensorProto.DataType.FLOAT:return"float32";case it.onnx.TensorProto.DataType.DOUBLE:return"float64";case it.onnx.TensorProto.DataType.STRING:return"string";case it.onnx.TensorProto.DataType.INT64:return"int32";case it.onnx.TensorProto.DataType.UINT64:return"uint32";default:throw new Error(`unsupported data type: ${it.onnx.TensorProto.DataType[e]}`)}}static tensorDataTypeStringToEnum(e){switch(e){case"int8":return it.onnx.TensorProto.DataType.INT8;case"uint8":return it.onnx.TensorProto.DataType.UINT8;case"bool":return it.onnx.TensorProto.DataType.BOOL;case"int16":return it.onnx.TensorProto.DataType.INT16;case"uint16":return it.onnx.TensorProto.DataType.UINT16;case"int32":return it.onnx.TensorProto.DataType.INT32;case"uint32":return it.onnx.TensorProto.DataType.UINT32;case"float32":return it.onnx.TensorProto.DataType.FLOAT;case"float64":return it.onnx.TensorProto.DataType.DOUBLE;case"string":return it.onnx.TensorProto.DataType.STRING;case"int64":return it.onnx.TensorProto.DataType.INT64;case"uint64":return it.onnx.TensorProto.DataType.UINT64;default:throw new Error(`unsupported data type: ${e}`)}}static tensorDimsFromProto(e){return e.map(o=>be.isLong(o)?o.toNumber():o)}static tensorValueTypeFromProto(e){return{tensorType:i.tensorDataTypeFromProto(e.elemType),shape:{dims:i.tensorDimsFromProto(e.shape.dim.map(o=>o.dimValue))}}}static tensorDimsFromORTFormat(e){let o=[];for(let t=0;t<e.dimsLength();t++)o.push(Ct.longToNumber(e.dims(t)));return o}static tensorAttributesFromORTFormat(e){let o=[];for(let t=0;t<e.attributesLength();t++)o.push(e.attributes(t));return o}},Ct=class{static longToNumber(e,o){return be.isLong(e)?e.toNumber():e instanceof T.Long?be.fromValue({low:e.low,high:e.high,unsigned:o??!1}).toNumber():e}static isLong(e){return be.isLong(e)||e instanceof T.Long}},B=class i{static size(e){return i.getSizeFromDimensionRange(e,0,e.length)}static sizeFromDimension(e,o){if(o<0||o>e.length)throw new Error(`invalid dimension of ${o} for sizeFromDimension as Tensor has ${e.length} dimensions.`);return i.getSizeFromDimensionRange(e,o,e.length)}static sizeToDimension(e,o){if(o<0||o>e.length)throw new Error(`invalid dimension of ${o} for sizeToDimension as Tensor has ${e.length} dimensions.`);return i.getSizeFromDimensionRange(e,0,o)}static getSizeFromDimensionRange(e,o,t){let r=1;for(let n=o;n<t;n++){if(e[n]<=0)throw new Error("cannot get valid size from specified dimension range. Most likely the range contains 0 or negative values in them.");r*=e[n]}return r}static computeStrides(e){let o=e.length;if(o===0)return[];if(o===1)return[1];let t=new Array(o);t[o-1]=1,t[o-2]=e[o-1];for(let r=o-3;r>=0;--r)t[r]=t[r+1]*e[r+1];return t}static transpose(e){return e.slice().reverse()}static indicesToOffset(e,o,t){t===void 0&&(t=e.length);let r=0;for(let n=0;n<t;++n)r+=o[n]*e[n];return r}static offsetToIndices(e,o){let t=o.length;if(t===0)return[];if(t===1)return[e*o[0]];let r=new Array(o.length);for(let n=0;n<r.length-1;++n)r[n]=Math.floor(e/o[n]),e-=r[n]*o[n];return r[r.length-1]=e,r}static normalizeAxis(e,o){if(e<-o&&e>=o)throw new Error("unsupported axis for this operation.");return e<0?e+o:e}static normalizeAxes(e,o){return e.map(t=>this.normalizeAxis(t,o))}static incrementIndex(e,o,t){if(o.length===0||e.length===0)throw new Error("Index incrementing unsupported for scalar Tensor");if(t===void 0)t=o.length;else if(t<=0||t>o.length)throw new Error("Incorrect axis to increment on");for(let r=t-1;r>=0&&(e[r]++,!(e[r]<o[r]));--r)e[r]=0}static calculateReshapedDims(e,o){if(o.length===0){if(e.length===0||i.size(e)===1)return[];throw new Error("cannot reshape to a scalar Tensor")}let t=o.length,r=new Array(t),n=-1,s=1;for(let u=0;u<t;u++){if(o[u]<-1)throw new Error("a dimension in shape hints cannot be less than -1");if(o[u]===-1){if(n!==-1)throw new Error("at most one dimension in shape hints can be -1");n=u}else{if(o[u]===0){if(u>=e.length)throw new Error("the dimension with value zero exceeds the dimension size of the input tensor");r[u]=e[u]}else r[u]=o[u];s*=r[u]}}let a=i.size(e);if(n!==-1){if(a%s!==0)throw new Error(`the input tensor cannot be reshaped to the requested shape. Input shape: [${e}] Output shape: [${o}]`);r[n]=a/s}else if(s!==a)throw new Error("reshapedDims and originalDims don't have matching sizes");return r}static sortBasedOnPerm(e,o){return o?o.map(t=>e[t]):e.slice().reverse()}static padShape(e,o){let t=e.length;return e.map((r,n)=>r+o[n]+o[n+t])}static areEqual(e,o){return e.length!==o.length?!1:e.every((t,r)=>t===o[r])}static validateDimsAndCalcSize(e){if(e.length>6)throw new TypeError("Only rank 0 to 6 is supported for tensor shape.");let o=1;for(let t of e){if(!Number.isInteger(t))throw new TypeError(`Invalid shape: ${t} is not an integer`);if(t<0||t>2147483647)throw new TypeError(`Invalid shape: length ${t} is not allowed`);o*=t}return o}static flattenShape(e,o){o<0&&(o+=e.length);let t=e.reduce((s,a)=>s*a,1),r=e.slice(o).reduce((s,a)=>s*a,1);return[t/r,r]}static squeezeShape(e,o){let t=new Array;o=i.normalizeAxes(o,e.length);for(let r=0;r<e.length;r++){let n=o.indexOf(r)>=0;if(n&&e[r]!==1)throw new Error("squeeze an axis of size different than 1");(o.length===0&&e[r]>1||o.length>0&&!n)&&t.push(e[r])}return t}static unsqueezeShape(e,o){let t=new Array(e.length+o.length);t.fill(0);for(let n=0;n<o.length;n++){let s=i.normalizeAxis(o[n],t.length);if(s>=t.length)throw new Error("'axes' has an out of range axis");if(t[s]!==0)throw new Error("'axes' has a duplicate axis");t[s]=1}let r=0;for(let n=0;n<t.length;n++)t[n]===0&&(t[n]=e[r++]);if(r!==e.length)throw new Error("the unsqueezed dimension could not be established");return t}},$r=class i{static splitShape(e,o,t,r){if(t.length===0){if(!r)throw new Error("need to know number of outputs when the 'split' attribute is not specified");i.determineSplit(e[o],r,t)}let n=[],s=[0];for(let a=0;a<t.length;++a){a!==0&&s.push(s[a-1]+t[a-1]);let u=e.slice();u[o]=t[a],n.push(u)}return[n,s]}static determineSplit(e,o,t){if(e%o!==0)throw new Error("cannot split tensor to equal sized parts");for(let r=0;r<o;++r)t.push(e/o)}},Ge=class i{static adjustPoolAttributes(e,o,t,r,n,s){if(!e&&t.length!==o.length-2)throw new Error("length of specified kernel shapes should be 2 less than length of input dimensions");if(e)for(let a=0;a<o.length-2;a++)a>=t.length?t.push(o[a+2]):t[a]=o[a+2];for(let a=0;a<t.length;a++)if(a<r.length){if(r[a]<0)throw new Error("strides should be greater than or equal to 1")}else r.push(1);for(let a=0;a<t.length;a++)if(a<n.length){if(n[a]<0)throw new Error("dilations should be greater than or equal to 1")}else n.push(1);for(let a=0;a<t.length*2;a++)if(a<s.length){if(s[a]<0)throw new Error("pad should be greater than or equal to 1")}else s.push(0);for(let a=0;a<t.length;a++){if(t[a]<=0)throw new Error("kernel shapes need to be greater than 0");if(s[a]>=t[a]||s[a+t.length]>=t[a])throw new Error("pads should be smaller than kernel")}}static adjustPadsBasedOnAutoPad(e,o,t,r,n,s){if(s){if(n.length!==2*(e.length-2))throw new Error("length of pads should be twice the length of data dimensions");if(o.length!==e.length-2)throw new Error("length of strides should be the length of data dimensions");if(r.length!==e.length-2)throw new Error("length of kernel shapes should be the length of data dimensions");for(let a=0;a<e.length-2;a++)i.adjustPadAndReturnShape(e[a+2],o[a],t[a],r[a],n,a,a+e.length-2,s)}}static computePoolOutputShape(e,o,t,r,n,s,a){if(o.length<=0)throw new Error("input shape must be of size greater than 0");let u=[o[0],o[1]];return i.computeShapeHelper(e,o,u,t,r,n,s,a),u}static computeConvOutputShape(e,o,t,r,n,s,a){if(e.length<=0||o.length<=0)throw new Error("invalid input tensor dims or invalid filter tensor dims");let u=[e[0],o[0]];return i.computeShapeHelper(!1,e,u,t,r,n,s,a),u}static computeShapeHelper(e,o,t,r,n,s,a,u){if(e)for(let l=0;l<o.length-2;l++)t.push(1);else for(let l=0;l<o.length-2;l++)t.push(i.adjustPadAndReturnShape(o[l+2],r[l],n[l],s[l],a,l,l+o.length-2,u))}static adjustPadAndReturnShape(e,o,t,r,n,s,a,u){let l=t*(r-1)+1;if(u&&u!=="NOTSET")switch(u){case"VALID":return n[s]=0,n[a]=0,Math.floor((e-l)/o+1);case"SAME_LOWER":case"SAME_UPPER":if(t!==1)throw new Error("Dilation not supported for SAME_UPPER or SAME_LOWER");{let p=((e+o-1)/o-1)*o+r-e;return n[s]=Math.floor(u==="SAME_LOWER"?(p+1)/2:p/2),n[a]=p-n[s],Math.floor((e+p-r)/o+1)}default:throw new Error("Unsupported AutoPad type")}else return Math.floor((e+n[s]+n[a]-l)/o+1)}},Me=-34028234663852886e22,Ue=34028234663852886e22});function lh(i){switch(i){case"bool":case"int8":case"uint8":return 1;case"int16":case"uint16":return 2;case"int32":case"uint32":case"float32":return 4;case"float64":return 8;default:throw new Error(`cannot calculate sizeof() on type ${i}`)}}function Uu(i){switch(i){case H.onnx.TensorProto.DataType.UINT8:case H.onnx.TensorProto.DataType.INT8:case H.onnx.TensorProto.DataType.BOOL:return 1;case H.onnx.TensorProto.DataType.UINT16:case H.onnx.TensorProto.DataType.INT16:return 2;case H.onnx.TensorProto.DataType.FLOAT:case H.onnx.TensorProto.DataType.INT32:case H.onnx.TensorProto.DataType.UINT32:return 4;case H.onnx.TensorProto.DataType.INT64:case H.onnx.TensorProto.DataType.DOUBLE:case H.onnx.TensorProto.DataType.UINT64:return 8;default:throw new Error(`cannot calculate sizeof() on type ${H.onnx.TensorProto.DataType[i]}`)}}function fh(i,e){return new(Wu(e))(i)}function Wu(i){switch(i){case"bool":case"uint8":return Uint8Array;case"int8":return Int8Array;case"int16":return Int16Array;case"uint16":return Uint16Array;case"int32":return Int32Array;case"uint32":return Uint32Array;case"int64":return BigInt64Array;case"float32":return Float32Array;case"float64":return Float64Array;default:throw new Error("unspecified error")}}function ni(i,e){if(e===H.onnx.TensorProto.DataType.INT64||e===ri.TensorDataType.INT64){if(i.greaterThanOrEqual(2147483648)||i.lessThan(-2147483648))throw new TypeError("int64 is not supported")}else if(e===H.onnx.TensorProto.DataType.UINT32||e===ri.TensorDataType.UINT32||e===H.onnx.TensorProto.DataType.UINT64||e===ri.TensorDataType.UINT64){if(i.greaterThanOrEqual(4294967296)||i.lessThan(0))throw new TypeError("uint64 is not supported")}else throw new TypeError(`not a LONG type: ${H.onnx.TensorProto.DataType[e]}`);return i.toNumber()}function Vu(i,e,o){switch(e){case H.onnx.TensorProto.DataType.BOOL:case H.onnx.TensorProto.DataType.UINT8:return i.getUint8(o);case H.onnx.TensorProto.DataType.INT8:return i.getInt8(o);case H.onnx.TensorProto.DataType.UINT16:return i.getUint16(o,!0);case H.onnx.TensorProto.DataType.INT16:return i.getInt16(o,!0);case H.onnx.TensorProto.DataType.FLOAT:return i.getFloat32(o,!0);case H.onnx.TensorProto.DataType.INT32:return i.getInt32(o,!0);case H.onnx.TensorProto.DataType.UINT32:return i.getUint32(o,!0);case H.onnx.TensorProto.DataType.INT64:return ni(be.fromBits(i.getUint32(o,!0),i.getUint32(o+4,!0),!1),e);case H.onnx.TensorProto.DataType.DOUBLE:return i.getFloat64(o,!0);case H.onnx.TensorProto.DataType.UINT64:return ni(be.fromBits(i.getUint32(o,!0),i.getUint32(o+4,!0),!0),e);default:throw new Error(`cannot read from DataView for type ${H.onnx.TensorProto.DataType[e]}`)}}var zu,H,ri,bt,Ve=O(()=>{"use strict";zu=Qe($s());Uo();Pr();H=Qe(or());Z();ri=F.experimental.fbs,bt=class i{constructor(e,o,t,r,n,s=zu.Guid.create()){this.dims=e;this.type=o;this.dataProvider=t;this.asyncDataProvider=r;this.cache=n;this.dataId=s;this.size=B.validateDimsAndCalcSize(e);let a=this.size,u=t===void 0&&r===void 0&&n===void 0;if(n!==void 0&&n.length!==a)throw new RangeError("Input dims doesn't match data length.");if(o==="string"){if(n!==void 0&&(!Array.isArray(n)||!n.every(l=>typeof l=="string")))throw new TypeError("cache should be a string array");u&&(this.cache=new Array(a))}else{if(n!==void 0){let l=Wu(o);if(!(n instanceof l))throw new TypeError(`cache should be type ${l.name}`)}if(u){let l=new ArrayBuffer(a*lh(o));this.cache=fh(l,o)}}}get data(){if(this.cache===void 0){let e=this.dataProvider(this.dataId);if(e.length!==this.size)throw new Error("Length of data provided by the Data Provider is inconsistent with the dims of this Tensor.");this.cache=e}return this.cache}get stringData(){if(this.type!=="string")throw new TypeError("data type is not string");return this.data}get integerData(){switch(this.type){case"uint8":case"int8":case"uint16":case"int16":case"int32":case"uint32":case"bool":return this.data;default:throw new TypeError("data type is not integer (uint8, int8, uint16, int16, int32, uint32, bool)")}}get floatData(){switch(this.type){case"float32":case"float64":return this.data;default:throw new TypeError("data type is not float (float32, float64)")}}get numberData(){if(this.type!=="string")return this.data;throw new TypeError("type cannot be non-number (string)")}get(e){return this.data[B.indicesToOffset(e,this.strides)]}set(e,o){this.data[B.indicesToOffset(e,this.strides)]=o}async getData(){return this.cache===void 0&&(this.cache=await this.asyncDataProvider(this.dataId)),this.cache}get strides(){return this._strides||(this._strides=B.computeStrides(this.dims)),this._strides}static fromProto(e){if(!e)throw new Error("cannot construct Value from an empty tensor");let o=vt.tensorDataTypeFromProto(e.dataType),t=vt.tensorDimsFromProto(e.dims),r=new i(t,o);if(o==="string")e.stringData.forEach((n,s)=>{r.data[s]=kr(n)});else if(e.rawData&&typeof e.rawData.byteLength=="number"&&e.rawData.byteLength>0){let n=r.data,s=new DataView(e.rawData.buffer,e.rawData.byteOffset,e.rawData.byteLength),a=Uu(e.dataType),u=e.rawData.byteLength/a;if(e.rawData.byteLength%a!==0)throw new Error("invalid buffer length");if(n.length!==u)throw new Error("buffer length mismatch");for(let l=0;l<u;l++){let f=Vu(s,e.dataType,l*a);n[l]=f}}else{let n;switch(e.dataType){case H.onnx.TensorProto.DataType.FLOAT:n=e.floatData;break;case H.onnx.TensorProto.DataType.INT32:case H.onnx.TensorProto.DataType.INT16:case H.onnx.TensorProto.DataType.UINT16:case H.onnx.TensorProto.DataType.INT8:case H.onnx.TensorProto.DataType.UINT8:case H.onnx.TensorProto.DataType.BOOL:n=e.int32Data;break;case H.onnx.TensorProto.DataType.INT64:n=e.int64Data;break;case H.onnx.TensorProto.DataType.DOUBLE:n=e.doubleData;break;case H.onnx.TensorProto.DataType.UINT32:case H.onnx.TensorProto.DataType.UINT64:n=e.uint64Data;break;default:throw new Error("unspecific error")}if(n==null)throw new Error("failed to populate data from a tensorproto value");let s=r.data;if(s.length!==n.length)throw new Error("array length mismatch");for(let a=0;a<n.length;a++){let u=n[a];be.isLong(u)?s[a]=ni(u,e.dataType):s[a]=u}}return r}static fromData(e,o,t){return new i(o,t,void 0,void 0,e)}static fromOrtTensor(e){if(!e)throw new Error("cannot construct Value from an empty tensor");let o=vt.tensorDimsFromORTFormat(e),t=vt.tensorDataTypeFromProto(e.dataType()),r=new i(o,t);if(t==="string")for(let n=0;n<e.stringDataLength();n++)r.data[n]=e.stringData(n);else if(e.rawDataArray()&&typeof e.rawDataLength()=="number"&&e.rawDataLength()>0){let n=r.data,s=new DataView(e.rawDataArray().buffer,e.rawDataArray().byteOffset,e.rawDataLength()),a=Uu(e.dataType()),u=e.rawDataLength()/a;if(e.rawDataLength()%a!==0)throw new Error("invalid buffer length");if(n.length!==u)throw new Error("buffer length mismatch");for(let l=0;l<u;l++){let f=Vu(s,e.dataType(),l*a);n[l]=f}}return r}}});function R(i){return i===1?ch:ph}function Hu(i){let e=R(i);return`${e.version}
-      precision highp float;
-      ${e.attribute} vec3 position;
-      ${e.attribute} vec2 textureCoord;
+var Fn=Object.defineProperty;var Af=Object.getOwnPropertyDescriptor;var Ef=Object.getOwnPropertyNames;var kf=Object.prototype.hasOwnProperty;var qn=(t=>typeof require<"u"?require:typeof Proxy<"u"?new Proxy(t,{get:(e,r)=>(typeof require<"u"?require:e)[r]}):t)(function(t){if(typeof require<"u")return require.apply(this,arguments);throw Error('Dynamic require of "'+t+'" is not supported')});var V=(t,e,r)=>()=>{if(r)throw r[0];try{return t&&(e=t(t=0)),e}catch(n){throw r=[n],n}};var Wt=(t,e)=>{for(var r in e)Fn(t,r,{get:e[r],enumerable:!0})},Pf=(t,e,r,n)=>{if(e&&typeof e=="object"||typeof e=="function")for(let o of Ef(e))!kf.call(t,o)&&o!==r&&Fn(t,o,{get:()=>e[o],enumerable:!(n=Af(e,o))||n.enumerable});return t};var er=t=>Pf(Fn({},"__esModule",{value:!0}),t);var Tr,kt,Pt,Df,Ma,Kn=V(()=>{"use strict";Tr=new Map,kt=[],Pt=(t,e,r)=>{if(e&&typeof e.init=="function"&&typeof e.createInferenceSessionHandler=="function"){let n=Tr.get(t);if(n===void 0)Tr.set(t,{backend:e,priority:r});else{if(n.priority>r)return;if(n.priority===r&&n.backend!==e)throw new Error(`cannot register backend "${t}" using priority ${r}`)}if(r>=0){let o=kt.indexOf(t);o!==-1&&kt.splice(o,1);for(let i=0;i<kt.length;i++)if(Tr.get(kt[i]).priority<=r){kt.splice(i,0,t);return}kt.push(t)}return}throw new TypeError("not a valid backend")},Df=async t=>{let e=Tr.get(t);if(!e)return"backend not found.";if(e.initialized)return e.backend;if(e.aborted)return e.error;{let r=!!e.initPromise;try{return r||(e.initPromise=e.backend.init(t)),await e.initPromise,e.initialized=!0,e.backend}catch(n){return r||(e.error=`${n}`,e.aborted=!0),e.error}finally{delete e.initPromise}}},Ma=async t=>{let e=t.executionProviders||[],r=e.map(d=>typeof d=="string"?d:d.name),n=r.length===0?kt:r,o,i=[],a=new Set;for(let d of n){let c=await Df(d);typeof c=="string"?i.push({name:d,err:c}):(o||(o=c),o===c&&a.add(d))}if(!o)throw new Error(`no available backend found. ERR: ${i.map(d=>`[${d.name}] ${d.err}`).join(", ")}`);for(let{name:d,err:c}of i)r.includes(d)&&console.warn(`removing requested execution provider "${d}" from session options because it is not available: ${c}`);let u=e.filter(d=>a.has(typeof d=="string"?d:d.name));return[o,new Proxy(t,{get:(d,c)=>c==="executionProviders"?u:Reflect.get(d,c)})]}});var Ra=V(()=>{"use strict";Kn()});var Ua,Na=V(()=>{"use strict";Ua="1.30.0"});var Va,Oe,jn=V(()=>{"use strict";Na();Va="warning",Oe={wasm:{},webgl:{},webgpu:{},versions:{common:Ua},set logLevel(t){if(t!==void 0){if(typeof t!="string"||["verbose","info","warning","error","fatal"].indexOf(t)===-1)throw new Error(`Unsupported logging level: ${t}`);Va=t}},get logLevel(){return Va}};Object.defineProperty(Oe,"logLevel",{enumerable:!0})});var _e,La=V(()=>{"use strict";jn();_e=Oe});var Wa,Ga,Ha=V(()=>{"use strict";Wa=(t,e)=>{let r=typeof document<"u"?document.createElement("canvas"):new OffscreenCanvas(1,1);r.width=t.dims[3],r.height=t.dims[2];let n=r.getContext("2d");if(n!=null){let o,i;e?.tensorLayout!==void 0&&e.tensorLayout==="NHWC"?(o=t.dims[2],i=t.dims[3]):(o=t.dims[3],i=t.dims[2]);let a=e?.format!==void 0?e.format:"RGB",u=e?.norm,d,c;u===void 0||u.mean===void 0?d=[255,255,255,255]:typeof u.mean=="number"?d=[u.mean,u.mean,u.mean,u.mean]:(d=[u.mean[0],u.mean[1],u.mean[2],0],u.mean[3]!==void 0&&(d[3]=u.mean[3])),u===void 0||u.bias===void 0?c=[0,0,0,0]:typeof u.bias=="number"?c=[u.bias,u.bias,u.bias,u.bias]:(c=[u.bias[0],u.bias[1],u.bias[2],0],u.bias[3]!==void 0&&(c[3]=u.bias[3]));let p=i*o,m=0,g=p,b=p*2,y=-1;a==="RGBA"?(m=0,g=p,b=p*2,y=p*3):a==="RGB"?(m=0,g=p,b=p*2):a==="RBG"&&(m=0,b=p,g=p*2);for(let _=0;_<i;_++)for(let S=0;S<o;S++){let x=(t.data[m++]-c[0])*d[0],$=(t.data[g++]-c[1])*d[1],T=(t.data[b++]-c[2])*d[2],I=y===-1?255:(t.data[y++]-c[3])*d[3];n.fillStyle="rgba("+x+","+$+","+T+","+I+")",n.fillRect(S,_,1,1)}if("toDataURL"in r)return r.toDataURL();throw new Error("toDataURL is not supported")}else throw new Error("Can not access image data")},Ga=(t,e)=>{let r=typeof document<"u"?document.createElement("canvas").getContext("2d"):new OffscreenCanvas(1,1).getContext("2d"),n;if(r!=null){let o,i,a;e?.tensorLayout!==void 0&&e.tensorLayout==="NHWC"?(o=t.dims[2],i=t.dims[1],a=t.dims[3]):(o=t.dims[3],i=t.dims[2],a=t.dims[1]);let u=e!==void 0&&e.format!==void 0?e.format:"RGB",d=e?.norm,c,p;d===void 0||d.mean===void 0?c=[255,255,255,255]:typeof d.mean=="number"?c=[d.mean,d.mean,d.mean,d.mean]:(c=[d.mean[0],d.mean[1],d.mean[2],255],d.mean[3]!==void 0&&(c[3]=d.mean[3])),d===void 0||d.bias===void 0?p=[0,0,0,0]:typeof d.bias=="number"?p=[d.bias,d.bias,d.bias,d.bias]:(p=[d.bias[0],d.bias[1],d.bias[2],0],d.bias[3]!==void 0&&(p[3]=d.bias[3]));let m=i*o;if(e!==void 0&&(e.format!==void 0&&a===4&&e.format!=="RGBA"||a===3&&e.format!=="RGB"&&e.format!=="BGR"))throw new Error("Tensor format doesn't match input tensor dims");let g=4,b=0,y=1,_=2,S=3,x=0,$=m,T=m*2,I=-1;u==="RGBA"?(x=0,$=m,T=m*2,I=m*3):u==="RGB"?(x=0,$=m,T=m*2):u==="RBG"&&(x=0,T=m,$=m*2),n=r.createImageData(o,i);for(let E=0;E<i*o;b+=g,y+=g,_+=g,S+=g,E++)n.data[b]=(t.data[x++]-p[0])*c[0],n.data[y]=(t.data[$++]-p[1])*c[1],n.data[_]=(t.data[T++]-p[2])*c[2],n.data[S]=I===-1?255:(t.data[I++]-p[3])*c[3]}else throw new Error("Can not access image data");return n}});var Qn,Fa,qa,Ka,ja,Qa,Za=V(()=>{"use strict";Ir();Qn=(t,e)=>{if(t===void 0)throw new Error("Image buffer must be defined");if(e.height===void 0||e.width===void 0)throw new Error("Image height and width must be defined");if(e.tensorLayout==="NHWC")throw new Error("NHWC Tensor layout is not supported yet");let{height:r,width:n}=e,o=e.norm??{mean:255,bias:0},i,a;typeof o.mean=="number"?i=[o.mean,o.mean,o.mean,o.mean]:i=[o.mean[0],o.mean[1],o.mean[2],o.mean[3]??255],typeof o.bias=="number"?a=[o.bias,o.bias,o.bias,o.bias]:a=[o.bias[0],o.bias[1],o.bias[2],o.bias[3]??0];let u=e.format!==void 0?e.format:"RGBA",d=e.tensorFormat!==void 0&&e.tensorFormat!==void 0?e.tensorFormat:"RGB",c=r*n,p=d==="RGBA"?new Float32Array(c*4):new Float32Array(c*3),m=4,g=0,b=1,y=2,_=3,S=0,x=c,$=c*2,T=-1;u==="RGB"&&(m=3,g=0,b=1,y=2,_=-1),d==="RGBA"?T=c*3:d==="RBG"?(S=0,$=c,x=c*2):d==="BGR"&&($=0,x=c,S=c*2);for(let E=0;E<c;E++,g+=m,y+=m,b+=m,_+=m)p[S++]=(t[g]+a[0])/i[0],p[x++]=(t[b]+a[1])/i[1],p[$++]=(t[y]+a[2])/i[2],T!==-1&&_!==-1&&(p[T++]=(t[_]+a[3])/i[3]);return d==="RGBA"?new Be("float32",p,[1,4,r,n]):new Be("float32",p,[1,3,r,n])},Fa=async(t,e)=>{let r=typeof HTMLImageElement<"u"&&t instanceof HTMLImageElement,n=typeof ImageData<"u"&&t instanceof ImageData,o=typeof ImageBitmap<"u"&&t instanceof ImageBitmap,i=typeof t=="string",a,u=e??{},d=()=>{if(typeof document<"u")return document.createElement("canvas");if(typeof OffscreenCanvas<"u")return new OffscreenCanvas(1,1);throw new Error("Canvas is not supported")},c=p=>typeof HTMLCanvasElement<"u"&&p instanceof HTMLCanvasElement||p instanceof OffscreenCanvas?p.getContext("2d"):null;if(r){let p=d();p.width=t.width,p.height=t.height;let m=c(p);if(m!=null){let g=t.height,b=t.width;if(e!==void 0&&e.resizedHeight!==void 0&&e.resizedWidth!==void 0&&(g=e.resizedHeight,b=e.resizedWidth),e!==void 0){if(u=e,e.tensorFormat!==void 0)throw new Error("Image input config format must be RGBA for HTMLImageElement");u.tensorFormat="RGBA",u.height=g,u.width=b}else u.tensorFormat="RGBA",u.height=g,u.width=b;m.drawImage(t,0,0),a=m.getImageData(0,0,b,g).data}else throw new Error("Can not access image data")}else if(n){let p,m;if(e!==void 0&&e.resizedWidth!==void 0&&e.resizedHeight!==void 0?(p=e.resizedHeight,m=e.resizedWidth):(p=t.height,m=t.width),e!==void 0&&(u=e),u.format="RGBA",u.height=p,u.width=m,e!==void 0){let g=d();g.width=m,g.height=p;let b=c(g);if(b!=null)b.putImageData(t,0,0),a=b.getImageData(0,0,m,p).data;else throw new Error("Can not access image data")}else a=t.data}else if(o){if(e===void 0)throw new Error("Please provide image config with format for Imagebitmap");let p=d();p.width=t.width,p.height=t.height;let m=c(p);if(m!=null){let g=t.height,b=t.width;return m.drawImage(t,0,0,b,g),a=m.getImageData(0,0,b,g).data,u.height=g,u.width=b,Qn(a,u)}else throw new Error("Can not access image data")}else{if(i)return new Promise((p,m)=>{let g=d(),b=c(g);if(!t||!b)return m();let y=new Image;y.crossOrigin="Anonymous",y.src=t,y.onload=()=>{g.width=y.width,g.height=y.height,b.drawImage(y,0,0,g.width,g.height);let _=b.getImageData(0,0,g.width,g.height);u.height=g.height,u.width=g.width,p(Qn(_.data,u))}});throw new Error("Input data provided is not supported - aborted tensor creation")}if(a!==void 0)return Qn(a,u);throw new Error("Input data provided is not supported - aborted tensor creation")},qa=(t,e)=>{let{width:r,height:n,download:o,dispose:i}=e,a=[1,n,r,4];return new Be({location:"texture",type:"float32",texture:t,dims:a,download:o,dispose:i})},Ka=(t,e)=>{let{dataType:r,dims:n,download:o,dispose:i}=e;return new Be({location:"gpu-buffer",type:r??"float32",gpuBuffer:t,dims:n,download:o,dispose:i})},ja=(t,e)=>{let{dataType:r,dims:n,download:o,dispose:i}=e;return new Be({location:"ml-tensor",type:r??"float32",mlTensor:t,dims:n,download:o,dispose:i})},Qa=(t,e,r)=>new Be({location:"cpu-pinned",type:t,data:e,dims:r??[e.length]})});var Dt,tr,Ya,Xa,Ja=V(()=>{"use strict";Dt=new Map([["float32",Float32Array],["uint8",Uint8Array],["int8",Int8Array],["uint16",Uint16Array],["int16",Int16Array],["int32",Int32Array],["bool",Uint8Array],["float64",Float64Array],["uint32",Uint32Array],["int4",Uint8Array],["uint4",Uint8Array]]),tr=new Map([[Float32Array,"float32"],[Uint8Array,"uint8"],[Int8Array,"int8"],[Uint16Array,"uint16"],[Int16Array,"int16"],[Int32Array,"int32"],[Float64Array,"float64"],[Uint32Array,"uint32"]]),Ya=!1,Xa=()=>{if(!Ya){Ya=!0;let t=typeof BigInt64Array<"u"&&BigInt64Array.from,e=typeof BigUint64Array<"u"&&BigUint64Array.from,r=globalThis.Float16Array,n=typeof r<"u"&&r.from;t&&(Dt.set("int64",BigInt64Array),tr.set(BigInt64Array,"int64")),e&&(Dt.set("uint64",BigUint64Array),tr.set(BigUint64Array,"uint64")),n?(Dt.set("float16",r),tr.set(r,"float16")):Dt.set("float16",Uint16Array)}}});var es,ts,rs=V(()=>{"use strict";Ir();es=t=>{let e=1;for(let r=0;r<t.length;r++){let n=t[r];if(typeof n!="number"||!Number.isSafeInteger(n))throw new TypeError(`dims[${r}] must be an integer, got: ${n}`);if(n<0)throw new RangeError(`dims[${r}] must be a non-negative integer, got: ${n}`);e*=n}return e},ts=(t,e)=>{switch(t.location){case"cpu":return new Be(t.type,t.data,e);case"cpu-pinned":return new Be({location:"cpu-pinned",data:t.data,type:t.type,dims:e});case"texture":return new Be({location:"texture",texture:t.texture,type:t.type,dims:e});case"gpu-buffer":return new Be({location:"gpu-buffer",gpuBuffer:t.gpuBuffer,type:t.type,dims:e});case"ml-tensor":return new Be({location:"ml-tensor",mlTensor:t.mlTensor,type:t.type,dims:e});default:throw new Error(`tensorReshape: tensor location ${t.location} is not supported`)}}});var Be,Ir=V(()=>{"use strict";Ha();Za();Ja();rs();Be=class{constructor(e,r,n){Xa();let o,i;if(typeof e=="object"&&"location"in e)switch(this.dataLocation=e.location,o=e.type,i=e.dims,e.location){case"cpu-pinned":{let u=Dt.get(o);if(!u)throw new TypeError(`unsupported type "${o}" to create tensor from pinned buffer`);if(!(e.data instanceof u))throw new TypeError(`buffer should be of type ${u.name}`);this.cpuData=e.data;break}case"texture":{if(o!=="float32")throw new TypeError(`unsupported type "${o}" to create tensor from texture`);this.gpuTextureData=e.texture,this.downloader=e.download,this.disposer=e.dispose;break}case"gpu-buffer":{if(o!=="float32"&&o!=="float16"&&o!=="int32"&&o!=="int64"&&o!=="uint32"&&o!=="uint8"&&o!=="bool"&&o!=="uint4"&&o!=="int4")throw new TypeError(`unsupported type "${o}" to create tensor from gpu buffer`);this.gpuBufferData=e.gpuBuffer,this.downloader=e.download,this.disposer=e.dispose;break}case"ml-tensor":{if(o!=="float32"&&o!=="float16"&&o!=="int32"&&o!=="int64"&&o!=="uint32"&&o!=="uint64"&&o!=="int8"&&o!=="uint8"&&o!=="bool"&&o!=="uint4"&&o!=="int4")throw new TypeError(`unsupported type "${o}" to create tensor from MLTensor`);this.mlTensorData=e.mlTensor,this.downloader=e.download,this.disposer=e.dispose;break}default:throw new Error(`Tensor constructor: unsupported location '${this.dataLocation}'`)}else{let u,d;if(typeof e=="string")if(o=e,d=n,e==="string"){if(!Array.isArray(r))throw new TypeError("A string tensor's data must be a string array.");u=r}else{let c=Dt.get(e);if(c===void 0)throw new TypeError(`Unsupported tensor type: ${e}.`);if(Array.isArray(r)){if(e==="float16"&&c===Uint16Array||e==="uint4"||e==="int4")throw new TypeError(`Creating a ${e} tensor from number array is not supported. Please use ${c.name} as data.`);e==="uint64"||e==="int64"?u=c.from(r,BigInt):u=c.from(r)}else if(r instanceof c)u=r;else if(r instanceof Uint8ClampedArray)if(e==="uint8")u=Uint8Array.from(r);else throw new TypeError("A Uint8ClampedArray tensor's data must be type of uint8");else if(e==="float16"&&r instanceof Uint16Array&&c!==Uint16Array)u=new globalThis.Float16Array(r.buffer,r.byteOffset,r.length);else throw new TypeError(`A ${o} tensor's data must be type of ${c}`)}else if(d=r,Array.isArray(e)){if(e.length===0)throw new TypeError("Tensor type cannot be inferred from an empty array.");let c=typeof e[0];if(c==="string")o="string",u=e;else if(c==="boolean")o="bool",u=Uint8Array.from(e);else throw new TypeError(`Invalid element type of data array: ${c}.`)}else if(e instanceof Uint8ClampedArray)o="uint8",u=Uint8Array.from(e);else{let c=tr.get(e.constructor);if(c===void 0)throw new TypeError(`Unsupported type for tensor data: ${e.constructor}.`);o=c,u=e}if(d===void 0)d=[u.length];else if(!Array.isArray(d))throw new TypeError("A tensor's dims must be a number array");i=d,this.cpuData=u,this.dataLocation="cpu"}let a=es(i);if(this.cpuData&&a!==this.cpuData.length&&!((o==="uint4"||o==="int4")&&Math.ceil(a/2)===this.cpuData.length))throw new Error(`Tensor's size(${a}) does not match data length(${this.cpuData.length}).`);this.type=o,this.dims=i,this.size=a}static async fromImage(e,r){return Fa(e,r)}static fromTexture(e,r){return qa(e,r)}static fromGpuBuffer(e,r){return Ka(e,r)}static fromMLTensor(e,r){return ja(e,r)}static fromPinnedBuffer(e,r,n){return Qa(e,r,n)}toDataURL(e){return Wa(this,e)}toImageData(e){return Ga(this,e)}get data(){if(this.ensureValid(),!this.cpuData)throw new Error("The data is not on CPU. Use `getData()` to download GPU data to CPU, or use `texture` or `gpuBuffer` property to access the GPU data directly.");return this.cpuData}get location(){return this.dataLocation}get texture(){if(this.ensureValid(),!this.gpuTextureData)throw new Error("The data is not stored as a WebGL texture.");return this.gpuTextureData}get gpuBuffer(){if(this.ensureValid(),!this.gpuBufferData)throw new Error("The data is not stored as a WebGPU buffer.");return this.gpuBufferData}get mlTensor(){if(this.ensureValid(),!this.mlTensorData)throw new Error("The data is not stored as a WebNN MLTensor.");return this.mlTensorData}async getData(e){switch(this.ensureValid(),this.dataLocation){case"cpu":case"cpu-pinned":return this.data;case"texture":case"gpu-buffer":case"ml-tensor":{if(!this.downloader)throw new Error("The current tensor is not created with a specified data downloader.");if(this.isDownloading)throw new Error("The current tensor is being downloaded.");try{this.isDownloading=!0;let r=await this.downloader();return this.downloader=void 0,this.dataLocation="cpu",this.cpuData=r,e&&this.disposer&&(this.disposer(),this.disposer=void 0),r}finally{this.isDownloading=!1}}default:throw new Error(`cannot get data from location: ${this.dataLocation}`)}}dispose(){if(this.isDownloading)throw new Error("The current tensor is being downloaded.");this.disposer&&(this.disposer(),this.disposer=void 0),this.cpuData=void 0,this.gpuTextureData=void 0,this.gpuBufferData=void 0,this.mlTensorData=void 0,this.downloader=void 0,this.isDownloading=void 0,this.dataLocation="none"}ensureValid(){if(this.dataLocation==="none")throw new Error("The tensor is disposed.")}reshape(e){if(this.ensureValid(),this.downloader||this.disposer)throw new Error("Cannot reshape a tensor that owns GPU resource.");return ts(this,e)}}});var je,Zn=V(()=>{"use strict";Ir();je=Be});var Cr,ns,Ve,Re,_t,wt,Yn=V(()=>{"use strict";jn();Cr=(t,e)=>{(typeof Oe.trace>"u"?!Oe.wasm.trace:!Oe.trace)||console.timeStamp(`${t}::ORT::${e}`)},ns=(t,e)=>{let r=new Error().stack?.split(/\r\n|\r|\n/g)||[],n=!1;for(let o=0;o<r.length;o++){if(n&&!r[o].includes("TRACE_FUNC")){let i=`FUNC_${t}::${r[o].trim().split(" ")[1]}`;e&&(i+=`::${e}`),Cr("CPU",i);return}r[o].includes("TRACE_FUNC")&&(n=!0)}},Ve=t=>{(typeof Oe.trace>"u"?!Oe.wasm.trace:!Oe.trace)||ns("BEGIN",t)},Re=t=>{(typeof Oe.trace>"u"?!Oe.wasm.trace:!Oe.trace)||ns("END",t)},_t=t=>{(typeof Oe.trace>"u"?!Oe.wasm.trace:!Oe.trace)||console.time(`ORT::${t}`)},wt=t=>{(typeof Oe.trace>"u"?!Oe.wasm.trace:!Oe.trace)||console.timeEnd(`ORT::${t}`)}});var Ar,os=V(()=>{"use strict";Kn();Zn();Yn();Ar=class t{constructor(e){this.handler=e}async run(e,r,n){Ve(),_t("InferenceSession.run");let o={},i={};if(typeof e!="object"||e===null||e instanceof je||Array.isArray(e))throw new TypeError("'feeds' must be an object that use input names as keys and OnnxValue as corresponding values.");let a=!0;if(typeof r=="object"){if(r===null)throw new TypeError("Unexpected argument[1]: cannot be null.");if(r instanceof je)throw new TypeError("'fetches' cannot be a Tensor");if(Array.isArray(r)){if(r.length===0)throw new TypeError("'fetches' cannot be an empty array.");a=!1;for(let c of r){if(typeof c!="string")throw new TypeError("'fetches' must be a string array or an object.");if(this.outputNames.indexOf(c)===-1)throw new RangeError(`'fetches' contains invalid output name: ${c}.`);o[c]=null}if(typeof n=="object"&&n!==null)i=n;else if(typeof n<"u")throw new TypeError("'options' must be an object.")}else{let c=!1,p=Object.getOwnPropertyNames(r);for(let m of this.outputNames)if(p.indexOf(m)!==-1){let g=r[m];(g===null||g instanceof je)&&(c=!0,a=!1,o[m]=g)}if(c){if(typeof n=="object"&&n!==null)i=n;else if(typeof n<"u")throw new TypeError("'options' must be an object.")}else i=r}}else if(typeof r<"u")throw new TypeError("Unexpected argument[1]: must be 'fetches' or 'options'.");for(let c of this.inputNames)if(typeof e[c]>"u")throw new Error(`input '${c}' is missing in 'feeds'.`);if(a)for(let c of this.outputNames)o[c]=null;let u=await this.handler.run(e,o,i),d={};for(let c in u)if(Object.hasOwnProperty.call(u,c)){let p=u[c];p instanceof je?d[c]=p:d[c]=new je(p.type,p.data,p.dims)}return wt("InferenceSession.run"),Re(),d}async release(){return this.handler.dispose()}static async create(e,r,n,o){Ve(),_t("InferenceSession.create");let i,a={};if(typeof e=="string"){if(i=e,typeof r=="object"&&r!==null)a=r;else if(typeof r<"u")throw new TypeError("'options' must be an object.")}else if(e instanceof Uint8Array){if(i=e,typeof r=="object"&&r!==null)a=r;else if(typeof r<"u")throw new TypeError("'options' must be an object.")}else if(e instanceof ArrayBuffer||typeof SharedArrayBuffer<"u"&&e instanceof SharedArrayBuffer){let p=e,m=0,g=e.byteLength;if(typeof r=="object"&&r!==null)a=r;else if(typeof r=="number"){if(m=r,!Number.isSafeInteger(m))throw new RangeError("'byteOffset' must be an integer.");if(m<0||m>=p.byteLength)throw new RangeError(`'byteOffset' is out of range [0, ${p.byteLength}).`);if(g=e.byteLength-m,typeof n=="number"){if(g=n,!Number.isSafeInteger(g))throw new RangeError("'byteLength' must be an integer.");if(g<=0||m+g>p.byteLength)throw new RangeError(`'byteLength' is out of range (0, ${p.byteLength-m}].`);if(typeof o=="object"&&o!==null)a=o;else if(typeof o<"u")throw new TypeError("'options' must be an object.")}else if(typeof n<"u")throw new TypeError("'byteLength' must be a number.")}else if(typeof r<"u")throw new TypeError("'options' must be an object.");i=new Uint8Array(p,m,g)}else throw new TypeError("Unexpected argument[0]: must be 'path' or 'buffer'.");let[u,d]=await Ma(a),c=await u.createInferenceSessionHandler(i,d);return wt("InferenceSession.create"),Re(),new t(c)}startProfiling(){this.handler.startProfiling()}endProfiling(){this.handler.endProfiling()}get inputNames(){return this.handler.inputNames}get outputNames(){return this.handler.outputNames}get inputMetadata(){return this.handler.inputMetadata}get outputMetadata(){return this.handler.outputMetadata}}});var Of,is=V(()=>{"use strict";os();Of=Ar});var as=V(()=>{"use strict"});var ss=V(()=>{"use strict"});var us=V(()=>{"use strict"});var ds=V(()=>{"use strict"});var Xn={};Wt(Xn,{InferenceSession:()=>Of,TRACE:()=>Cr,TRACE_EVENT_BEGIN:()=>_t,TRACE_EVENT_END:()=>wt,TRACE_FUNC_BEGIN:()=>Ve,TRACE_FUNC_END:()=>Re,Tensor:()=>je,env:()=>_e,registerBackend:()=>Pt});var Le=V(()=>{"use strict";Ra();La();is();Zn();as();ss();Yn();us();ds()});var Er=V(()=>{"use strict"});var ms={};Wt(ms,{default:()=>zf});var cs,ps,zf,fs=V(()=>{"use strict";Jn();vt();kr();cs="ort-wasm-proxy-worker",ps=globalThis.self?.name===cs;ps&&(self.onmessage=t=>{let{type:e,in:r}=t.data;try{switch(e){case"init-wasm":Pr(r.wasm).then(()=>{Dr(r).then(()=>{postMessage({type:e})},n=>{postMessage({type:e,err:n})})},n=>{postMessage({type:e,err:n})});break;case"init-ep":{let{epName:n,env:o}=r;Or(o,n).then(()=>{postMessage({type:e})},i=>{postMessage({type:e,err:i})});break}case"copy-from":{let{buffer:n}=r,o=rr(n);postMessage({type:e,out:o});break}case"create":{let{model:n,options:o}=r;zr(n,o).then(i=>{postMessage({type:e,out:i})},i=>{postMessage({type:e,err:i})});break}case"release":Br(r),postMessage({type:e});break;case"run":{let{sessionId:n,inputIndices:o,inputs:i,outputIndices:a,options:u}=r;Mr(n,o,i,a,new Array(a.length).fill(null),u).then(d=>{d.some(c=>c[3]!=="cpu")?postMessage({type:e,err:"Proxy does not support non-cpu tensor location."}):postMessage({type:e,out:d},Ur([...i,...d]))},d=>{postMessage({type:e,err:d})});break}case"end-profiling":Rr(r),postMessage({type:e});break;default:}}catch(n){postMessage({type:e,err:n})}});zf=ps?null:t=>new Worker(t??We,{type:"module",name:cs})});var gs={};Wt(gs,{default:()=>Bf});async function hs(t={}){var e=t,r=!!globalThis.window,n=!!globalThis.WorkerGlobalScope,o=n&&self.name?.startsWith("em-pthread");e.mountExternalData=(s,l)=>{s.startsWith("./")&&(s=s.substring(2)),(e.$c||(e.$c=new Map)).set(s,l)},e.unmountExternalData=()=>{delete e.$c,delete e.ae,delete e.$d,delete e.be},globalThis.SharedArrayBuffer??new WebAssembly.Memory({initial:0,maximum:0,shared:!0}).buffer.constructor;let i=s=>async(...l)=>{try{if(e.Zc)throw Error("Session already started");let h=e.Zc={Nd:l[0],errors:[]},f=await s(...l);if(e.Zc!==h)throw Error("Session mismatch");e.gd?.flush();let v=h.errors;if(0<v.length){let C=await Promise.all(v);if(C=C.filter(P=>P),0<C.length)throw Error(C.join(`
+`))}return f}finally{e.Zc=null}};e.jsepInit=(s,l)=>{if(s==="webgpu"){[e.gd,e.Dd,e.Hd,e.jd,e.Gd,e.ac,e.Id,e.Kd,e.Ed,e.Fd,e.Jd]=l;let h=e.gd;e.jsepRegisterBuffer=(f,v,C,P)=>h.registerBuffer(f,v,C,P),e.jsepGetBuffer=f=>h.getBuffer(f),e.jsepCreateDownloader=(f,v,C)=>h.createDownloader(f,v,C),e.jsepOnCreateSession=f=>{h.onCreateSession(f)},e.jsepOnReleaseSession=f=>{h.onReleaseSession(f)},e.jsepOnRunStart=f=>h.onRunStart(f),e.Ld=(f,v)=>{h.upload(f,v)}}else if(s==="webnn"){let h=l[0];[e.Vd,e.vd,e.webnnEnsureTensor,e.wd,e.webnnDownloadTensor,e.Ud,e.webnnEnableTraceEvent]=l.slice(1),e.webnnReleaseTensorId=e.vd,e.webnnUploadTensor=e.wd,e.webnnRegisterMLContext=e.Ud,e.webnnOnRunStart=f=>h.onRunStart(f),e.webnnOnRunEnd=h.onRunEnd.bind(h),e.webnnOnReleaseSession=f=>{h.onReleaseSession(f)},e.webnnCreateMLTensorDownloader=(f,v)=>h.createMLTensorDownloader(f,v),e.webnnRegisterMLTensor=(f,v,C,P)=>h.registerMLTensor(f,v,C,P),e.webnnCreateMLContext=f=>h.createMLContext(f),e.webnnRegisterGraphInput=h.registerGraphInput.bind(h),e.webnnIsGraphInput=h.isGraphInput.bind(h),e.webnnRegisterGraphOutput=h.registerGraphOutput.bind(h),e.webnnIsGraphOutput=h.isGraphOutput.bind(h),e.webnnCreateTemporaryTensor=h.createTemporaryTensor.bind(h),e.webnnIsGraphInputOutputTypeSupported=h.isGraphInputOutputTypeSupported.bind(h)}};let a=()=>{let s=l=>(...h)=>{let f=et;return h=l(...h),et!=f?new Promise((v,C)=>{Dn={resolve:v,reject:C}}):h};(()=>{for(let l of["_OrtAppendExecutionProvider","_OrtCreateSession","_OrtRun","_OrtRunWithBinding","_OrtBindInput"])e[l]=s(e[l])})(),i!==void 0&&(e._OrtRun=i(e._OrtRun),e._OrtRunWithBinding=i(e._OrtRunWithBinding)),a=void 0};e.asyncInit=()=>{a?.()};var u,d,c=(s,l)=>{throw l},p=import.meta.url,m="";if(r||n){try{m=new URL(".",p).href}catch{}n&&(d=s=>{var l=new XMLHttpRequest;return l.open("GET",s,!1),l.responseType="arraybuffer",l.send(null),new Uint8Array(l.response)}),u=async s=>{if(O(s))return new Promise((h,f)=>{var v=new XMLHttpRequest;v.open("GET",s,!0),v.responseType="arraybuffer",v.onload=()=>{v.status==200||v.status==0&&v.response?h(v.response):f(v.status)},v.onerror=f,v.send(null)});var l=await fetch(s,{credentials:"same-origin"});if(l.ok)return l.arrayBuffer();throw Error(l.status+" : "+l.url)}}var g,b,y,_,S,x,$=console.log.bind(console),T=console.error.bind(console),I=$,E=T,A=!1,O=s=>s.startsWith("file://");function w(){ht.buffer!=N.buffer&&Me()}if(o){let s=function(l){try{var h=l.data,f=h.Uc;if(f==="load"){let v=[];self.onmessage=C=>v.push(C),x=()=>{postMessage({Uc:"loaded"});for(let C of v)s(C);self.onmessage=s};for(let C of h.Ad)e[C]&&!e[C].proxy||(e[C]=(...P)=>{postMessage({Uc:"callHandler",zd:C,args:P})},C=="print"&&(I=e[C]),C=="printErr"&&(E=e[C]));ht=h.Rd,Me(),b=h.Sd,ye(),Sr()}else if(f==="run"){(function(v){var C=(w(),L)[v+52>>>2>>>0];v=(w(),L)[v+56>>>2>>>0],Fi(C,C-v),ue(C)})(h.Tc),Rn(h.Tc,0,0,1,0,0),qo(),En(h.Tc),U||(Ni(),U=!0);try{gp(h.Pd,h.dd)}catch(v){if(v!="unwind")throw v}}else h.target!=="setimmediate"&&(f==="checkMailbox"?U&&yr():f&&(E(`worker: received unknown command ${f}`),E(h)))}catch(v){throw Vi(),v}};var gb=s,U=!1;self.onunhandledrejection=l=>{throw l.reason||l},self.onmessage=s}var N,F,q,X,z,L,Z,Y,Q,ne,ie,ce=!1;function Me(){var s=ht.buffer;e.HEAP8=N=new Int8Array(s),q=new Int16Array(s),e.HEAPU8=F=new Uint8Array(s),X=new Uint16Array(s),e.HEAP32=z=new Int32Array(s),e.HEAPU32=L=new Uint32Array(s),Z=new Float32Array(s),Y=new Float64Array(s),Q=new BigInt64Array(s),ne=new BigUint64Array(s)}function ve(){ce=!0,o?x():ct.tb()}function M(s){throw E(s="Aborted("+s+")"),A=!0,s=new WebAssembly.RuntimeError(s+". Build with -sASSERTIONS for more info."),S?.(s),s}function G(){return{a:{ma:Lm,hb:Vm,g:yp,J:bp,f:_p,o:wp,i:vp,$:$p,b:xp,S:Sp,Ia:Xo,n:Tp,aa:ri,Ya:ni,Ea:oi,Ga:ii,Za:ai,Wa:si,Pa:ui,Va:di,ka:li,Fa:ci,Ca:pi,Xa:mi,Da:fi,cb:Ip,fa:Ap,xa:Ep,va:Pp,ea:Op,N:zp,H:Bp,wa:Mp,_:Gp,ya:Hp,Sa:Fp,Aa:Kp,Ja:jp,ta:Qp,ga:Zp,Ra:En,$a:Yp,Q:tm,r:am,c:Cn,ib:sm,y:um,M:dm,D:lm,l:cm,s:$i,jb:pm,I:mm,R:fm,j:hm,u:gm,q:ym,k:bm,Ma:_m,Na:wm,Oa:vm,Ka:Ii,La:Ci,ua:Ai,eb:xm,bb:Im,v:Cm,ba:Am,ha:Em,ab:Sm,V:km,_a:Pm,Ba:Dm,F:$m,U:Om,la:$r,za:Bm,gb:zm,fb:Mm,Ta:Di,Ua:Oi,Ha:$n,T:zi,ja:Bi,Qa:Mi,ia:Ri,lb:Tf,na:wf,mb:Sf,oa:_f,G:uf,e:Fm,t:Gm,w:Wm,B:tf,nb:gf,Z:hf,x:jm,pa:yf,X:vf,ca:ff,ob:mf,pb:pf,O:rf,qb:lf,qa:cf,rb:df,L:af,Y:bf,d:Hm,A:Km,m:qm,kb:If,p:Zm,z:Ym,C:Qm,E:Xm,K:nf,ra:sf,P:$f,da:of,W:xf,sb:ef,sa:Jm,h:Um,a:ht,db:pr}}}async function ye(){function s(f,v){var C=ct=f.exports;f={};for(let[P,B]of Object.entries(C))typeof B=="function"?(C=Xp(B),f[P]=C):f[P]=B;return ct=f,ct=(function(){var P=ct,B=K=>ae=>K(ae)>>>0,H=K=>()=>K()>>>0;return(P=Object.assign({},P)).ub=B(P.ub),P.Yb=H(P.Yb),P._b=B(P._b),P.mc=B(P.mc),P.nc=H(P.nc),P.rc=B(P.rc),P})(),Ho.push(ct.$b),Ui=(f=ct).ub,Ni=f.vb,e._OrtInit=f.wb,e._OrtGetLastError=f.xb,e._OrtCreateSessionOptions=f.yb,e._OrtAppendExecutionProvider=f.zb,e._OrtAddFreeDimensionOverride=f.Ab,e._OrtAddSessionConfigEntry=f.Bb,e._OrtReleaseSessionOptions=f.Cb,e._OrtCreateSession=f.Db,e._OrtReleaseSession=f.Eb,e._OrtGetInputOutputCount=f.Fb,e._OrtGetInputOutputMetadata=f.Gb,e._OrtFree=f.Hb,e._OrtCreateTensor=f.Ib,e._OrtGetTensorData=f.Jb,e._OrtReleaseTensor=f.Kb,e._OrtCreateRunOptions=f.Lb,e._OrtAddRunConfigEntry=f.Mb,e._OrtReleaseRunOptions=f.Nb,e._OrtCreateBinding=f.Ob,e._OrtBindInput=f.Pb,e._OrtBindOutput=f.Qb,e._OrtClearBoundOutputs=f.Rb,e._OrtReleaseBinding=f.Sb,e._OrtRunWithBinding=f.Tb,e._OrtRun=f.Ub,e._OrtEndProfiling=f.Vb,e._JsepOutput=f.Wb,e._JsepGetNodeName=f.Xb,xr=f.Yb,tt=e._free=f.Zb,Xt=e._malloc=f._b,Rn=f.bc,Vi=f.cc,Li=f.dc,Wi=f.ec,Un=f.fc,Gi=f.gc,Hi=f.hc,le=f.ic,Jt=f.jc,Fi=f.kc,ue=f.lc,Nn=f.mc,de=f.nc,qi=f.oc,Vn=f.pc,Ki=f.qc,ji=f.rc,Qi=f.sc,Ln=f.tc,Zi=f.uc,Yi=f.vc,Xi=f.wc,Ji=f.xc,ea=f.yc,ta=f.zc,ra=f.Ac,na=f.Bc,oa=f.Cc,ia=f.Dc,aa=f.Ec,sa=f.Fc,ua=f.Gc,da=f.Hc,la=f.Ic,ca=f.Jc,pa=f.Kc,ma=f.Lc,fa=f.Mc,ha=f.Nc,ga=f.Oc,ya=f.Pc,ba=f.Rc,_a=f.Sc,wa=f.bd,va=f.cd,$a=f.hd,xa=f.md,Sa=f.nd,Ta=f.od,Ia=f.pd,Ca=f.qd,Aa=f.rd,Ea=f.sd,ka=f.td,Pa=f.yd,Da=f.Xd,Oa=f.Yd,za=f.Zd,Ba=f._d,b=v,ct}var l,h=G();return e.instantiateWasm?new Promise(f=>{e.instantiateWasm(h,(v,C)=>{f(s(v,C))})}):o?s(new WebAssembly.Instance(b,G()),b):(ie??=e.locateFile?e.locateFile?e.locateFile("ort-wasm-simd-threaded.jsep.wasm",m):m+"ort-wasm-simd-threaded.jsep.wasm":new URL("ort-wasm-simd-threaded.jsep.wasm",import.meta.url).href,l=await(async function(f){var v=ie;if(!g&&!O(v))try{var C=fetch(v,{credentials:"same-origin"});return await WebAssembly.instantiateStreaming(C,f)}catch(P){E(`wasm streaming compile failed: ${P}`),E("falling back to ArrayBuffer instantiation")}return(async function(P,B){try{var H=await(async function(K){if(!g)try{var ae=await u(K);return new Uint8Array(ae)}catch{}if(K==ie&&g)K=new Uint8Array(g);else{if(!d)throw"both async and sync fetching of the wasm failed";K=d(K)}return K})(P);return await WebAssembly.instantiate(H,B)}catch(K){E(`failed to asynchronously prepare wasm: ${K}`),M(K)}})(v,f)})(h),s(l.instance,l.module))}class ke{name="ExitStatus";constructor(l){this.message=`Program terminated with exit(${l})`,this.status=l}}var $e=s=>{s.terminate(),s.onmessage=()=>{}},De=[],ge=0,Te=null,qe=s=>{ft.length==0&&(jo(),Ko(ft[0]));var l=ft.pop();if(!l)return 6;Zt.push(l),Ct[s.Tc]=l,l.Tc=s.Tc;var h={Uc:"run",Pd:s.Od,dd:s.dd,Tc:s.Tc};return l.postMessage(h,s.ud),0},Ne=0,Se=(s,l,...h)=>{var f,v=16*h.length,C=de(),P=Nn(v),B=P>>>3;for(f of h)typeof f=="bigint"?((w(),Q)[B++>>>0]=1n,(w(),Q)[B++>>>0]=f):((w(),Q)[B++>>>0]=0n,(w(),Y)[B++>>>0]=f);return s=Li(s,0,v,P,l),ue(C),s};function pr(s){if(o)return Se(0,1,s);if(y=s,!(0<Ne)){for(var l of Zt)$e(l);for(l of ft)$e(l);ft=[],Zt=[],Ct={},A=!0}c(0,new ke(s))}function Go(s){if(o)return Se(1,0,s);$n(s)}var $n=s=>{if(y=s,o)throw Go(s),"unwind";pr(s)},ft=[],Zt=[],Ho=[],Ct={},Fo=s=>{var l=s.Tc;delete Ct[l],ft.push(s),Zt.splice(Zt.indexOf(s),1),s.Tc=0,Wi(l)};function qo(){Ho.forEach(s=>s())}var Ko=s=>new Promise(l=>{s.onmessage=v=>{var C=v.data;if(v=C.Uc,C.ad&&C.ad!=xr()){var P=Ct[C.ad];P?P.postMessage(C,C.ud):E(`Internal error! Worker sent a message "${v}" to target pthread ${C.ad}, but that thread no longer exists!`)}else v==="checkMailbox"?yr():v==="spawnThread"?qe(C):v==="cleanupThread"?gr(()=>{Fo(Ct[C.Qd])}):v==="loaded"?(s.loaded=!0,l(s)):C.target==="setimmediate"?s.postMessage(C):v==="uncaughtException"?s.onerror(C.error):v==="callHandler"?e[C.zd](...C.args):v&&E(`worker sent an unknown command ${v}`)},s.onerror=v=>{throw E(`worker sent an error! ${v.filename}:${v.lineno}: ${v.message}`),v};var h,f=[];for(h of[])e.propertyIsEnumerable(h)&&f.push(h);s.postMessage({Uc:"load",Ad:f,Rd:ht,Sd:b})});function jo(){var s=new Worker((()=>{let l=URL;return import.meta.url>"file:"&&import.meta.url<"file;"?new l("ort.bundle.min.mjs",import.meta.url):new URL(import.meta.url)})(),{type:"module",workerData:"em-pthread",name:"em-pthread"});ft.push(s)}var ht,gp=(s,l)=>{Ne=0,s=Ln(s,l),0<Ne?y=s:Un(s)},mr=[],fr=0;function yp(s){var l=new xn(s>>>=0);return(w(),N)[l.Vc+12>>>0]==0&&(Qo(l,!0),fr--),Zo(l,!1),mr.push(l),ji(s)}var Vt=0,bp=()=>{le(0,0);var s=mr.pop();qi(s.ed),Vt=0};function Qo(s,l){l=l?1:0,(w(),N)[s.Vc+12>>>0]=l}function Zo(s,l){l=l?1:0,(w(),N)[s.Vc+13>>>0]=l}class xn{constructor(l){this.ed=l,this.Vc=l-24}}var Sn=s=>{var l=Vt;if(!l)return Jt(0),0;var h=new xn(l);(w(),L)[h.Vc+16>>>2>>>0]=l;var f=(w(),L)[h.Vc+4>>>2>>>0];if(!f)return Jt(0),l;for(var v of s){if(v===0||v===f)break;if(Ki(v,f,h.Vc+16))return Jt(v),l}return Jt(f),l};function _p(){return Sn([])}function wp(s){return Sn([s>>>0])}function vp(s,l,h,f){return Sn([s>>>0,l>>>0,h>>>0,f>>>0])}var $p=()=>{var s=mr.pop();s||M("no exception to throw");var l=s.ed;throw(w(),N)[s.Vc+13>>>0]==0&&(mr.push(s),Zo(s,!0),Qo(s,!1),fr++),Vn(l),Vt=l};function xp(s,l,h){var f=new xn(s>>>=0);throw l>>>=0,h>>>=0,(w(),L)[f.Vc+16>>>2>>>0]=0,(w(),L)[f.Vc+4>>>2>>>0]=l,(w(),L)[f.Vc+8>>>2>>>0]=h,Vn(s),fr++,Vt=s}var Sp=()=>fr;function Yo(s,l,h,f){return o?Se(2,1,s,l,h,f):Xo(s,l,h,f)}function Xo(s,l,h,f){if(s>>>=0,l>>>=0,h>>>=0,f>>>=0,!globalThis.SharedArrayBuffer)return 6;var v=[];return o&&v.length===0?Yo(s,l,h,f):(s={Od:h,Tc:s,dd:f,ud:v},o?(s.Uc="spawnThread",postMessage(s,v),0):qe(s))}function Tp(s){throw Vt||=s>>>0,Vt}var Jo=globalThis.TextDecoder&&new TextDecoder,ei=(s,l,h,f)=>{if(h=l+h,f)return h;for(;s[l]&&!(l>=h);)++l;return l},ti=(s,l=0,h,f)=>{if(16<(h=ei(s,l>>>=0,h,f))-l&&s.buffer&&Jo)return Jo.decode(s.buffer instanceof ArrayBuffer?s.subarray(l,h):s.slice(l,h));for(f="";l<h;){var v=s[l++];if(128&v){var C=63&s[l++];if((224&v)==192)f+=String.fromCharCode((31&v)<<6|C);else{var P=63&s[l++];65536>(v=(240&v)==224?(15&v)<<12|C<<6|P:(7&v)<<18|C<<12|P<<6|63&s[l++])?f+=String.fromCharCode(v):(v-=65536,f+=String.fromCharCode(55296|v>>10,56320|1023&v))}}else f+=String.fromCharCode(v)}return f},Ee=(s,l,h)=>(s>>>=0)?ti((w(),F),s,l,h):"";function ri(s,l,h){return o?Se(3,1,s,l,h):0}function ni(s,l){if(o)return Se(4,1,s,l)}function oi(s,l){if(o)return Se(5,1,s,l)}function ii(s,l,h){if(o)return Se(6,1,s,l,h)}function ai(s,l,h){return o?Se(7,1,s,l,h):0}function si(s,l){if(o)return Se(8,1,s,l)}function ui(s,l,h){if(o)return Se(9,1,s,l,h)}function di(s,l,h,f){if(o)return Se(10,1,s,l,h,f)}function li(s,l,h,f){if(o)return Se(11,1,s,l,h,f)}function ci(s,l,h,f){if(o)return Se(12,1,s,l,h,f)}function pi(s){if(o)return Se(13,1,s)}function mi(s,l){if(o)return Se(14,1,s,l)}function fi(s,l,h){if(o)return Se(15,1,s,l,h)}var Ip=()=>M(""),Je=s=>{s>>>=0;for(var l="";;){var h=(w(),F)[s++>>>0];if(!h)return l;l+=String.fromCharCode(h)}},Tn={},In={},Cp={},Lt=class extends Error{constructor(s){super(s),this.name="BindingError"}};function lt(s,l,h={}){return(function(f,v,C={}){var P=v.name;if(!f)throw new Lt(`type "${P}" must have a positive integer typeid pointer`);if(In.hasOwnProperty(f)){if(C.Bd)return;throw new Lt(`Cannot register type '${P}' twice`)}In[f]=v,delete Cp[f],Tn.hasOwnProperty(f)&&(v=Tn[f],delete Tn[f],v.forEach(B=>B()))})(s,l,h)}var hi=(s,l,h)=>{switch(l){case 1:return h?f=>(w(),N)[f>>>0]:f=>(w(),F)[f>>>0];case 2:return h?f=>(w(),q)[f>>>1>>>0]:f=>(w(),X)[f>>>1>>>0];case 4:return h?f=>(w(),z)[f>>>2>>>0]:f=>(w(),L)[f>>>2>>>0];case 8:return h?f=>(w(),Q)[f>>>3>>>0]:f=>(w(),ne)[f>>>3>>>0];default:throw new TypeError(`invalid integer width (${l}): ${s}`)}};function Ap(s,l,h,f,v){s>>>=0,h>>>=0,l=Je(l>>>0);let C=P=>P;if(f=f===0n){let P=8*h;C=B=>BigInt.asUintN(P,B),v=C(v)}lt(s,{name:l,Qc:C,Xc:(P,B)=>(typeof B=="number"&&(B=BigInt(B)),B),Wc:hi(l,h,!f),Yc:null})}function Ep(s,l,h,f){lt(s>>>=0,{name:l=Je(l>>>0),Qc:function(v){return!!v},Xc:function(v,C){return C?h:f},Wc:function(v){return this.Qc((w(),F)[v>>>0])},Yc:null})}var gi=[],At=[0,1,,1,null,1,!0,1,!1,1];function Cn(s){9<(s>>>=0)&&--At[s+1]===0&&(At[s]=void 0,gi.push(s))}var He=s=>{if(!s)throw new Lt(`Cannot use deleted val. handle = ${s}`);return At[s]},Ke=s=>{switch(s){case void 0:return 2;case null:return 4;case!0:return 6;case!1:return 8;default:let l=gi.pop()||At.length;return At[l]=s,At[l+1]=1,l}};function An(s){return this.Qc((w(),L)[s>>>2>>>0])}var kp={name:"emscripten::val",Qc:s=>{var l=He(s);return Cn(s),l},Xc:(s,l)=>Ke(l),Wc:An,Yc:null};function Pp(s){return lt(s>>>0,kp)}var Dp=(s,l)=>{switch(l){case 4:return function(h){return this.Qc((w(),Z)[h>>>2>>>0])};case 8:return function(h){return this.Qc((w(),Y)[h>>>3>>>0])};default:throw new TypeError(`invalid float width (${l}): ${s}`)}};function Op(s,l,h){h>>>=0,lt(s>>>=0,{name:l=Je(l>>>0),Qc:f=>f,Xc:(f,v)=>v,Wc:Dp(l,h),Yc:null})}function zp(s,l,h,f,v){s>>>=0,h>>>=0,l=Je(l>>>0);let C=B=>B;if(f===0){var P=32-8*h;C=B=>B<<P>>>P,v=C(v)}lt(s,{name:l,Qc:C,Xc:(B,H)=>H,Wc:hi(l,h,f!==0),Yc:null})}function Bp(s,l,h){function f(C){var P=(w(),L)[C>>>2>>>0];return C=(w(),L)[C+4>>>2>>>0],new v((w(),N).buffer,C,P)}var v=[Int8Array,Uint8Array,Int16Array,Uint16Array,Int32Array,Uint32Array,Float32Array,Float64Array,BigInt64Array,BigUint64Array][l];lt(s>>>=0,{name:h=Je(h>>>0),Qc:f,Wc:f},{Bd:!0})}var gt=(s,l,h)=>{var f=(w(),F);if(l>>>=0,0<h){var v=l;h=l+h-1;for(var C=0;C<s.length;++C){var P=s.codePointAt(C);if(127>=P){if(l>=h)break;f[l++>>>0]=P}else if(2047>=P){if(l+1>=h)break;f[l++>>>0]=192|P>>6,f[l++>>>0]=128|63&P}else if(65535>=P){if(l+2>=h)break;f[l++>>>0]=224|P>>12,f[l++>>>0]=128|P>>6&63,f[l++>>>0]=128|63&P}else{if(l+3>=h)break;f[l++>>>0]=240|P>>18,f[l++>>>0]=128|P>>12&63,f[l++>>>0]=128|P>>6&63,f[l++>>>0]=128|63&P,C++}}f[l>>>0]=0,s=l-v}else s=0;return s},hr=s=>{for(var l=0,h=0;h<s.length;++h){var f=s.charCodeAt(h);127>=f?l++:2047>=f?l+=2:55296<=f&&57343>=f?(l+=4,++h):l+=3}return l};function Mp(s,l){lt(s>>>=0,{name:l=Je(l>>>0),Qc(h){var f=(w(),L)[h>>>2>>>0];return f=Ee(h+4,f,!0),tt(h),f},Xc(h,f){f instanceof ArrayBuffer&&(f=new Uint8Array(f));var v=typeof f=="string";if(!(v||ArrayBuffer.isView(f)&&f.BYTES_PER_ELEMENT==1))throw new Lt("Cannot pass non-string to std::string");var C=v?hr(f):f.length,P=Xt(4+C+1),B=P+4;return(w(),L)[P>>>2>>>0]=C,v?gt(f,B,C+1):(w(),F).set(f,B>>>0),h!==null&&h.push(tt,P),P},Wc:An,Yc(h){tt(h)}})}var yi=globalThis.TextDecoder?new TextDecoder("utf-16le"):void 0,Rp=(s,l,h)=>{if(s>>>=1,16<(l=ei((w(),X),s,l/2,h))-s&&yi)return yi.decode((w(),X).slice(s,l));for(h="";s<l;++s){var f=(w(),X)[s>>>0];h+=String.fromCharCode(f)}return h},Up=(s,l,h)=>{if(h??=2147483647,2>h)return 0;var f=l;h=(h-=2)<2*s.length?h/2:s.length;for(var v=0;v<h;++v){var C=s.charCodeAt(v);(w(),q)[l>>>1>>>0]=C,l+=2}return(w(),q)[l>>>1>>>0]=0,l-f},Np=s=>2*s.length,Vp=(s,l,h)=>{var f="";s>>>=2;for(var v=0;!(v>=l/4);v++){var C=(w(),L)[s+v>>>0];if(!C&&!h)break;f+=String.fromCodePoint(C)}return f},Lp=(s,l,h)=>{if(l>>>=0,h??=2147483647,4>h)return 0;var f=l;h=f+h-4;for(var v=0;v<s.length;++v){var C=s.codePointAt(v);if(65535<C&&v++,(w(),z)[l>>>2>>>0]=C,(l+=4)+4>h)break}return(w(),z)[l>>>2>>>0]=0,l-f},Wp=s=>{for(var l=0,h=0;h<s.length;++h)65535<s.codePointAt(h)&&h++,l+=4;return l};function Gp(s,l,h){if(s>>>=0,l>>>=0,h=Je(h>>>=0),l===2)var f=Rp,v=Up,C=Np;else f=Vp,v=Lp,C=Wp;lt(s,{name:h,Qc:P=>{var B=(w(),L)[P>>>2>>>0];return B=f(P+4,B*l,!0),tt(P),B},Xc:(P,B)=>{if(typeof B!="string")throw new Lt(`Cannot pass non-string to C++ string type ${h}`);var H=C(B),K=Xt(4+H+l);return(w(),L)[K>>>2>>>0]=H/l,v(B,K+4,H+l),P!==null&&P.push(tt,K),K},Wc:An,Yc(P){tt(P)}})}function Hp(s,l){lt(s>>>=0,{Cd:!0,name:l=Je(l>>>0),Qc:()=>{},Xc:()=>{}})}function Fp(s){Rn(s>>>0,!n,1,!r,131072,!1),qo()}var gr=s=>{if(!A)try{if(s(),!(0<Ne))try{o?xr()&&Un(y):$n(y)}catch(l){l instanceof ke||l=="unwind"||c(0,l)}}catch(l){l instanceof ke||l=="unwind"||c(0,l)}},qp=!Atomics.waitAsync||globalThis.navigator?.userAgent&&91>Number((navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)||[])[2]);function En(s){s>>>=0,qp||(Atomics.waitAsync((w(),z),s>>>2,s).value.then(yr),s+=128,Atomics.store((w(),z),s>>>2,1))}var yr=()=>gr(()=>{var s=xr();s&&(En(s),Hi())});function Kp(s,l){(s>>>=0)==l>>>0?setTimeout(yr):o?postMessage({ad:s,Uc:"checkMailbox"}):(s=Ct[s])&&s.postMessage({Uc:"checkMailbox"})}var kn=[];function jp(s,l,h,f,v){for(l>>>=0,v>>>=0,kn.length=0,h=v>>>3,f=v+f>>>3;h<f;){var C;C=(w(),Q)[h++>>>0]?(w(),Q)[h++>>>0]:(w(),Y)[h++>>>0],kn.push(C)}return(l?Wn[l]:Nm[s])(...kn)}var Qp=()=>{Ne=0};function Zp(s){s>>>=0,o?postMessage({Uc:"cleanupThread",Qd:s}):Fo(Ct[s])}function Yp(s){}var br=s=>{try{s()}catch(l){M(l)}};function Xp(s){var l=(...h)=>{_r.push(s);try{return s(...h)}finally{A||(_r.pop(),et&&yt===1&&_r.length===0&&(yt=0,Ne+=1,br(Oa),typeof Fibers<"u"&&Fibers.de()))}};return wi.set(s,l),l}var yt=0,et=null,bi=0,_r=[],Pn=new Map,_i=new Map,wi=new Map,Jp=0,Dn=null,em=[],vi=s=>(function(l){if(!A){if(yt===0){var h=!1,f=!1;l((v=0)=>{if(!A&&(bi=v,h=!0,f)){yt=2,br(()=>za(et)),typeof MainLoop<"u"&&MainLoop.xd&&MainLoop.resume(),v=!1;try{var C=(function(){var H=(w(),z)[et+8>>>2>>>0];return H=_i.get(H),H=wi.get(H),--Ne,H()})()}catch(H){C=H,v=!0}var P=!1;if(!et){var B=Dn;B&&(Dn=null,(v?B.reject:B.resolve)(C),P=!0)}if(v&&!P)throw C}}),f=!0,h||(yt=1,et=(function(){var v=Xt(65548),C=v+12;if((w(),L)[v>>>2>>>0]=C,(w(),L)[v+4>>>2>>>0]=C+65536,C=_r[0],!Pn.has(C)){var P=Jp++;Pn.set(C,P),_i.set(P,C)}return C=Pn.get(C),(w(),z)[v+8>>>2>>>0]=C,v})(),typeof MainLoop<"u"&&MainLoop.xd&&MainLoop.pause(),br(()=>Da(et)))}else yt===2?(yt=0,br(Ba),tt(et),et=null,em.forEach(gr)):M(`invalid state: ${yt}`);return bi}})(l=>{s().then(l)});function tm(s){return s>>>=0,vi(async()=>{var l=await He(s);return Ke(l)})}var On=[],rm=s=>{var l=On.length;return On.push(s),l},nm=(s,l)=>{for(var h=Array(s),f=0;f<s;++f){var v=f,C=(w(),L)[l+4*f>>>2>>>0],P=In[C];if(P===void 0)throw s=`parameter ${f}`,C=Ui(C),l=Je(C),tt(C),new Lt(`${s} has unknown type ${l}`);h[v]=P}return h},om=(s,l,h)=>{var f=[];return s=s(f,h),f.length&&((w(),L)[l>>>2>>>0]=Ke(f)),s},im={},wr=s=>{var l=im[s];return l===void 0?Je(s):l};function am(s,l,h){var[f,...v]=nm(s,l>>>0);l=f.Xc.bind(f);var C=v.map(H=>H.Wc.bind(H));s--;var P={toValue:He};switch(s=C.map((H,K)=>{var ae=`argFromPtr${K}`;return P[ae]=H,`${ae}(args${K?"+"+8*K:""})`}),h){case 0:var B="toValue(handle)";break;case 2:B="new (toValue(handle))";break;case 3:B="";break;case 1:P.getStringOrSymbol=wr,B="toValue(handle)[getStringOrSymbol(methodName)]"}return B+=`(${s})`,f.Cd||(P.toReturnWire=l,P.emval_returnValue=om,B=`return emval_returnValue(toReturnWire, destructorsRef, ${B})`),B=`return function (handle, methodName, destructorsRef, args) {
+  ${B}
+  }`,h=new Function(Object.keys(P),B)(...Object.values(P)),B=`methodCaller<(${v.map(H=>H.name)}) => ${f.name}>`,rm(Object.defineProperty(h,"name",{value:B}))}function sm(s,l){return l>>>=0,(s=He(s>>>0))==He(l)}function um(s){return(s>>>=0)?(s=wr(s),Ke(globalThis[s])):Ke(globalThis)}function dm(s){return s=wr(s>>>0),Ke(e[s])}function lm(s,l){return l>>>=0,s=He(s>>>0),l=He(l),Ke(s[l])}function cm(s){9<(s>>>=0)&&(At[s+1]+=1)}function $i(s,l,h,f,v){return On[s>>>0](l>>>0,h>>>0,f>>>0,v>>>0)}function pm(s,l,h,f,v){return $i(s>>>0,l>>>0,h>>>0,f>>>0,v>>>0)}function mm(){return Ke([])}function fm(s){s=He(s>>>0);for(var l=Array(s.length),h=0;h<s.length;h++)l[h]=s[h];return Ke(l)}function hm(s){return Ke(wr(s>>>0))}function gm(){return Ke({})}function ym(s){for(var l=He(s>>>=0);l.length;){var h=l.pop();l.pop()(h)}Cn(s)}function bm(s,l,h){l>>>=0,h>>>=0,s=He(s>>>0),l=He(l),h=He(h),s[l]=h}function _m(s,l){s=-9007199254740992>s||9007199254740992<s?NaN:Number(s),l>>>=0,s=new Date(1e3*s),(w(),z)[l>>>2>>>0]=s.getUTCSeconds(),(w(),z)[l+4>>>2>>>0]=s.getUTCMinutes(),(w(),z)[l+8>>>2>>>0]=s.getUTCHours(),(w(),z)[l+12>>>2>>>0]=s.getUTCDate(),(w(),z)[l+16>>>2>>>0]=s.getUTCMonth(),(w(),z)[l+20>>>2>>>0]=s.getUTCFullYear()-1900,(w(),z)[l+24>>>2>>>0]=s.getUTCDay(),s=(s.getTime()-Date.UTC(s.getUTCFullYear(),0,1,0,0,0,0))/864e5|0,(w(),z)[l+28>>>2>>>0]=s}var xi=s=>s%4==0&&(s%100!=0||s%400==0),Si=[0,31,60,91,121,152,182,213,244,274,305,335],Ti=[0,31,59,90,120,151,181,212,243,273,304,334];function wm(s,l){s=-9007199254740992>s||9007199254740992<s?NaN:Number(s),l>>>=0,s=new Date(1e3*s),(w(),z)[l>>>2>>>0]=s.getSeconds(),(w(),z)[l+4>>>2>>>0]=s.getMinutes(),(w(),z)[l+8>>>2>>>0]=s.getHours(),(w(),z)[l+12>>>2>>>0]=s.getDate(),(w(),z)[l+16>>>2>>>0]=s.getMonth(),(w(),z)[l+20>>>2>>>0]=s.getFullYear()-1900,(w(),z)[l+24>>>2>>>0]=s.getDay();var h=(xi(s.getFullYear())?Si:Ti)[s.getMonth()]+s.getDate()-1|0;(w(),z)[l+28>>>2>>>0]=h,(w(),z)[l+36>>>2>>>0]=-60*s.getTimezoneOffset(),h=new Date(s.getFullYear(),6,1).getTimezoneOffset();var f=new Date(s.getFullYear(),0,1).getTimezoneOffset();s=0|(h!=f&&s.getTimezoneOffset()==Math.min(f,h)),(w(),z)[l+32>>>2>>>0]=s}function vm(s){s>>>=0;var l=new Date((w(),z)[s+20>>>2>>>0]+1900,(w(),z)[s+16>>>2>>>0],(w(),z)[s+12>>>2>>>0],(w(),z)[s+8>>>2>>>0],(w(),z)[s+4>>>2>>>0],(w(),z)[s>>>2>>>0],0),h=(w(),z)[s+32>>>2>>>0],f=l.getTimezoneOffset(),v=new Date(l.getFullYear(),6,1).getTimezoneOffset(),C=new Date(l.getFullYear(),0,1).getTimezoneOffset(),P=Math.min(C,v);return 0>h?(w(),z)[s+32>>>2>>>0]=+(v!=C&&P==f):0<h!=(P==f)&&(v=Math.max(C,v),l.setTime(l.getTime()+6e4*((0<h?P:v)-f))),(w(),z)[s+24>>>2>>>0]=l.getDay(),h=(xi(l.getFullYear())?Si:Ti)[l.getMonth()]+l.getDate()-1|0,(w(),z)[s+28>>>2>>>0]=h,(w(),z)[s>>>2>>>0]=l.getSeconds(),(w(),z)[s+4>>>2>>>0]=l.getMinutes(),(w(),z)[s+8>>>2>>>0]=l.getHours(),(w(),z)[s+12>>>2>>>0]=l.getDate(),(w(),z)[s+16>>>2>>>0]=l.getMonth(),(w(),z)[s+20>>>2>>>0]=l.getYear(),s=l.getTime(),BigInt(isNaN(s)?-1:s/1e3)}function Ii(s,l,h,f,v,C,P){return o?Se(16,1,s,l,h,f,v,C,P):-52}function Ci(s,l,h,f,v,C){if(o)return Se(17,1,s,l,h,f,v,C)}var Yt={},$m=()=>performance.timeOrigin+performance.now();function Ai(s,l){if(o)return Se(18,1,s,l);if(Yt[s]&&(clearTimeout(Yt[s].id),delete Yt[s]),!l)return 0;var h=setTimeout(()=>{delete Yt[s],gr(()=>Gi(s,performance.timeOrigin+performance.now()))},l);return Yt[s]={id:h,ce:l},0}function xm(s,l,h,f){s>>>=0,l>>>=0,h>>>=0,f>>>=0;var v=new Date().getFullYear(),C=new Date(v,0,1).getTimezoneOffset();v=new Date(v,6,1).getTimezoneOffset();var P=Math.max(C,v);(w(),L)[s>>>2>>>0]=60*P,(w(),z)[l>>>2>>>0]=+(C!=v),s=(l=B=>{var H=Math.abs(B);return`UTC${0<=B?"-":"+"}${String(Math.floor(H/60)).padStart(2,"0")}${String(H%60).padStart(2,"0")}`})(C),l=l(v),v<C?(gt(s,h,17),gt(l,f,17)):(gt(s,f,17),gt(l,h,17))}var Sm=()=>Date.now(),Tm=1;function Im(s,l,h){if(h>>>=0,!(0<=s&&3>=s))return 28;if(s===0)s=Date.now();else{if(!Tm)return 52;s=performance.timeOrigin+performance.now()}return s=Math.round(1e6*s),(w(),Q)[h>>>3>>>0]=BigInt(s),0}var zn=[],Ei=(s,l)=>{zn.length=0;for(var h;h=(w(),F)[s++>>>0];){var f=h!=105;l+=(f&=h!=112)&&l%8?4:0,zn.push(h==112?(w(),L)[l>>>2>>>0]:h==106?(w(),Q)[l>>>3>>>0]:h==105?(w(),z)[l>>>2>>>0]:(w(),Y)[l>>>3>>>0]),l+=f?8:4}return zn};function Cm(s,l,h){return s>>>=0,l=Ei(l>>>0,h>>>0),Wn[s](...l)}function Am(s,l,h){return s>>>=0,l=Ei(l>>>0,h>>>0),Wn[s](...l)}var Em=()=>{};function km(s,l){return E(Ee(s>>>0,l>>>0))}var Pm=()=>{throw Ne+=1,"unwind"};function Dm(){return 4294901760}var Om=()=>navigator.hardwareConcurrency,Et={},vr=s=>{var l;return(l=/\bwasm-function\[\d+\]:(0x[0-9a-f]+)/.exec(s))?+l[1]:(l=/:(\d+):\d+(?:\)|$)/.exec(s))?2147483648|+l[1]:0},ki=s=>{for(var l of s)(s=vr(l))&&(Et[s]=l)};function zm(){var s=Error().stack.toString().split(`
+`);return s[0]=="Error"&&s.shift(),ki(s),Et.kd=vr(s[3]),Et.Md=s,Et.kd}function $r(s){if(!(s=Et[s>>>0]))return 0;var l;if(l=/^\s+at .*\.wasm\.(.*) \(.*\)$/.exec(s))s=l[1];else if(l=/^\s+at (.*) \(.*\)$/.exec(s))s=l[1];else{if(!(l=/^(.+?)@/.exec(s)))return 0;s=l[1]}tt($r.ld??0),l=hr(s)+1;var h=Xt(l);return h&&gt(s,h,l),$r.ld=h,$r.ld}function Bm(s){s>>>=0;var l=(w(),F).length;if(s<=l||4294901760<s)return!1;for(var h=1;4>=h;h*=2){var f=l*(1+.2/h);f=Math.min(f,s+100663296);e:{f=(Math.min(4294901760,65536*Math.ceil(Math.max(s,f)/65536))-ht.buffer.byteLength+65535)/65536|0;try{ht.grow(f),Me();var v=1;break e}catch{}v=void 0}if(v)return!0}return!1}function Mm(s,l,h){if(s>>>=0,l>>>=0,Et.kd==s)var f=Et.Md;else(f=Error().stack.toString().split(`
+`))[0]=="Error"&&f.shift(),ki(f);for(var v=3;f[v]&&vr(f[v])!=s;)++v;for(s=0;s<h&&f[s+v];++s)(w(),z)[l+4*s>>>2>>>0]=vr(f[s+v]);return s}var Bn,Mn={},Pi=()=>{if(!Bn){var s,l={USER:"web_user",LOGNAME:"web_user",PATH:"/",PWD:"/",HOME:"/home/web_user",LANG:(globalThis.navigator?.language??"C").replace("-","_")+".UTF-8",_:"./this.program"};for(s in Mn)Mn[s]===void 0?delete l[s]:l[s]=Mn[s];var h=[];for(s in l)h.push(`${s}=${l[s]}`);Bn=h}return Bn};function Di(s,l){if(o)return Se(19,1,s,l);s>>>=0,l>>>=0;var h,f=0,v=0;for(h of Pi()){var C=l+f;(w(),L)[s+v>>>2>>>0]=C,f+=gt(h,C,1/0)+1,v+=4}return 0}function Oi(s,l){if(o)return Se(20,1,s,l);s>>>=0,l>>>=0;var h=Pi();for(var f of((w(),L)[s>>>2>>>0]=h.length,s=0,h))s+=hr(f)+1;return(w(),L)[l>>>2>>>0]=s,0}function zi(s){return o?Se(21,1,s):52}function Bi(s,l,h,f){return o?Se(22,1,s,l,h,f):52}function Mi(s,l,h,f){return o?Se(23,1,s,l,h,f):70}var Rm=[null,[],[]];function Ri(s,l,h,f){if(o)return Se(24,1,s,l,h,f);l>>>=0,h>>>=0,f>>>=0;for(var v=0,C=0;C<h;C++){var P=(w(),L)[l>>>2>>>0],B=(w(),L)[l+4>>>2>>>0];l+=8;for(var H=0;H<B;H++){var K=s,ae=(w(),F)[P+H>>>0],pe=Rm[K];ae===0||ae===10?((K===1?I:E)(ti(pe)),pe.length=0):pe.push(ae)}v+=B}return(w(),L)[f>>>2>>>0]=v,0}function Um(s){return s>>>0}o||(function(){for(var s=e.numThreads-1;s--;)jo();De.push(async()=>{var l=(async function(){if(!o)return Promise.all(ft.map(Ko))})();ge++,await l,--ge==0&&Te&&(l=Te,Te=null,l())})})(),o||(ht=new WebAssembly.Memory({initial:256,maximum:65536,shared:!0}),Me()),e.wasmBinary&&(g=e.wasmBinary),e.stackSave=()=>de(),e.stackRestore=s=>ue(s),e.stackAlloc=s=>Nn(s),e.setValue=function(s,l,h="i8"){switch(h.endsWith("*")&&(h="*"),h){case"i1":case"i8":(w(),N)[s>>>0]=l;break;case"i16":(w(),q)[s>>>1>>>0]=l;break;case"i32":(w(),z)[s>>>2>>>0]=l;break;case"i64":(w(),Q)[s>>>3>>>0]=BigInt(l);break;case"float":(w(),Z)[s>>>2>>>0]=l;break;case"double":(w(),Y)[s>>>3>>>0]=l;break;case"*":(w(),L)[s>>>2>>>0]=l;break;default:M(`invalid type for setValue: ${h}`)}},e.getValue=function(s,l="i8"){switch(l.endsWith("*")&&(l="*"),l){case"i1":case"i8":return(w(),N)[s>>>0];case"i16":return(w(),q)[s>>>1>>>0];case"i32":return(w(),z)[s>>>2>>>0];case"i64":return(w(),Q)[s>>>3>>>0];case"float":return(w(),Z)[s>>>2>>>0];case"double":return(w(),Y)[s>>>3>>>0];case"*":return(w(),L)[s>>>2>>>0];default:M(`invalid type for getValue: ${l}`)}},e.UTF8ToString=Ee,e.stringToUTF8=gt,e.lengthBytesUTF8=hr;var Ui,Ni,xr,tt,Xt,Rn,Vi,Li,Wi,Un,Gi,Hi,le,Jt,Fi,ue,Nn,de,qi,Vn,Ki,ji,Qi,Ln,Zi,Yi,Xi,Ji,ea,ta,ra,na,oa,ia,aa,sa,ua,da,la,ca,pa,ma,fa,ha,ga,ya,ba,_a,wa,va,$a,xa,Sa,Ta,Ia,Ca,Aa,Ea,ka,Pa,Da,Oa,za,Ba,ct,Nm=[pr,Go,Yo,ri,ni,oi,ii,ai,si,ui,di,li,ci,pi,mi,fi,Ii,Ci,Ai,Di,Oi,zi,Bi,Mi,Ri],Wn={1146524:(s,l,h,f,v)=>{if(e===void 0||!e.$c)return 1;if((s=Ee(Number(s>>>0))).startsWith("./")&&(s=s.substring(2)),!(s=e.$c.get(s)))return 2;if(l=Number(l>>>0),h=Number(h>>>0),f=Number(f>>>0),l+h>s.byteLength)return 3;try{let C=s.subarray(l,l+h);switch(v){case 0:(w(),F).set(C,f>>>0);break;case 1:e.Td?e.Td(f,C):e.Ld(f,C);break;default:return 4}return 0}catch{return 4}},1147348:(s,l,h)=>{e.wd(s,(w(),F).subarray(l>>>0,l+h>>>0))},1147412:()=>e.Vd(),1147454:s=>{e.vd(s)},1147491:()=>{e.Ed()},1147522:()=>{e.Fd()},1147551:()=>{e.Jd()},1147576:s=>e.Dd(s),1147609:s=>e.Hd(s),1147641:(s,l,h)=>{e.jd(Number(s),Number(l),Number(h),!0)},1147704:(s,l,h)=>{e.jd(Number(s),Number(l),Number(h))},1147761:()=>typeof wasmOffsetConverter<"u",1147818:s=>{e.ac("Abs",s,void 0)},1147869:s=>{e.ac("Neg",s,void 0)},1147920:s=>{e.ac("Floor",s,void 0)},1147973:s=>{e.ac("Ceil",s,void 0)},1148025:s=>{e.ac("Reciprocal",s,void 0)},1148083:s=>{e.ac("Sqrt",s,void 0)},1148135:s=>{e.ac("Exp",s,void 0)},1148186:s=>{e.ac("Erf",s,void 0)},1148237:s=>{e.ac("Sigmoid",s,void 0)},1148292:(s,l,h)=>{e.ac("HardSigmoid",s,{alpha:l,beta:h})},1148371:s=>{e.ac("HardSwish",s,void 0)},1148428:s=>{e.ac("Log",s,void 0)},1148479:s=>{e.ac("Sin",s,void 0)},1148530:s=>{e.ac("Cos",s,void 0)},1148581:s=>{e.ac("Tan",s,void 0)},1148632:s=>{e.ac("Asin",s,void 0)},1148684:s=>{e.ac("Acos",s,void 0)},1148736:s=>{e.ac("Atan",s,void 0)},1148788:s=>{e.ac("Sinh",s,void 0)},1148840:s=>{e.ac("Cosh",s,void 0)},1148892:s=>{e.ac("Asinh",s,void 0)},1148945:s=>{e.ac("Acosh",s,void 0)},1148998:s=>{e.ac("Atanh",s,void 0)},1149051:s=>{e.ac("Tanh",s,void 0)},1149103:s=>{e.ac("Not",s,void 0)},1149154:(s,l,h)=>{e.ac("Clip",s,{min:l,max:h})},1149223:s=>{e.ac("Clip",s,void 0)},1149275:(s,l)=>{e.ac("Elu",s,{alpha:l})},1149333:s=>{e.ac("Gelu",s,void 0)},1149385:s=>{e.ac("Relu",s,void 0)},1149437:(s,l)=>{e.ac("LeakyRelu",s,{alpha:l})},1149501:(s,l)=>{e.ac("ThresholdedRelu",s,{alpha:l})},1149571:(s,l)=>{e.ac("Cast",s,{to:l})},1149629:s=>{e.ac("Add",s,void 0)},1149680:s=>{e.ac("Sub",s,void 0)},1149731:s=>{e.ac("Mul",s,void 0)},1149782:s=>{e.ac("Div",s,void 0)},1149833:s=>{e.ac("Pow",s,void 0)},1149884:s=>{e.ac("Equal",s,void 0)},1149937:s=>{e.ac("Greater",s,void 0)},1149992:s=>{e.ac("GreaterOrEqual",s,void 0)},1150054:s=>{e.ac("Less",s,void 0)},1150106:s=>{e.ac("LessOrEqual",s,void 0)},1150165:(s,l,h,f,v)=>{e.ac("ReduceMean",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1150340:(s,l,h,f,v)=>{e.ac("ReduceMax",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1150514:(s,l,h,f,v)=>{e.ac("ReduceMin",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1150688:(s,l,h,f,v)=>{e.ac("ReduceProd",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1150863:(s,l,h,f,v)=>{e.ac("ReduceSum",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1151037:(s,l,h,f,v)=>{e.ac("ReduceL1",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1151210:(s,l,h,f,v)=>{e.ac("ReduceL2",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1151383:(s,l,h,f,v)=>{e.ac("ReduceLogSum",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1151560:(s,l,h,f,v)=>{e.ac("ReduceSumSquare",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1151740:(s,l,h,f,v)=>{e.ac("ReduceLogSumExp",s,{keepDims:!!l,noopWithEmptyAxes:!!h,axes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1151920:s=>{e.ac("Where",s,void 0)},1151973:(s,l,h)=>{e.ac("Transpose",s,{perm:l?Array.from((w(),z).subarray(Number(l)>>>0,Number(h)>>>0)):[]})},1152097:(s,l,h,f)=>{e.ac("DepthToSpace",s,{blocksize:l,mode:Ee(h),format:f?"NHWC":"NCHW"})},1152230:(s,l,h,f)=>{e.ac("DepthToSpace",s,{blocksize:l,mode:Ee(h),format:f?"NHWC":"NCHW"})},1152363:(s,l,h,f)=>{e.ac("DFT",s,{axis:l,inverse:h,onesided:f})},1152455:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie,bt)=>{e.ac("ConvTranspose",s,{format:H?"NHWC":"NCHW",autoPad:l,dilations:[h],group:f,kernelShape:[v],pads:[C,P],strides:[B],wIsConst:()=>!!(w(),N)[K>>>0],outputPadding:ae?Array.from((w(),z).subarray(Number(ae)>>>0,Number(pe)>>>0)):[],outputShape:xe?Array.from((w(),z).subarray(Number(xe)>>>0,Number(Ie)>>>0)):[],activation:Ee(bt)})},1152888:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie)=>{e.ac("ConvTranspose",s,{format:B?"NHWC":"NCHW",autoPad:l,dilations:Array.from((w(),z).subarray(Number(h)>>>0,(Number(h)>>>0)+2>>>0)),group:f,kernelShape:Array.from((w(),z).subarray(Number(v)>>>0,(Number(v)>>>0)+2>>>0)),pads:Array.from((w(),z).subarray(Number(C)>>>0,(Number(C)>>>0)+4>>>0)),strides:Array.from((w(),z).subarray(Number(P)>>>0,(Number(P)>>>0)+2>>>0)),wIsConst:()=>!!(w(),N)[H>>>0],outputPadding:K?Array.from((w(),z).subarray(Number(K)>>>0,Number(ae)>>>0)):[],outputShape:pe?Array.from((w(),z).subarray(Number(pe)>>>0,Number(xe)>>>0)):[],activation:Ee(Ie)})},1153549:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie,bt)=>{e.ac("ConvTranspose",s,{format:H?"NHWC":"NCHW",autoPad:l,dilations:[h],group:f,kernelShape:[v],pads:[C,P],strides:[B],wIsConst:()=>!!(w(),N)[K>>>0],outputPadding:ae?Array.from((w(),z).subarray(Number(ae)>>>0,Number(pe)>>>0)):[],outputShape:xe?Array.from((w(),z).subarray(Number(xe)>>>0,Number(Ie)>>>0)):[],activation:Ee(bt)})},1153982:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie)=>{e.ac("ConvTranspose",s,{format:B?"NHWC":"NCHW",autoPad:l,dilations:Array.from((w(),z).subarray(Number(h)>>>0,(Number(h)>>>0)+2>>>0)),group:f,kernelShape:Array.from((w(),z).subarray(Number(v)>>>0,(Number(v)>>>0)+2>>>0)),pads:Array.from((w(),z).subarray(Number(C)>>>0,(Number(C)>>>0)+4>>>0)),strides:Array.from((w(),z).subarray(Number(P)>>>0,(Number(P)>>>0)+2>>>0)),wIsConst:()=>!!(w(),N)[H>>>0],outputPadding:K?Array.from((w(),z).subarray(Number(K)>>>0,Number(ae)>>>0)):[],outputShape:pe?Array.from((w(),z).subarray(Number(pe)>>>0,Number(xe)>>>0)):[],activation:Ee(Ie)})},1154643:(s,l)=>{e.ac("GlobalAveragePool",s,{format:l?"NHWC":"NCHW"})},1154734:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie)=>{e.ac("AveragePool",s,{format:Ie?"NHWC":"NCHW",auto_pad:l,ceil_mode:h,count_include_pad:f,storage_order:v,dilations:C?Array.from((w(),z).subarray(Number(C)>>>0,Number(P)>>>0)):[],kernel_shape:B?Array.from((w(),z).subarray(Number(B)>>>0,Number(H)>>>0)):[],pads:K?Array.from((w(),z).subarray(Number(K)>>>0,Number(ae)>>>0)):[],strides:pe?Array.from((w(),z).subarray(Number(pe)>>>0,Number(xe)>>>0)):[]})},1155213:(s,l)=>{e.ac("GlobalAveragePool",s,{format:l?"NHWC":"NCHW"})},1155304:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie)=>{e.ac("AveragePool",s,{format:Ie?"NHWC":"NCHW",auto_pad:l,ceil_mode:h,count_include_pad:f,storage_order:v,dilations:C?Array.from((w(),z).subarray(Number(C)>>>0,Number(P)>>>0)):[],kernel_shape:B?Array.from((w(),z).subarray(Number(B)>>>0,Number(H)>>>0)):[],pads:K?Array.from((w(),z).subarray(Number(K)>>>0,Number(ae)>>>0)):[],strides:pe?Array.from((w(),z).subarray(Number(pe)>>>0,Number(xe)>>>0)):[]})},1155783:(s,l)=>{e.ac("GlobalMaxPool",s,{format:l?"NHWC":"NCHW"})},1155870:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie)=>{e.ac("MaxPool",s,{format:Ie?"NHWC":"NCHW",auto_pad:l,ceil_mode:h,count_include_pad:f,storage_order:v,dilations:C?Array.from((w(),z).subarray(Number(C)>>>0,Number(P)>>>0)):[],kernel_shape:B?Array.from((w(),z).subarray(Number(B)>>>0,Number(H)>>>0)):[],pads:K?Array.from((w(),z).subarray(Number(K)>>>0,Number(ae)>>>0)):[],strides:pe?Array.from((w(),z).subarray(Number(pe)>>>0,Number(xe)>>>0)):[]})},1156345:(s,l)=>{e.ac("GlobalMaxPool",s,{format:l?"NHWC":"NCHW"})},1156432:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie)=>{e.ac("MaxPool",s,{format:Ie?"NHWC":"NCHW",auto_pad:l,ceil_mode:h,count_include_pad:f,storage_order:v,dilations:C?Array.from((w(),z).subarray(Number(C)>>>0,Number(P)>>>0)):[],kernel_shape:B?Array.from((w(),z).subarray(Number(B)>>>0,Number(H)>>>0)):[],pads:K?Array.from((w(),z).subarray(Number(K)>>>0,Number(ae)>>>0)):[],strides:pe?Array.from((w(),z).subarray(Number(pe)>>>0,Number(xe)>>>0)):[]})},1156907:(s,l,h,f,v)=>{e.ac("Gemm",s,{alpha:l,beta:h,transA:f,transB:v})},1157011:s=>{e.ac("MatMul",s,void 0)},1157065:(s,l,h,f)=>{e.ac("ArgMax",s,{keepDims:!!l,selectLastIndex:!!h,axis:f})},1157173:(s,l,h,f)=>{e.ac("ArgMin",s,{keepDims:!!l,selectLastIndex:!!h,axis:f})},1157281:(s,l)=>{e.ac("Softmax",s,{axis:l})},1157344:(s,l)=>{e.ac("Concat",s,{axis:l})},1157404:(s,l,h,f,v)=>{e.ac("Split",s,{axis:l,numOutputs:h,splitSizes:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1157560:s=>{e.ac("Expand",s,void 0)},1157614:(s,l)=>{e.ac("Gather",s,{axis:Number(l)})},1157685:(s,l)=>{e.ac("GatherElements",s,{axis:Number(l)})},1157764:(s,l)=>{e.ac("GatherND",s,{batch_dims:Number(l)})},1157843:(s,l,h,f,v,C,P,B,H,K,ae)=>{e.ac("Resize",s,{antialias:l,axes:h?Array.from((w(),z).subarray(Number(h)>>>0,Number(f)>>>0)):[],coordinateTransformMode:Ee(v),cubicCoeffA:C,excludeOutside:P,extrapolationValue:B,keepAspectRatioPolicy:Ee(H),mode:Ee(K),nearestMode:Ee(ae)})},1158205:(s,l,h,f,v,C,P)=>{e.ac("Slice",s,{starts:l?Array.from((w(),z).subarray(Number(l)>>>0,Number(h)>>>0)):[],ends:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[],axes:C?Array.from((w(),z).subarray(Number(C)>>>0,Number(P)>>>0)):[]})},1158469:s=>{e.ac("Tile",s,void 0)},1158521:(s,l,h)=>{e.ac("InstanceNormalization",s,{epsilon:l,format:h?"NHWC":"NCHW"})},1158635:(s,l,h)=>{e.ac("InstanceNormalization",s,{epsilon:l,format:h?"NHWC":"NCHW"})},1158749:s=>{e.ac("Range",s,void 0)},1158802:(s,l)=>{e.ac("Einsum",s,{equation:Ee(l)})},1158883:(s,l,h,f,v)=>{e.ac("Pad",s,{mode:l,value:h,pads:f?Array.from((w(),z).subarray(Number(f)>>>0,Number(v)>>>0)):[]})},1159026:(s,l,h,f,v,C)=>{e.ac("BatchNormalization",s,{epsilon:l,momentum:h,spatial:!!v,trainingMode:!!f,format:C?"NHWC":"NCHW"})},1159195:(s,l,h,f,v,C)=>{e.ac("BatchNormalization",s,{epsilon:l,momentum:h,spatial:!!v,trainingMode:!!f,format:C?"NHWC":"NCHW"})},1159364:(s,l,h)=>{e.ac("CumSum",s,{exclusive:Number(l),reverse:Number(h)})},1159461:(s,l,h)=>{e.ac("DequantizeLinear",s,{axis:l,blockSize:h})},1159551:(s,l,h,f,v)=>{e.ac("GridSample",s,{align_corners:l,mode:Ee(h),padding_mode:Ee(f),format:v?"NHWC":"NCHW"})},1159721:(s,l,h,f,v)=>{e.ac("GridSample",s,{align_corners:l,mode:Ee(h),padding_mode:Ee(f),format:v?"NHWC":"NCHW"})},1159891:(s,l)=>{e.ac("ScatterND",s,{reduction:Ee(l)})},1159976:(s,l,h,f,v,C,P,B,H)=>{e.ac("Attention",s,{numHeads:l,isUnidirectional:h,maskFilterValue:f,scale:v,doRotary:C,qkvHiddenSizes:P?Array.from((w(),z).subarray(Number(B)>>>0,Number(B)+P>>>0)):[],pastPresentShareBuffer:!!H})},1160248:s=>{e.ac("BiasAdd",s,void 0)},1160303:s=>{e.ac("BiasSplitGelu",s,void 0)},1160364:s=>{e.ac("FastGelu",s,void 0)},1160420:(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie,bt,Gn)=>{e.ac("Conv",s,{format:pe?"NHWC":"NCHW",auto_pad:l,dilations:h?Array.from((w(),z).subarray(Number(h)>>>0,Number(f)>>>0)):[],group:v,kernel_shape:C?Array.from((w(),z).subarray(Number(C)>>>0,Number(P)>>>0)):[],pads:B?Array.from((w(),z).subarray(Number(B)>>>0,Number(H)>>>0)):[],strides:K?Array.from((w(),z).subarray(Number(K)>>>0,Number(ae)>>>0)):[],w_is_const:()=>!!(w(),N)[Number(xe)>>>0],activation:Ee(Ie),activation_params:bt?Array.from((w(),Z).subarray(Number(bt)>>>0,Number(Gn)>>>0)):[]})},1161004:s=>{e.ac("Gelu",s,void 0)},1161056:(s,l,h,f,v,C,P,B,H)=>{e.ac("GroupQueryAttention",s,{numHeads:l,kvNumHeads:h,scale:f,softcap:v,doRotary:C,rotaryInterleaved:P,smoothSoftmax:B,localWindowSize:H})},1161273:(s,l,h,f)=>{e.ac("LayerNormalization",s,{axis:l,epsilon:h,simplified:!!f})},1161384:(s,l,h,f)=>{e.ac("LayerNormalization",s,{axis:l,epsilon:h,simplified:!!f})},1161495:(s,l,h,f,v,C)=>{e.ac("MatMulNBits",s,{k:l,n:h,accuracyLevel:f,bits:v,blockSize:C})},1161622:(s,l,h,f,v,C)=>{e.ac("MultiHeadAttention",s,{numHeads:l,isUnidirectional:h,maskFilterValue:f,scale:v,doRotary:C})},1161781:(s,l)=>{e.ac("QuickGelu",s,{alpha:l})},1161845:(s,l,h,f,v)=>{e.ac("RotaryEmbedding",s,{interleaved:!!l,numHeads:h,rotaryEmbeddingDim:f,scale:v})},1161984:(s,l,h)=>{e.ac("SkipLayerNormalization",s,{epsilon:l,simplified:!!h})},1162086:(s,l,h)=>{e.ac("SkipLayerNormalization",s,{epsilon:l,simplified:!!h})},1162188:(s,l,h,f)=>{e.ac("GatherBlockQuantized",s,{gatherAxis:l,quantizeAxis:h,blockSize:f})},1162309:s=>{e.Id(s)},1162343:(s,l)=>e.Kd(Number(s),Number(l),e.Zc.Nd,e.Zc.errors)};function Vm(s,l,h){return vi(async()=>{await e.Gd(Number(s),Number(l),Number(h))})}function Lm(){return typeof wasmOffsetConverter<"u"}function Wm(s,l,h,f){var v=de();try{return na(s,l,h,f)}catch(C){if(ue(v),C!==C+0)throw C;le(1,0)}}function Gm(s,l,h){var f=de();try{return Ji(s,l,h)}catch(v){if(ue(f),v!==v+0)throw v;le(1,0)}}function Hm(s){var l=de();try{Zi(s)}catch(h){if(ue(l),h!==h+0)throw h;le(1,0)}}function Fm(s,l){var h=de();try{return Ln(s,l)}catch(f){if(ue(h),f!==f+0)throw f;le(1,0)}}function qm(s,l,h){var f=de();try{Qi(s,l,h)}catch(v){if(ue(f),v!==v+0)throw v;le(1,0)}}function Km(s,l){var h=de();try{oa(s,l)}catch(f){if(ue(h),f!==f+0)throw f;le(1,0)}}function jm(s,l,h,f,v,C,P){var B=de();try{return ta(s,l,h,f,v,C,P)}catch(H){if(ue(B),H!==H+0)throw H;le(1,0)}}function Qm(s,l,h,f,v,C){var P=de();try{Yi(s,l,h,f,v,C)}catch(B){if(ue(P),B!==B+0)throw B;le(1,0)}}function Zm(s,l,h,f){var v=de();try{ra(s,l,h,f)}catch(C){if(ue(v),C!==C+0)throw C;le(1,0)}}function Ym(s,l,h,f,v){var C=de();try{Xi(s,l,h,f,v)}catch(P){if(ue(C),P!==P+0)throw P;le(1,0)}}function Xm(s,l,h,f,v,C,P){var B=de();try{aa(s,l,h,f,v,C,P)}catch(H){if(ue(B),H!==H+0)throw H;le(1,0)}}function Jm(s,l,h,f,v,C,P){var B=de();try{sa(s,l,h,f,v,C,P)}catch(H){if(ue(B),H!==H+0)throw H;le(1,0)}}function ef(s,l,h,f,v,C,P,B){var H=de();try{ca(s,l,h,f,v,C,P,B)}catch(K){if(ue(H),K!==K+0)throw K;le(1,0)}}function tf(s,l,h,f,v){var C=de();try{return ia(s,l,h,f,v)}catch(P){if(ue(C),P!==P+0)throw P;le(1,0)}}function rf(s,l,h){var f=de();try{return pa(s,l,h)}catch(v){if(ue(f),v!==v+0)throw v;le(1,0)}}function nf(s,l,h,f,v,C,P,B){var H=de();try{ma(s,l,h,f,v,C,P,B)}catch(K){if(ue(H),K!==K+0)throw K;le(1,0)}}function of(s,l,h,f,v,C,P,B,H,K,ae,pe){var xe=de();try{ua(s,l,h,f,v,C,P,B,H,K,ae,pe)}catch(Ie){if(ue(xe),Ie!==Ie+0)throw Ie;le(1,0)}}function af(s,l,h){var f=de();try{return fa(s,l,h)}catch(v){if(ue(f),v!==v+0)throw v;return le(1,0),0n}}function sf(s,l,h,f,v,C,P,B,H){var K=de();try{ea(s,l,h,f,v,C,P,B,H)}catch(ae){if(ue(K),ae!==ae+0)throw ae;le(1,0)}}function uf(s){var l=de();try{return ha(s)}catch(h){if(ue(l),h!==h+0)throw h;le(1,0)}}function df(s,l){var h=de();try{return Pa(s,l)}catch(f){if(ue(h),f!==f+0)throw f;return le(1,0),0n}}function lf(s,l,h,f){var v=de();try{return ga(s,l,h,f)}catch(C){if(ue(v),C!==C+0)throw C;le(1,0)}}function cf(s){var l=de();try{return ya(s)}catch(h){if(ue(l),h!==h+0)throw h;return le(1,0),0n}}function pf(s,l,h,f){var v=de();try{return xa(s,l,h,f)}catch(C){if(ue(v),C!==C+0)throw C;le(1,0)}}function mf(s,l,h,f,v){var C=de();try{return Sa(s,l,h,f,v)}catch(P){if(ue(C),P!==P+0)throw P;le(1,0)}}function ff(s,l,h,f,v,C){var P=de();try{return Ta(s,l,h,f,v,C)}catch(B){if(ue(P),B!==B+0)throw B;le(1,0)}}function hf(s,l,h,f,v,C){var P=de();try{return da(s,l,h,f,v,C)}catch(B){if(ue(P),B!==B+0)throw B;le(1,0)}}function gf(s,l,h,f,v,C){var P=de();try{return Ia(s,l,h,f,v,C)}catch(B){if(ue(P),B!==B+0)throw B;le(1,0)}}function yf(s,l,h,f,v,C,P,B){var H=de();try{return la(s,l,h,f,v,C,P,B)}catch(K){if(ue(H),K!==K+0)throw K;le(1,0)}}function bf(s,l,h,f,v){var C=de();try{return Ca(s,l,h,f,v)}catch(P){if(ue(C),P!==P+0)throw P;return le(1,0),0n}}function _f(s,l,h,f){var v=de();try{return Aa(s,l,h,f)}catch(C){if(ue(v),C!==C+0)throw C;le(1,0)}}function wf(s,l,h,f){var v=de();try{return Ea(s,l,h,f)}catch(C){if(ue(v),C!==C+0)throw C;le(1,0)}}function vf(s,l,h,f,v,C,P,B,H,K,ae,pe){var xe=de();try{return ka(s,l,h,f,v,C,P,B,H,K,ae,pe)}catch(Ie){if(ue(xe),Ie!==Ie+0)throw Ie;le(1,0)}}function $f(s,l,h,f,v,C,P,B,H,K,ae){var pe=de();try{va(s,l,h,f,v,C,P,B,H,K,ae)}catch(xe){if(ue(pe),xe!==xe+0)throw xe;le(1,0)}}function xf(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie,bt,Gn){var Cf=de();try{$a(s,l,h,f,v,C,P,B,H,K,ae,pe,xe,Ie,bt,Gn)}catch(Hn){if(ue(Cf),Hn!==Hn+0)throw Hn;le(1,0)}}function Sf(s,l,h){var f=de();try{return ba(s,l,h)}catch(v){if(ue(f),v!==v+0)throw v;le(1,0)}}function Tf(s,l,h){var f=de();try{return _a(s,l,h)}catch(v){if(ue(f),v!==v+0)throw v;le(1,0)}}function If(s,l,h,f){var v=de();try{wa(s,l,h,f)}catch(C){if(ue(v),C!==C+0)throw C;le(1,0)}}function Sr(){if(0<ge)Te=Sr;else if(o)_?.(e),ve();else{for(var s=De;0<s.length;)s.shift()(e);0<ge?Te=Sr:(e.calledRun=!0,A||(ve(),_?.(e)))}}return o||(ct=await ye(),Sr()),e.PTR_SIZE=4,ce?e:new Promise((s,l)=>{_=s,S=l})}var Bf,Mf,ys=V(()=>{"use strict";Bf=hs,Mf=globalThis.self?.name?.startsWith("em-pthread");Mf&&hs()});var ws,to,Rf,We,vs,eo,Uf,Nf,$s,Vf,bs,xs,_s,Ss,kr=V(()=>{"use strict";Er();ws=typeof location>"u"?void 0:location.origin,to=import.meta.url>"file:"&&import.meta.url<"file;",Rf=()=>{if(!!1){if(to){let t=URL;return new URL(new t("ort.bundle.min.mjs",import.meta.url).href,ws).href}return import.meta.url}},We=Rf(),vs=()=>{if(We&&!We.startsWith("blob:"))return We.substring(0,We.lastIndexOf("/")+1)},eo=(t,e)=>{try{let r=e??We;return(r?new URL(t,r):new URL(t)).origin===ws}catch{return!1}},Uf=(t,e)=>{let r=e??We;try{return(r?new URL(t,r):new URL(t)).href}catch{return}},Nf=(t,e)=>`${e??"./"}${t}`,$s=async t=>{let r=await(await fetch(t,{credentials:"same-origin"})).blob();return URL.createObjectURL(r)},Vf=async t=>(await import(/*webpackIgnore:true*/ /*@vite-ignore*/t)).default,bs=(fs(),er(ms)).default,xs=async()=>{if(!We)throw new Error("Failed to load proxy worker: cannot determine the script source URL.");if(eo(We))return[void 0,bs()];let t=await $s(We);return[t,bs(t)]},_s=(ys(),er(gs)).default,Ss=async(t,e,r,n)=>{let o=_s&&!(t||e);if(o)if(We)o=eo(We)||n&&!r;else if(n&&!r)o=!0;else throw new Error("cannot determine the script source URL.");if(o)return[void 0,_s];{let i="ort-wasm-simd-threaded.jsep.mjs",a=t??Uf(i,e),u=!!1&&r&&a&&!eo(a,e),d=u?await $s(a):a??Nf(i,e);return[u?d:void 0,await Vf(d)]}}});var ro,no,Nr,Ts,Lf,Wf,Gf,Pr,be,vt=V(()=>{"use strict";kr();no=!1,Nr=!1,Ts=!1,Lf=()=>{if(typeof SharedArrayBuffer>"u")return!1;try{return typeof MessageChannel<"u"&&new MessageChannel().port1.postMessage(new SharedArrayBuffer(1)),WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,3,2,1,0,5,4,1,3,1,1,10,11,1,9,0,65,0,254,16,2,0,26,11]))}catch{return!1}},Wf=()=>{try{return WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,3,2,1,0,10,30,1,28,0,65,0,253,15,253,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,253,186,1,26,11]))}catch{return!1}},Gf=()=>{try{return WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,5,1,96,0,1,123,3,2,1,0,10,19,1,17,0,65,1,253,15,65,2,253,15,65,3,253,15,253,147,2,11]))}catch{return!1}},Pr=async t=>{if(no)return Promise.resolve();if(Nr)throw new Error("multiple calls to 'initializeWebAssembly()' detected.");if(Ts)throw new Error("previous call to 'initializeWebAssembly()' failed.");Nr=!0;let e=t.initTimeout,r=t.numThreads;if(t.simd!==!1){if(t.simd==="relaxed"){if(!Gf())throw new Error("Relaxed WebAssembly SIMD is not supported in the current environment.")}else if(!Wf())throw new Error("WebAssembly SIMD is not supported in the current environment.")}let n=Lf();r>1&&!n&&(typeof self<"u"&&!self.crossOriginIsolated&&console.warn("env.wasm.numThreads is set to "+r+", but this will not work unless you enable crossOriginIsolated mode. See https://web.dev/cross-origin-isolation-guide/ for more info."),console.warn("WebAssembly multi-threading is not supported in the current environment. Falling back to single-threading."),t.numThreads=r=1);let o=t.wasmPaths,i=typeof o=="string"?o:void 0,a=o?.mjs,u=a?.href??a,d=o?.wasm,c=d?.href??d,p=t.wasmBinary,[m,g]=await Ss(u,i,r>1,!!p||!!c),b=!1,y=[];if(e>0&&y.push(new Promise(_=>{setTimeout(()=>{b=!0,_()},e)})),y.push(new Promise((_,S)=>{let x={numThreads:r};if(p)x.wasmBinary=p,x.locateFile=$=>$;else if(c||i)x.locateFile=$=>c??i+$;else if(u&&u.indexOf("blob:")!==0)x.locateFile=$=>new URL($,u).href;else if(m){let $=vs();$&&(x.locateFile=T=>$+T)}g(x).then($=>{Nr=!1,no=!0,ro=$,_(),m&&URL.revokeObjectURL(m)},$=>{Nr=!1,Ts=!0,S($)})})),await Promise.race(y),b)throw new Error(`WebAssembly backend initializing failed due to timeout: ${e}ms`)},be=()=>{if(no&&ro)return ro;throw new Error("WebAssembly is not initialized yet.")}});var Ge,nr,me,Vr=V(()=>{"use strict";vt();Ge=(t,e)=>{let r=be(),n=r.lengthBytesUTF8(t)+1,o=r._malloc(n);return r.stringToUTF8(t,o,n),e.push(o),o},nr=(t,e,r,n)=>{if(typeof t=="object"&&t!==null){if(r.has(t))throw new Error("Circular reference in options");r.add(t)}Object.entries(t).forEach(([o,i])=>{let a=e?e+o:o;if(typeof i=="object")nr(i,a+".",r,n);else if(typeof i=="string"||typeof i=="number")n(a,i.toString());else if(typeof i=="boolean")n(a,i?"1":"0");else throw new Error(`Can't handle extra config type: ${typeof i}`)})},me=t=>{let e=be(),r=e.stackSave();try{let n=e.PTR_SIZE,o=e.stackAlloc(2*n);e._OrtGetLastError(o,o+n);let i=Number(e.getValue(o,n===4?"i32":"i64")),a=e.getValue(o+n,"*"),u=a?e.UTF8ToString(a):"";throw new Error(`${t} ERROR_CODE: ${i}, ERROR_MESSAGE: ${u}`)}finally{e.stackRestore(r)}}});var Is,Cs=V(()=>{"use strict";vt();Vr();Is=t=>{let e=be(),r=0,n=[],o=t||{};try{if(t?.logSeverityLevel===void 0)o.logSeverityLevel=2;else if(typeof t.logSeverityLevel!="number"||!Number.isInteger(t.logSeverityLevel)||t.logSeverityLevel<0||t.logSeverityLevel>4)throw new Error(`log severity level is not valid: ${t.logSeverityLevel}`);if(t?.logVerbosityLevel===void 0)o.logVerbosityLevel=0;else if(typeof t.logVerbosityLevel!="number"||!Number.isInteger(t.logVerbosityLevel))throw new Error(`log verbosity level is not valid: ${t.logVerbosityLevel}`);t?.terminate===void 0&&(o.terminate=!1);let i=0;return t?.tag!==void 0&&(i=Ge(t.tag,n)),r=e._OrtCreateRunOptions(o.logSeverityLevel,o.logVerbosityLevel,!!o.terminate,i),r===0&&me("Can't create run options."),t?.extra!==void 0&&nr(t.extra,"",new WeakSet,(a,u)=>{let d=Ge(a,n),c=Ge(u,n);e._OrtAddRunConfigEntry(r,d,c)!==0&&me(`Can't set a run config entry: ${a} - ${u}.`)}),[r,n]}catch(i){throw r!==0&&e._OrtReleaseRunOptions(r),n.forEach(a=>e._free(a)),i}}});var Hf,Ff,qf,Gt,Kf,As,Es=V(()=>{"use strict";vt();Vr();Hf=t=>{switch(t){case"disabled":return 0;case"basic":return 1;case"extended":return 2;case"layout":return 3;case"all":return 99;default:throw new Error(`unsupported graph optimization level: ${t}`)}},Ff=t=>{switch(t){case"sequential":return 0;case"parallel":return 1;default:throw new Error(`unsupported execution mode: ${t}`)}},qf=t=>{t.extra||(t.extra={}),t.extra.session||(t.extra.session={});let e=t.extra.session;e.use_ort_model_bytes_directly||(e.use_ort_model_bytes_directly="1"),t.executionProviders&&t.executionProviders.some(r=>(typeof r=="string"?r:r.name)==="webgpu")&&(t.enableMemPattern=!1)},Gt=(t,e,r,n)=>{let o=Ge(e,n),i=Ge(r,n);be()._OrtAddSessionConfigEntry(t,o,i)!==0&&me(`Can't set a session config entry: ${e} - ${r}.`)},Kf=async(t,e,r)=>{let n=e.executionProviders;for(let o of n){let i=typeof o=="string"?o:o.name,a=[];switch(i){case"webnn":if(i="WEBNN",Gt(t,"session.disable_quant_qdq","1",r),Gt(t,"session.disable_qdq_constant_folding","1",r),typeof o!="string"){let g=o?.deviceType;g&&Gt(t,"deviceType",g,r)}break;case"webgpu":if(i="JS",typeof o!="string"){let m=o;if(m?.preferredLayout){if(m.preferredLayout!=="NCHW"&&m.preferredLayout!=="NHWC")throw new Error(`preferredLayout must be either 'NCHW' or 'NHWC': ${m.preferredLayout}`);Gt(t,"preferredLayout",m.preferredLayout,r)}}break;case"wasm":case"cpu":continue;default:throw new Error(`not supported execution provider: ${i}`)}let u=Ge(i,r),d=a.length,c=0,p=0;if(d>0){c=be()._malloc(d*be().PTR_SIZE),r.push(c),p=be()._malloc(d*be().PTR_SIZE),r.push(p);for(let m=0;m<d;m++)be().setValue(c+m*be().PTR_SIZE,a[m][0],"*"),be().setValue(p+m*be().PTR_SIZE,a[m][1],"*")}await be()._OrtAppendExecutionProvider(t,u,c,p,d)!==0&&me(`Can't append execution provider: ${i}.`)}},As=async t=>{let e=be(),r=0,n=[],o=t||{};qf(o);try{let i=Hf(o.graphOptimizationLevel??"all"),a=Ff(o.executionMode??"sequential"),u=typeof o.logId=="string"?Ge(o.logId,n):0,d=o.logSeverityLevel??2;if(!Number.isInteger(d)||d<0||d>4)throw new Error(`log severity level is not valid: ${d}`);let c=o.logVerbosityLevel??0;if(!Number.isInteger(c)||c<0||c>4)throw new Error(`log verbosity level is not valid: ${c}`);let p=typeof o.optimizedModelFilePath=="string"?Ge(o.optimizedModelFilePath,n):0;if(r=e._OrtCreateSessionOptions(i,!!o.enableCpuMemArena,!!o.enableMemPattern,a,!!o.enableProfiling,0,u,d,c,p),r===0&&me("Can't create session options."),o.executionProviders&&await Kf(r,o,n),o.enableGraphCapture!==void 0){if(typeof o.enableGraphCapture!="boolean")throw new Error(`enableGraphCapture must be a boolean value: ${o.enableGraphCapture}`);Gt(r,"enableGraphCapture",o.enableGraphCapture.toString(),n)}if(o.freeDimensionOverrides)for(let[m,g]of Object.entries(o.freeDimensionOverrides)){if(typeof m!="string")throw new Error(`free dimension override name must be a string: ${m}`);if(typeof g!="number"||!Number.isInteger(g)||g<0)throw new Error(`free dimension override value must be a non-negative integer: ${g}`);let b=Ge(m,n);e._OrtAddFreeDimensionOverride(r,b,g)!==0&&me(`Can't set a free dimension override: ${m} - ${g}.`)}return o.extra!==void 0&&nr(o.extra,"",new WeakSet,(m,g)=>{Gt(r,m,g,n)}),[r,n]}catch(i){throw r!==0&&e._OrtReleaseSessionOptions(r)!==0&&me("Can't release session options."),n.forEach(a=>e._free(a)),i}}});var $t,rt,xt,Ht,or,Lr,Wr,oo,ee=V(()=>{"use strict";$t=t=>{switch(t){case"int8":return 3;case"uint8":return 2;case"bool":return 9;case"int16":return 5;case"uint16":return 4;case"int32":return 6;case"uint32":return 12;case"float16":return 10;case"float32":return 1;case"float64":return 11;case"string":return 8;case"int64":return 7;case"uint64":return 13;case"int4":return 22;case"uint4":return 21;default:throw new Error(`unsupported data type: ${t}`)}},rt=t=>{switch(t){case 3:return"int8";case 2:return"uint8";case 9:return"bool";case 5:return"int16";case 4:return"uint16";case 6:return"int32";case 12:return"uint32";case 10:return"float16";case 1:return"float32";case 11:return"float64";case 8:return"string";case 7:return"int64";case 13:return"uint64";case 22:return"int4";case 21:return"uint4";default:throw new Error(`unsupported data type: ${t}`)}},xt=(t,e)=>{let r=[-1,4,1,1,2,2,4,8,-1,1,2,8,4,8,-1,-1,-1,-1,-1,-1,-1,.5,.5][t],n=typeof e=="number"?e:e.reduce((o,i)=>o*i,1);return r>0?Math.ceil(n*r):void 0},Ht=t=>{switch(t){case"float16":return typeof Float16Array<"u"?Float16Array:Uint16Array;case"float32":return Float32Array;case"uint8":return Uint8Array;case"int8":return Int8Array;case"uint16":return Uint16Array;case"int16":return Int16Array;case"int32":return Int32Array;case"bool":return Uint8Array;case"float64":return Float64Array;case"uint32":return Uint32Array;case"int64":return BigInt64Array;case"uint64":return BigUint64Array;default:throw new Error(`unsupported type: ${t}`)}},or=t=>{switch(t){case"verbose":return 0;case"info":return 1;case"warning":return 2;case"error":return 3;case"fatal":return 4;default:throw new Error(`unsupported logging level: ${t}`)}},Lr=t=>t==="float32"||t==="float16"||t==="int32"||t==="int64"||t==="uint32"||t==="uint8"||t==="bool"||t==="uint4"||t==="int4",Wr=t=>t==="float32"||t==="float16"||t==="int32"||t==="int64"||t==="uint32"||t==="uint64"||t==="int8"||t==="uint8"||t==="bool"||t==="uint4"||t==="int4",oo=t=>{switch(t){case"none":return 0;case"cpu":return 1;case"cpu-pinned":return 2;case"texture":return 3;case"gpu-buffer":return 4;case"ml-tensor":return 5;default:throw new Error(`unsupported data location: ${t}`)}}});var ir,io=V(()=>{"use strict";Er();ir=async t=>{if(typeof t=="string")if(!1)try{let{readFile:e}=qn("node:fs/promises");return new Uint8Array(await e(t))}catch(e){if(e.code==="ERR_FS_FILE_TOO_LARGE"){let{createReadStream:r}=qn("node:fs"),n=r(t),o=[];for await(let i of n)o.push(i);return new Uint8Array(Buffer.concat(o))}throw e}else{let e=await fetch(t);if(!e.ok)throw new Error(`failed to load external data file: ${t}`);let r=e.headers.get("Content-Length"),n=r?parseInt(r,10):0;if(n<1073741824)return new Uint8Array(await e.arrayBuffer());{if(!e.body)throw new Error(`failed to load external data file: ${t}, no response body.`);let o=e.body.getReader(),i;try{i=new ArrayBuffer(n)}catch(u){if(u instanceof RangeError){let d=Math.ceil(n/65536);i=new WebAssembly.Memory({initial:d,maximum:d}).buffer}else throw u}let a=0;for(;;){let{done:u,value:d}=await o.read();if(u)break;let c=d.byteLength;new Uint8Array(i,a,c).set(d),a+=c}return new Uint8Array(i,0,n)}}else return t instanceof Blob?new Uint8Array(await t.arrayBuffer()):t instanceof Uint8Array?t:new Uint8Array(t)}});var jf,Qf,ks,Ps,Gr,Zf,se,nt=V(()=>{"use strict";ee();jf=["V","I","W","E","F"],Qf=(t,e)=>{console.log(`[${jf[t]},${new Date().toISOString()}]${e}`)},Gr=(t,e)=>{ks=t,Ps=e},Zf=(t,e)=>{let r=or(t),n=or(ks);r>=n&&Qf(r,typeof e=="function"?e():e)},se=(...t)=>{Ps&&Zf(...t)}});var ao,ot,k,zt,Hr,Ds,Os,te=V(()=>{"use strict";ao=class{static calcMatMulShape(e,r){return e[1]!==r[0]?void 0:[e[0],r[1]]}},ot=class{static calcShape(e,r,n=!1){let o=e.length,i=r.length;if(o===0)return r;if(i===0)return e;let a=Math.max(e.length,r.length),u=new Array(a);if(n){if(o<2||i<2)return;let d=ao.calcMatMulShape([e[o-2],e[o-1]],[r[i-2],r[i-1]]);if(d===void 0)return;[u[a-2],u[a-1]]=d}for(let d=n?3:1;d<=a;d++){let c=o-d<0?1:e[o-d],p=i-d<0?1:r[i-d];if(c!==p&&c>1&&p>1)return;let m=Math.max(c,p);if(c&&p)u[a-d]=Math.max(c,p);else{if(m>1)return;u[a-d]=0}}return u}static isValidBroadcast(e,r){let n=e.length,o=r.length;if(n>o)return!1;for(let i=1;i<=n;i++)if(e[n-i]!==1&&e[n-i]!==r[o-i])return!1;return!0}},k=class t{static size(e){return t.getSizeFromDimensionRange(e,0,e.length)}static convertShape(e,r=4){let n=e.length;if(n===0)return[];let o=new Array(n),i=n-1;for(;i>=0;){if(e[i]%r===0){o[i]=e[i]/r;break}if(r%e[i]!==0)throw new Error("cannot convert shape");o[i]=1,r/=e[i],i--}for(i--;i>=0;i--)o[i]=e[i];return o}static sizeFromDimension(e,r){if(r<0||r>e.length)throw new Error(`invalid dimension of ${r} for sizeFromDimension as Tensor has ${e.length} dimensions.`);return t.getSizeFromDimensionRange(e,r,e.length)}static sizeToDimension(e,r){if(r<0||r>e.length)throw new Error(`invalid dimension of ${r} for sizeToDimension as Tensor has ${e.length} dimensions.`);return t.getSizeFromDimensionRange(e,0,r)}static getSizeFromDimensionRange(e,r,n){let o=1;for(let i=r;i<n;i++){if(e[i]<0)throw new Error("cannot get valid size from specified dimension range. Most likely the range contains negative values in them.");o*=Number(e[i])}return o}static computeStrides(e){let r=e.length;if(r===0)return[];if(r===1)return[1];let n=new Array(r);n[r-1]=1,n[r-2]=e[r-1];for(let o=r-3;o>=0;--o)n[o]=n[o+1]*e[o+1];return n}static normalizeAxis(e,r){if(e<-r&&e>=r)throw new Error("unsupported axis for this operation.");return e<0?e+r:e}static normalizeAxes(e,r){return e.map(n=>this.normalizeAxis(n,r??e.length))}static sortBasedOnPerm(e,r){return r?r.map(n=>e[n]):e.slice().reverse()}static padShape(e,r){let n=e.length;return e.map((o,i)=>o+r[i]+r[i+n])}static areEqual(e,r){return e.length!==r.length?!1:e.every((n,o)=>n===r[o])}},zt=class t{static adjustPoolAttributes(e,r,n,o,i,a){if(!e&&n.length!==r.length-2)throw new Error("length of specified kernel shapes should be 2 less than length of input dimensions");if(e)for(let u=0;u<r.length-2;u++)u>=n.length?n.push(r[u+2]):n[u]=r[u+2];for(let u=0;u<n.length;u++)if(u<o.length){if(o[u]<0)throw new Error("strides should be greater than or equal to 1")}else o.push(1);for(let u=0;u<n.length;u++)if(u<i.length){if(i[u]<0)throw new Error("dilations should be greater than or equal to 1")}else i.push(1);for(let u=0;u<n.length*2;u++)if(u<a.length){if(a[u]<0)throw new Error("pad should be greater than or equal to 1")}else a.push(0);for(let u=0;u<n.length;u++){if(n[u]<=0)throw new Error("kernel shapes need to be greater than 0");if(a[u]>=n[u]||a[u+n.length]>=n[u])throw new Error("pads should be smaller than kernel")}}static adjustPadsBasedOnAutoPad(e,r,n,o,i,a,u){if(u){if(i.length!==2*(e.length-2))throw new Error("length of pads should be twice the length of data dimensions");if(r.length!==e.length-2)throw new Error("length of strides should be the length of data dimensions");if(o.length!==e.length-2)throw new Error("length of kernel shapes should be the length of data dimensions");for(let d=0;d<e.length-2;d++)t.adjustPadAndReturnShape(e[d+(a?1:2)],r[d],n[d],o[d],i,d,d+e.length-2,u)}}static computePoolOutputShape(e,r,n,o,i,a,u,d=0){if(r.length<=0)throw new Error("input shape must be of size greater than 0");let c=[r[0],r[1]];return t.computeShapeHelper(e,r,c,n,o,i,a,u,d),c}static computeConvOutputShape(e,r,n,o,i,a,u){if(e.length<=0||r.length<=0)throw new Error("invalid input tensor dims or invalid filter tensor dims");let d=[e[0],r[0]];return t.computeShapeHelper(!1,e,d,n,o,i,a,u),d}static computeShapeHelper(e,r,n,o,i,a,u,d,c=0){if(e)for(let p=0;p<r.length-2;p++)n.push(1);else for(let p=0;p<r.length-2;p++)n.push(t.adjustPadAndReturnShape(r[p+2],o[p],i[p],a[p],u,p,p+r.length-2,d,c))}static computeOutputSize(e,r,n,o,i){let a=Math.floor(e/r)+1;return i===1&&(a=Math.ceil(e/r)+1,(a-1)*r>=n+o&&(a-=1)),a}static adjustPadAndReturnShape(e,r,n,o,i,a,u,d,c=0){let p=n*(o-1)+1;if(d&&d!=="NOTSET")switch(d){case"VALID":return i[a]=0,i[u]=0,t.computeOutputSize(e-p,r,e,0,c);case"SAME_LOWER":case"SAME_UPPER":if(n!==1)throw new Error("Dilation not supported for SAME_UPPER or SAME_LOWER");{let g=(Math.floor((e+r-1)/r)-1)*r+o-e;return i[a]=Math.floor(d==="SAME_LOWER"?(g+1)/2:g/2),i[u]=g-i[a],t.computeOutputSize(e+i[a]+i[u]-p,r,e,i[a],c)}default:throw new Error("Unsupported AutoPad type")}else return t.computeOutputSize(e+i[a]+i[u]-p,r,e,i[a],c)}},Hr=class{static getShapeOfGemmResult(e,r,n,o,i){if(e.length!==2||n.length!==2)throw new Error("shape need to be of size 2");let a,u,d;r?(a=e[1],u=e[0]):(a=e[0],u=e[1]);let c=-1;if(o?(d=n[0],c=1):(d=n[1],c=0),n[c]!==u)throw new Error("dimension mismatch");if(a<=0||d<=0||u<=0)throw new Error("invalid shape specified");if(i&&!ot.isValidBroadcast(i,[a,d]))throw new Error("gemm: invalid bias shape for broadcast");return[a,d,u]}},Ds=-34028234663852886e22,Os=34028234663852886e22});var Fr,so=V(()=>{"use strict";ee();Fr=(t,e)=>new(Ht(e))(t)});var Bs,Yf,Ms,Xf,zs,Jf,Rs,qr,Kr,uo,Us,Ns=V(()=>{"use strict";ee();nt();Bs=new Map([["float32",32],["float16",16],["int32",32],["uint32",32],["int64",64],["uint64",64],["int8",8],["uint8",8],["int4",4],["uint4",4]]),Yf=(t,e)=>{if(e==="int32")return t;let r=Bs.get(e);if(!r)throw new Error(`WebNN backend does not support data type: ${e}`);let n=r/8;if(t.byteLength%n!==0)throw new Error(`Invalid Uint8Array length - must be a multiple of ${n}.`);let o=t.byteLength/n,i=new(Ht(e))(t.buffer,t.byteOffset,o);switch(e){case"int64":case"uint64":{let a=new Int32Array(o);for(let u=0;u<o;u++){let d=i[u];if(d>2147483647n||d<-2147483648n)throw new Error("Can not convert int64 data to int32 - value out of range.");a[u]=Number(d)}return new Uint8Array(a.buffer)}case"int8":case"uint8":case"uint32":{if(e==="uint32"&&i.some(u=>u>2147483647))throw new Error("Can not convert uint32 data to int32 - value out of range.");let a=Int32Array.from(i,Number);return new Uint8Array(a.buffer)}default:throw new Error(`Unsupported data conversion from ${e} to 'int32'`)}},Ms=(t,e)=>{if(e==="int32")return t;if(t.byteLength%4!==0)throw new Error("Invalid Uint8Array length - must be a multiple of 4 (int32).");let r=t.byteLength/4,n=new Int32Array(t.buffer,t.byteOffset,r);switch(e){case"int64":{let o=BigInt64Array.from(n,BigInt);return new Uint8Array(o.buffer)}case"uint64":{if(n.some(i=>i<0))throw new Error("Can not convert int32 data to uin64 - negative value found.");let o=BigUint64Array.from(n,BigInt);return new Uint8Array(o.buffer)}case"int8":{if(n.some(i=>i<-128||i>127))throw new Error("Can not convert int32 data to int8 - value out of range.");let o=Int8Array.from(n,Number);return new Uint8Array(o.buffer)}case"uint8":{if(n.some(o=>o<0||o>255))throw new Error("Can not convert int32 data to uint8 - value out of range.");return Uint8Array.from(n,Number)}case"uint32":{if(n.some(i=>i<0))throw new Error("Can not convert int32 data to uint32 - negative value found.");let o=Uint32Array.from(n,Number);return new Uint8Array(o.buffer)}default:throw new Error(`Unsupported data conversion from 'int32' to ${e}`)}},Xf=1,zs=()=>Xf++,Jf=new Map([["int8","int32"],["uint8","int32"],["uint32","int32"],["int64","int32"]]),Rs=(t,e)=>{let r=Bs.get(t);if(!r)throw new Error(`WebNN backend does not support data type: ${t}`);return e.length>0?Math.ceil(e.reduce((n,o)=>n*o)*r/8):0},qr=class{constructor(e){this.isDataConverted=!1;let{sessionId:r,context:n,tensor:o,dataType:i,shape:a,fallbackDataType:u}=e;this.sessionId=r,this.mlContext=n,this.mlTensor=o,this.dataType=i,this.tensorShape=a,this.fallbackDataType=u}get tensor(){return this.mlTensor}get type(){return this.dataType}get fallbackType(){return this.fallbackDataType}get shape(){return this.tensorShape}get byteLength(){return Rs(this.dataType,this.tensorShape)}destroy(){se("verbose",()=>"[WebNN] TensorWrapper.destroy"),this.mlTensor.destroy()}write(e){this.mlContext.writeTensor(this.mlTensor,e)}async read(e){if(this.fallbackDataType){let r=await this.mlContext.readTensor(this.mlTensor),n=Ms(new Uint8Array(r),this.dataType);if(e){(e instanceof ArrayBuffer?new Uint8Array(e):new Uint8Array(e.buffer,e.byteOffset,e.byteLength)).set(n);return}else return new Uint8Array(n).buffer}else return e?this.mlContext.readTensor(this.mlTensor,e):this.mlContext.readTensor(this.mlTensor)}canReuseTensor(e,r,n){return this.mlContext===e&&this.dataType===r&&this.tensorShape.length===n.length&&this.tensorShape.every((o,i)=>o===n[i])}setIsDataConverted(e){this.isDataConverted=e}},Kr=class{constructor(e,r){this.tensorManager=e;this.wrapper=r}get tensorWrapper(){return this.wrapper}releaseTensor(){this.tensorWrapper&&(this.tensorManager.releaseTensor(this.tensorWrapper),this.wrapper=void 0)}async ensureTensor(e,r,n,o){let i=this.tensorManager.getMLContext(e),a=this.tensorManager.getMLOpSupportLimits(e),u;if(!a?.input.dataTypes.includes(r)){if(u=Jf.get(r),!u||a?.input.dataTypes.includes(u))throw new Error(`WebNN backend does not support data type: ${r}`);se("verbose",()=>`[WebNN] TensorIdTracker.ensureTensor: fallback dataType from ${r} to ${u}`)}if(this.wrapper){if(this.wrapper.canReuseTensor(i,r,n))return this.wrapper.tensor;if(o){if(this.wrapper.byteLength!==Rs(r,n))throw new Error("Unable to copy data to tensor with different size.");this.activeUpload=new Uint8Array(await this.wrapper.read())}this.tensorManager.releaseTensor(this.wrapper)}let d=typeof MLTensorUsage>"u"?void 0:MLTensorUsage.READ|MLTensorUsage.WRITE;return this.wrapper=await this.tensorManager.getCachedTensor(e,r,n,d,!0,!0,u),o&&this.activeUpload&&(this.wrapper.write(this.activeUpload),this.activeUpload=void 0),this.wrapper.tensor}upload(e){let r=e;if(this.wrapper){if(this.wrapper.fallbackType)if(this.wrapper.fallbackType==="int32")r=Yf(e,this.wrapper.type),this.wrapper.setIsDataConverted(!0);else throw new Error(`Unsupported fallback data type: ${this.wrapper.fallbackType}`);if(e.byteLength===this.wrapper.byteLength){this.wrapper.write(r);return}else se("verbose",()=>"Data size does not match tensor size. Releasing tensor."),this.releaseTensor()}this.activeUpload?this.activeUpload.set(r):this.activeUpload=new Uint8Array(r)}async download(e){if(this.activeUpload){let r=this.wrapper?.isDataConverted?Ms(this.activeUpload,this.wrapper?.type):this.activeUpload;if(e){e instanceof ArrayBuffer?new Uint8Array(e).set(r):new Uint8Array(e.buffer,e.byteOffset,e.byteLength).set(r);return}else return r.buffer}if(!this.wrapper)throw new Error("Tensor has not been created.");return e?this.wrapper.read(e):this.wrapper.read()}},uo=class{constructor(e){this.backend=e;this.tensorTrackersById=new Map;this.freeTensors=[];this.externalTensors=new Set}getMLContext(e){let r=this.backend.getMLContext(e);if(!r)throw new Error("MLContext not found for session.");return r}getMLOpSupportLimits(e){return this.backend.getMLOpSupportLimits(e)}reserveTensorId(){let e=zs();return this.tensorTrackersById.set(e,new Kr(this)),e}releaseTensorId(e){let r=this.tensorTrackersById.get(e);r&&(this.tensorTrackersById.delete(e),r.tensorWrapper&&this.releaseTensor(r.tensorWrapper))}async ensureTensor(e,r,n,o,i){se("verbose",()=>`[WebNN] TensorManager.ensureTensor {tensorId: ${r}, dataType: ${n}, shape: ${o}, copyOld: ${i}}`);let a=this.tensorTrackersById.get(r);if(!a)throw new Error("Tensor not found.");return a.ensureTensor(e,n,o,i)}upload(e,r){let n=this.tensorTrackersById.get(e);if(!n)throw new Error("Tensor not found.");n.upload(r)}async download(e,r){se("verbose",()=>`[WebNN] TensorManager.download {tensorId: ${e}, dstBuffer: ${r?.byteLength}}`);let n=this.tensorTrackersById.get(e);if(!n)throw new Error("Tensor not found.");return n.download(r)}releaseTensorsForSession(e){for(let r of this.freeTensors)r.sessionId===e&&r.destroy();this.freeTensors=this.freeTensors.filter(r=>r.sessionId!==e)}registerTensor(e,r,n,o){let i=this.getMLContext(e),a=zs(),u=new qr({sessionId:e,context:i,tensor:r,dataType:n,shape:o});return this.tensorTrackersById.set(a,new Kr(this,u)),this.externalTensors.add(u),a}async getCachedTensor(e,r,n,o,i,a,u){let d=this.getMLContext(e);for(let[p,m]of this.freeTensors.entries())if(m.canReuseTensor(d,r,n)){se("verbose",()=>`[WebNN] Reusing tensor {dataType: ${r}, ${u?`fallbackDataType: ${u},`:""} shape: ${n}`);let g=this.freeTensors.splice(p,1)[0];return g.sessionId=e,g}se("verbose",()=>`[WebNN] MLContext.createTensor {dataType: ${r}, ${u?`fallbackDataType: ${u},`:""} shape: ${n}}`);let c=await d.createTensor({dataType:u??r,shape:n,dimensions:n,usage:o,writable:i,readable:a});return new qr({sessionId:e,context:d,tensor:c,dataType:r,shape:n,fallbackDataType:u})}releaseTensor(e){this.externalTensors.has(e)&&this.externalTensors.delete(e),this.freeTensors.push(e)}},Us=(...t)=>new uo(...t)});var jr,eh,Qr,Vs=V(()=>{"use strict";ee();vt();so();Ns();nt();jr=new Map([[1,"float32"],[10,"float16"],[6,"int32"],[12,"uint32"],[7,"int64"],[13,"uint64"],[22,"int4"],[21,"uint4"],[3,"int8"],[2,"uint8"],[9,"uint8"]]),eh=(t,e)=>{if(t===e)return!0;if(t===void 0||e===void 0)return!1;let r=Object.keys(t).sort(),n=Object.keys(e).sort();return r.length===n.length&&r.every((o,i)=>o===n[i]&&t[o]===e[o])},Qr=class{constructor(e){this.tensorManager=Us(this);this.mlContextBySessionId=new Map;this.sessionIdsByMLContext=new Map;this.mlContextCache=[];this.sessionGraphInputs=new Map;this.sessionGraphOutputs=new Map;this.temporaryGraphInputs=[];this.temporaryGraphOutputs=[];this.temporarySessionTensorIds=new Map;this.mlOpSupportLimitsBySessionId=new Map;Gr(e.logLevel,!!e.debug)}get currentSessionId(){if(this.activeSessionId===void 0)throw new Error("No active session");return this.activeSessionId}onRunStart(e){se("verbose",()=>`[WebNN] onRunStart {sessionId: ${e}}`),this.activeSessionId=e}onRunEnd(e){se("verbose",()=>`[WebNN] onRunEnd {sessionId: ${e}}`);let r=this.temporarySessionTensorIds.get(e);if(r){for(let n of r)se("verbose",()=>`[WebNN] releasing temporary tensor {tensorId: ${n}}`),this.tensorManager.releaseTensorId(n);this.temporarySessionTensorIds.delete(e),this.activeSessionId=void 0}}async createMLContext(e){if(e instanceof GPUDevice){let n=this.mlContextCache.findIndex(o=>o.gpuDevice===e);if(n!==-1)return this.mlContextCache[n].mlContext;{let o=await navigator.ml.createContext(e);return this.mlContextCache.push({gpuDevice:e,mlContext:o}),o}}else if(e===void 0){let n=this.mlContextCache.findIndex(o=>o.options===void 0&&o.gpuDevice===void 0);if(n!==-1)return this.mlContextCache[n].mlContext;{let o=await navigator.ml.createContext();return this.mlContextCache.push({mlContext:o}),o}}let r=this.mlContextCache.findIndex(n=>eh(n.options,e));if(r!==-1)return this.mlContextCache[r].mlContext;{let n=await navigator.ml.createContext(e);return this.mlContextCache.push({options:e,mlContext:n}),n}}registerMLContext(e,r){this.mlContextBySessionId.set(e,r);let n=this.sessionIdsByMLContext.get(r);n||(n=new Set,this.sessionIdsByMLContext.set(r,n)),n.add(e),this.mlOpSupportLimitsBySessionId.has(e)||this.mlOpSupportLimitsBySessionId.set(e,r.opSupportLimits()),this.temporaryGraphInputs.length>0&&(this.sessionGraphInputs.set(e,this.temporaryGraphInputs),this.temporaryGraphInputs=[]),this.temporaryGraphOutputs.length>0&&(this.sessionGraphOutputs.set(e,this.temporaryGraphOutputs),this.temporaryGraphOutputs=[])}onReleaseSession(e){this.sessionGraphInputs.delete(e),this.sessionGraphOutputs.delete(e);let r=this.mlContextBySessionId.get(e);if(!r)return;this.tensorManager.releaseTensorsForSession(e),this.mlContextBySessionId.delete(e),this.mlOpSupportLimitsBySessionId.delete(e);let n=this.sessionIdsByMLContext.get(r);if(n.delete(e),n.size===0){this.sessionIdsByMLContext.delete(r);let o=this.mlContextCache.findIndex(i=>i.mlContext===r);o!==-1&&this.mlContextCache.splice(o,1)}}getMLContext(e){return this.mlContextBySessionId.get(e)}getMLOpSupportLimits(e){return this.mlOpSupportLimitsBySessionId.get(e)}reserveTensorId(){return this.tensorManager.reserveTensorId()}releaseTensorId(e){se("verbose",()=>`[WebNN] releaseTensorId {tensorId: ${e}}`),this.tensorManager.releaseTensorId(e)}async ensureTensor(e,r,n,o,i){let a=jr.get(n);if(!a)throw new Error(`Unsupported ONNX data type: ${n}`);return this.tensorManager.ensureTensor(e??this.currentSessionId,r,a,o,i)}async createTemporaryTensor(e,r,n){se("verbose",()=>`[WebNN] createTemporaryTensor {onnxDataType: ${r}, shape: ${n}}`);let o=jr.get(r);if(!o)throw new Error(`Unsupported ONNX data type: ${r}`);let i=this.tensorManager.reserveTensorId();await this.tensorManager.ensureTensor(e,i,o,n,!1);let a=this.temporarySessionTensorIds.get(e);return a?a.push(i):this.temporarySessionTensorIds.set(e,[i]),i}uploadTensor(e,r){if(!be().shouldTransferToMLTensor)throw new Error("Trying to upload to a MLTensor while shouldTransferToMLTensor is false");se("verbose",()=>`[WebNN] uploadTensor {tensorId: ${e}, data: ${r.byteLength}}`),this.tensorManager.upload(e,r)}async downloadTensor(e,r){return this.tensorManager.download(e,r)}createMLTensorDownloader(e,r){return async()=>{let n=await this.tensorManager.download(e);return Fr(n,r)}}registerMLTensor(e,r,n,o){let i=jr.get(n);if(!i)throw new Error(`Unsupported ONNX data type: ${n}`);let a=this.tensorManager.registerTensor(e,r,i,o);return se("verbose",()=>`[WebNN] registerMLTensor {tensor: ${r}, dataType: ${i}, dimensions: ${o}} -> {tensorId: ${a}}`),a}registerGraphInput(e){this.temporaryGraphInputs.push(e)}registerGraphOutput(e){this.temporaryGraphOutputs.push(e)}isGraphInput(e,r){let n=this.sessionGraphInputs.get(e);return n?n.includes(r):!1}isGraphOutput(e,r){let n=this.sessionGraphOutputs.get(e);return n?n.includes(r):!1}isGraphInputOutputTypeSupported(e,r,n=!0){let o=jr.get($t(r)),i=this.mlOpSupportLimitsBySessionId.get(e);return typeof o>"u"?!1:n?!!i?.input.dataTypes.includes(o):!!i?.output.dataTypes.includes(o)}flush(){}}});var Zr=V(()=>{"use strict"});var Ls,lo,co,th,rh,Ws,mo,po,Hs,Fs=V(()=>{"use strict";nt();Zr();Ls=new Map([[64,250],[128,200],[256,200],[512,200],[2048,230],[4096,200],[8192,50],[16384,50],[32768,50],[65536,50],[131072,50],[262144,50],[524288,50],[1048576,50],[2097152,30],[4194304,20],[8388608,10],[12582912,10],[16777216,10],[26214400,15],[33554432,22],[44236800,2],[58982400,6],[67108864,6],[134217728,6],[167772160,6]]),lo=[],co=t=>Math.ceil(Number(t)/16)*16,th=t=>{for(let e=0;e<lo.length;e++){let r=lo[e];if(t<=r)return r}return Math.ceil(t/16)*16},rh=1,Ws=()=>rh++,mo=async(t,e,r,n)=>{let o=co(r),i=t.device.createBuffer({size:o,usage:GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ});try{let a=t.getCommandEncoder();t.endComputePass(),a.copyBufferToBuffer(e,0,i,0,o),t.flush(),await i.mapAsync(GPUMapMode.READ);let u=i.getMappedRange();if(n){let d=n();return d.set(new Uint8Array(u,0,r)),d}else return new Uint8Array(u.slice(0,r))}finally{i.destroy()}},po=class{constructor(e){this.backend=e;this.storageCache=new Map,this.freeBuffers=new Map,this.freeUniformBuffers=new Map,this.buffersPending=[],this.capturedPendingBuffers=new Map;for(let[r]of Ls)lo.push(r),this.freeBuffers.set(r,[]),this.freeUniformBuffers.set(r,[]);this.sessionCount=0}upload(e,r){let n=r.buffer,o=r.byteOffset,i=r.byteLength,a=co(i),u=this.storageCache.get(e);if(!u)throw new Error("gpu data for uploading does not exist");if(Number(u.originalSize)!==i)throw new Error(`inconsistent data size. gpu data size=${u.originalSize}, data size=${i}`);if(a===i&&o%4===0)this.backend.device.queue.writeBuffer(u.gpuData.buffer,0,n,o,i);else{let d=new Uint8Array(a);d.set(r),this.backend.device.queue.writeBuffer(u.gpuData.buffer,0,d,0,a)}se("verbose",()=>`[WebGPU] GpuDataManager.upload(id=${e})`)}memcpy(e,r){let n=this.storageCache.get(e);if(!n)throw new Error("source gpu data for memcpy does not exist");let o=this.storageCache.get(r);if(!o)throw new Error("destination gpu data for memcpy does not exist");if(n.originalSize!==o.originalSize)throw new Error("inconsistent source and destination gpu data size");let i=co(n.originalSize),a=this.backend.getCommandEncoder();this.backend.endComputePass(),a.copyBufferToBuffer(n.gpuData.buffer,0,o.gpuData.buffer,0,i)}registerExternalBuffer(e,r,n){let o;if(n){if(o=n[0],e===n[1])return se("verbose",()=>`[WebGPU] GpuDataManager.registerExternalBuffer(size=${r}) => id=${o}, buffer is the same, skip.`),o;if(this.backend.capturedCommandList.has(this.backend.currentSessionId))throw new Error(`Registering a different external buffer under graph capture mode is not supported yet.
+             Please use the previous external buffer!`)}else o=Ws();return this.storageCache.set(o,{gpuData:{id:o,type:0,buffer:e},originalSize:r}),se("verbose",()=>`[WebGPU] GpuDataManager.registerExternalBuffer(size=${r}) => id=${o}, registered.`),o}unregisterExternalBuffer(e){e!==void 0&&(this.storageCache.delete(e),se("verbose",()=>`[WebGPU] GpuDataManager.unregisterExternalBuffer() => id=${e}`))}create(e,r=GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC|GPUBufferUsage.COPY_DST){let n=th(e),o,i=(r&GPUBufferUsage.STORAGE)===GPUBufferUsage.STORAGE,a=(r&GPUBufferUsage.UNIFORM)===GPUBufferUsage.UNIFORM;if(i||a){let c=(i?this.freeBuffers:this.freeUniformBuffers).get(n);c?c.length>0?o=c.pop():o=this.backend.device.createBuffer({size:n,usage:r}):o=this.backend.device.createBuffer({size:n,usage:r})}else o=this.backend.device.createBuffer({size:n,usage:r});let u={id:Ws(),type:0,buffer:o};return this.storageCache.set(u.id,{gpuData:u,originalSize:Number(e)}),se("verbose",()=>`[WebGPU] GpuDataManager.create(size=${e}) => id=${u.id}`),u}get(e){return this.storageCache.get(e)?.gpuData}release(e){let r=typeof e=="bigint"?Number(e):e,n=this.storageCache.get(r);if(!n){if(this.storageCache.size===0)return 0;throw new Error("releasing data does not exist")}return se("verbose",()=>`[WebGPU] GpuDataManager.release(id=${r}), gpuDataId=${n.gpuData.id}`),this.storageCache.delete(r),this.buffersPending.push(n.gpuData.buffer),n.originalSize}async download(e,r){let n=this.storageCache.get(Number(e));if(!n)throw new Error("data does not exist");await mo(this.backend,n.gpuData.buffer,n.originalSize,r)}refreshPendingBuffers(){if(this.buffersPending.length!==0)if(this.backend.sessionStatus==="default"){for(let e of this.buffersPending){let r=Ls.get(e.size);if((e.usage&GPUBufferUsage.STORAGE)===GPUBufferUsage.STORAGE){let n=this.freeBuffers.get(e.size)||[];r===void 0||n.length>=r?e.destroy():n.push(e)}else if((e.usage&GPUBufferUsage.UNIFORM)===GPUBufferUsage.UNIFORM){let n=this.freeUniformBuffers.get(e.size)||[];r===void 0||n.length>=r?e.destroy():n.push(e)}else e.destroy()}this.buffersPending=[]}else{let e=this.capturedPendingBuffers.get(this.backend.currentSessionId);e||(e=[],this.capturedPendingBuffers.set(this.backend.currentSessionId,e));for(let r of this.buffersPending)e.push(r);this.buffersPending=[]}}dispose(){this.freeBuffers.forEach(e=>{e.forEach(r=>{r.destroy()})}),this.freeUniformBuffers.forEach(e=>{e.forEach(r=>{r.destroy()})}),this.storageCache.forEach(e=>{e.gpuData.buffer.destroy()}),this.capturedPendingBuffers.forEach(e=>{e.forEach(r=>{r.destroy()})}),this.storageCache=new Map,this.freeBuffers=new Map,this.freeUniformBuffers=new Map,this.capturedPendingBuffers=new Map}onCreateSession(){this.sessionCount+=1}onReleaseSession(e){let r=this.capturedPendingBuffers.get(e);r&&(r.forEach(n=>{n.destroy()}),this.capturedPendingBuffers.delete(e)),this.sessionCount-=1,this.sessionCount===0&&(se("warning",()=>"[WebGPU] Clearing webgpu buffer cache"),this.storageCache.forEach(n=>{n.gpuData.buffer.destroy()}),this.storageCache=new Map)}},Hs=(...t)=>new po(...t)});var fo,J,Ce=V(()=>{"use strict";fo=class{constructor(e){Object.assign(this,e)}get cacheKey(){return this.key||(this.key=Object.getOwnPropertyNames(this).sort().map(e=>`${this[e]}`).join(";")),this.key}},J=t=>new fo(t)});var Bt,go,we,Ae,W,fe,yo,Mt,Qe,j,Yr,D,R,qs,Xr,ho,Ks,oe=V(()=>{"use strict";ee();te();Bt=64,go=(t,e)=>{if(e===3)throw new Error("vec3 has same alignment as vec4, use vec4 instead");switch(Number(t)){case 10:return e>1?`vec${e}<f16>`:"f16";case 1:return e>1?`vec${e}<f32>`:"f32";case 6:return e>1?`vec${e}<i32>`:"i32";case 12:return e>1?`vec${e}<u32>`:"u32";case 7:if(e>1)throw new Error("currently not supported vecX of uint64 yet");return["vec2<u32>","i32"];case 13:if(e>1)throw new Error("currently not supported vecX of uint64 yet");return["vec2<u32>","u32"];case 9:if(e!==4)throw new Error("bool must be vec4");return["u32","vec4<bool>"];case 22:return"i32";case 21:return"u32";default:throw new Error(`Unknown data type: ${t}`)}},we=(t,e=1)=>{let r=go(t,e);return typeof r=="string"?r:r[0]},Ae=(t,e=1)=>{let r=go(t,e);return typeof r=="string"?r:r[1]},W=(...t)=>{let e=[];return t.forEach(r=>{r.length!==0&&e.push({type:12,data:r},{type:12,data:k.computeStrides(r)})}),e},fe=t=>t%4===0?4:t%2===0?2:1,yo=(t="f32",e,r="0")=>!e||e===1?`${t}(${r})`:`vec${e}<${t}>(${r})`,Mt=(t,e,r)=>t==="f32"?r:e===1?`f32(${r})`:`vec${e}<f32>(${r})`,Qe=(t,e)=>e===4?`(${t}.x + ${t}.y + ${t}.z + ${t}.w)`:e===2?`(${t}.x + ${t}.y)`:e===3?`(${t}.x + ${t}.y + ${t}.z)`:t,j=(t,e,r,n)=>t.startsWith("uniforms.")&&r>4?typeof e=="string"?n==="f16"?`${t}[(${e}) / 8][(${e}) % 8 / 4][(${e}) % 8 % 4]`:`${t}[(${e}) / 4][(${e}) % 4]`:n==="f16"?`${t}[${Math.floor(e/8)}][${Math.floor(e%8/4)}][${e%8%4}]`:`${t}[${Math.floor(e/4)}][${e%4}]`:r>1?`${t}[${e}]`:t,Yr=(t,e,r,n,o)=>{let i=typeof r=="number",a=i?r:r.length,u=[...new Array(a).keys()],d=a<2?"u32":a<=4?`vec${a}<u32>`:`array<u32, ${a}>`,c=go(e,o),p=typeof c=="string"?c:c[1],m=typeof c=="string"?c:c[0],g={indices:d,value:p,storage:m,tensor:e},b=M=>typeof M=="string"?M:`${M}u`,y={offsetToIndices:!1,indicesToOffset:!1,broadcastedIndicesToOffset:!1,set:!1,setByIndices:!1,get:!1,getByIndices:!1},_=i?"uniforms.":"",S=`${_}${t}_shape`,x=`${_}${t}_strides`,$="";for(let M=0;M<a-1;M++)$+=`
+    let dim${M} = current / ${j(x,M,a)};
+    let rest${M} = current % ${j(x,M,a)};
+    indices[${M}] = dim${M};
+    current = rest${M};
+    `;$+=`indices[${a-1}] = current;`;let T=a<2?"":`
+  fn o2i_${t}(offset: u32) -> ${g.indices} {
+    var indices: ${g.indices};
+    var current = offset;
+    ${$}
+    return indices;
+  }`,I=M=>(y.offsetToIndices=!0,a<2?M:`o2i_${t}(${M})`),E=[];if(a>=2)for(let M=a-1;M>=0;M--)E.push(`${j(x,M,a)} * (indices[${M}])`);let A=a<2?"":`
+  fn i2o_${t}(indices: ${g.indices}) -> u32 {
+    return ${E.join("+")};
+  }`,O=M=>(y.indicesToOffset=!0,a<2?M:`i2o_${t}(${M})`),w=(...M)=>a===0?"0u":`${g.indices}(${M.map(b).join(",")})`,U=(M,G)=>a<2?`${M}`:`${j(M,G,a)}`,N=(M,G,ye)=>a<2?`${M}=${ye};`:`${j(M,G,a)}=${ye};`,F={},q=(M,G)=>{y.broadcastedIndicesToOffset=!0;let ye=`${G.name}broadcastedIndicesTo${t}Offset`;if(ye in F)return`${ye}(${M})`;let ke=[];for(let $e=a-1;$e>=0;$e--){let De=G.indicesGet("outputIndices",$e+G.rank-a);ke.push(`${U(x,$e)} * (${De} % ${U(S,$e)})`)}return F[ye]=`fn ${ye}(outputIndices: ${G.type.indices}) -> u32 {
+             return ${ke.length>0?ke.join("+"):"0u"};
+           }`,`${ye}(${M})`},X=(M,G)=>(()=>{if(g.storage===g.value)return`${t}[${M}]=${G};`;if(g.storage==="vec2<u32>"&&g.value==="i32")return`${t}[${M}]=vec2<u32>(u32(${G}), select(0u, 0xFFFFFFFFu, ${G} < 0));`;if(g.storage==="vec2<u32>"&&g.value==="u32")return`${t}[${M}]=vec2<u32>(u32(${G}), 0u);`;if(g.storage==="u32"&&g.value==="vec4<bool>")return`${t}[${M}]=dot(vec4<u32>(0x1, 0x100, 0x10000, 0x1000000), vec4<u32>(${G}));`;throw new Error(`not supported combination of storage type ${g.storage} and value type ${g.value} yet`)})(),z=M=>(()=>{if(g.storage===g.value)return`${t}[${M}]`;if(g.storage==="vec2<u32>"&&g.value==="i32")return`i32(${t}[${M}].x)`;if(g.storage==="vec2<u32>"&&g.value==="u32")return`u32(${t}[${M}].x)`;if(g.storage==="u32"&&g.value==="vec4<bool>")return`vec4<bool>(bool(${t}[${M}] & 0xFFu), bool(${t}[${M}] & 0xFF00u), bool(${t}[${M}] & 0xFF0000u), bool(${t}[${M}] & 0xFF000000u))`;throw new Error(`not supported combination of storage type ${g.storage} and value type ${g.value} yet`)})(),L=a<2?"":`
+  fn get_${t}ByIndices(indices: ${g.indices}) -> ${p} {
+    return ${z(`i2o_${t}(indices)`)};
+  }`,Z=a<2?"":(()=>{let M=u.map(ye=>`d${ye}: u32`).join(", "),G=u.map(ye=>`d${ye}`).join(", ");return`
+  fn get_${t}(${M}) -> ${p} {
+    return get_${t}ByIndices(${w(G)});
+  }`})(),Y=(...M)=>{if(M.length!==a)throw new Error(`indices length must be ${a}`);let G=M.map(b).join(",");return a===0?z("0u"):a===1?z(G[0]):(y.get=!0,y.getByIndices=!0,y.indicesToOffset=!0,`get_${t}(${G})`)},Q=M=>a<2?z(M):(y.getByIndices=!0,y.indicesToOffset=!0,`get_${t}ByIndices(${M})`),ne=a<2?"":`
+  fn set_${t}ByIndices(indices: ${g.indices}, value: ${p}) {
+    ${X(`i2o_${t}(indices)`,"value")}
+  }`,ie=a<2?"":(()=>{let M=u.map(ye=>`d${ye}: u32`).join(", "),G=u.map(ye=>`d${ye}`).join(", ");return`
+  fn set_${t}(${M}, value: ${p}) {
+    set_${t}ByIndices(${w(G)}, value);
+  }`})();return{impl:()=>{let M=[],G=!1;return y.offsetToIndices&&(M.push(T),G=!0),y.indicesToOffset&&(M.push(A),G=!0),y.broadcastedIndicesToOffset&&(Object.values(F).forEach(ye=>M.push(ye)),G=!0),y.set&&(M.push(ie),G=!0),y.setByIndices&&(M.push(ne),G=!0),y.get&&(M.push(Z),G=!0),y.getByIndices&&(M.push(L),G=!0),!i&&G&&M.unshift(`const ${S} = ${g.indices}(${r.join(",")});`,`const ${x} = ${g.indices}(${k.computeStrides(r).join(",")});`),M.join(`
+`)},type:g,offsetToIndices:I,indicesToOffset:O,broadcastedIndicesToOffset:q,indices:w,indicesGet:U,indicesSet:N,set:(...M)=>{if(M.length!==a+1)throw new Error(`indices length must be ${a}`);let G=M[a];if(typeof G!="string")throw new Error("value must be string");let ye=M.slice(0,a).map(b).join(",");return a===0?X("0u",G):a===1?X(ye[0],G):(y.set=!0,y.setByIndices=!0,y.indicesToOffset=!0,`set_${t}(${ye}, ${G})`)},setByOffset:X,setByIndices:(M,G)=>a<2?X(M,G):(y.setByIndices=!0,y.indicesToOffset=!0,`set_${t}ByIndices(${M}, ${G});`),get:Y,getByOffset:z,getByIndices:Q,usage:n,name:t,strides:x,shape:S,rank:a}},D=(t,e,r,n=1)=>Yr(t,e,r,"input",n),R=(t,e,r,n=1)=>Yr(t,e,r,"output",n),qs=(t,e,r)=>Yr(t,e,r,"atomicOutput",1),Xr=(t,e,r,n=1)=>Yr(t,e,r,"internal",n),ho=class{constructor(e,r){this.normalizedDispatchGroup=e;this.limits=r;this.internalVariables=[];this.variables=[];this.uniforms=[];this.variableIndex=0}guardAgainstOutOfBoundsWorkgroupSizes(e){return`if (global_idx >= ${typeof e=="number"?`${e}u`:e}) { return; }`}mainStart(e=Bt){let r=typeof e=="number"?e:e[0],n=typeof e=="number"?1:e[1],o=typeof e=="number"?1:e[2];if(r>this.limits.maxComputeWorkgroupSizeX||n>this.limits.maxComputeWorkgroupSizeY||o>this.limits.maxComputeWorkgroupSizeZ)throw new Error(`workgroup size [${r}, ${n}, ${o}] exceeds the maximum workgroup size [${this.limits.maxComputeWorkgroupSizeX}, ${this.limits.maxComputeWorkgroupSizeY}, ${this.limits.maxComputeWorkgroupSizeZ}].`);if(r*n*o>this.limits.maxComputeInvocationsPerWorkgroup)throw new Error(`workgroup size [${r}, ${n}, ${o}] exceeds the maximum workgroup invocations ${this.limits.maxComputeInvocationsPerWorkgroup}.`);let i=this.normalizedDispatchGroup[1]===1&&this.normalizedDispatchGroup[2]===1,a=i?`@builtin(global_invocation_id) global_id : vec3<u32>,
+    @builtin(workgroup_id) workgroup_id : vec3<u32>,
+    @builtin(local_invocation_index) local_idx : u32,
+    @builtin(local_invocation_id) local_id : vec3<u32>`:`@builtin(global_invocation_id) global_id : vec3<u32>,
+                                             @builtin(local_invocation_id) local_id : vec3<u32>,
+    @builtin(local_invocation_index) local_idx : u32,
+    @builtin(workgroup_id) workgroup_id : vec3<u32>,
+    @builtin(num_workgroups) num_workgroups : vec3<u32>`,u=i?`let global_idx = global_id.x;
+         let workgroup_index = workgroup_id.x;`:`let workgroup_index = workgroup_id.z * num_workgroups[0] * num_workgroups[1] +
+             workgroup_id.y * num_workgroups[0] + workgroup_id.x;
+         let global_idx = workgroup_index * ${r*n*o}u + local_idx;`;return`@compute @workgroup_size(${r}, ${n}, ${o})
+  fn main(${a}) {
+    ${u}
+  `}appendVariableUniforms(e){e.rank!==0&&(e.shape.startsWith("uniforms.")&&this.uniforms.push({name:e.shape.replace("uniforms.",""),type:"u32",length:e.rank}),e.strides.startsWith("uniforms.")&&this.uniforms.push({name:e.strides.replace("uniforms.",""),type:"u32",length:e.rank}))}declareVariable(e,r){if(e.usage==="internal")throw new Error("cannot use internal variable with declareVariable(). use registerInternalVariables() instead.");this.variables.push(e),this.appendVariableUniforms(e);let n=e.usage==="input"?"read":"read_write",o=e.usage==="atomicOutput"?"atomic<i32>":e.type.storage;return`@group(0) @binding(${r}) var<storage, ${n}> ${e.name}: array<${o}>;`}declareVariables(...e){return e.map(r=>this.declareVariable(r,this.variableIndex++)).join(`
+`)}registerInternalVariable(e){if(e.usage!=="internal")throw new Error("cannot use input or output variable with registerInternalVariable(). use declareVariables() instead.");this.internalVariables.push(e),this.appendVariableUniforms(e)}registerInternalVariables(...e){return e.forEach(r=>this.registerInternalVariable(r)),this}registerUniform(e,r,n=1){return this.uniforms.push({name:e,type:r,length:n}),this}registerUniforms(e){return this.uniforms=this.uniforms.concat(e),this}uniformDeclaration(){if(this.uniforms.length===0)return"";let e=[];for(let{name:r,type:n,length:o}of this.uniforms)if(o&&o>4)n==="f16"?e.push(`@align(16) ${r}:array<mat2x4<${n}>, ${Math.ceil(o/8)}>`):e.push(`${r}:array<vec4<${n}>, ${Math.ceil(o/4)}>`);else{let i=o==null||o===1?n:`vec${o}<${n}>`;e.push(`${r}:${i}`)}return`
+      struct Uniforms { ${e.join(", ")} };
+      @group(0) @binding(${this.variableIndex}) var<uniform> uniforms: Uniforms;`}get additionalImplementations(){return this.uniformDeclaration()+this.variables.map(e=>e.impl()).join(`
+`)+this.internalVariables.map(e=>e.impl()).join(`
+`)}get variablesInfo(){if(this.uniforms.length===0)return;let e=r=>[12,10,1,6][["u32","f16","f32","i32"].indexOf(r)];return this.uniforms.map(r=>[e(r.type),r.length??1])}},Ks=(t,e)=>new ho(t,e)});var nh,js,oh,ih,ah,sh,ze,Qs,Zs,pt=V(()=>{"use strict";ee();te();Ce();oe();nh=(t,e)=>{if(!t||t.length!==1)throw new Error("Transpose requires 1 input.");if(e.length!==0&&e.length!==t[0].dims.length)throw new Error(`perm size ${e.length} does not match input rank ${t[0].dims.length}`)},js=(t,e)=>e.length!==0?e:[...new Array(t).keys()].reverse(),oh=(t,e)=>k.sortBasedOnPerm(t,js(t.length,e)),ih=(t,e,r,n)=>{let o=`fn perm(i: ${n.type.indices}) -> ${r.type.indices} {
+    var a: ${r.type.indices};`;for(let i=0;i<e;++i)o+=`a[${t[i]}]=i[${i}];`;return o+="return a;}"},ah=(t,e)=>{let r=[],n=[];for(let o=0;o<t.length;++o)t[o]!==1&&r.push(t[o]),t[e[o]]!==1&&n.push(e[o]);return{newShape:r,newPerm:n}},sh=(t,e)=>{let r=0;for(let n=0;n<t.length;++n)if(e[t[n]]!==1){if(t[n]<r)return!1;r=t[n]}return!0},ze=(t,e)=>{let r=t.dataType,n=t.dims.length,o=js(n,e),i=oh(t.dims,o),a=t.dims,u=i,d=n<2||sh(o,t.dims),c;if(d)return c=_=>{let S=D("input",r,a,4),x=R("output",r,u,4);return`
+  ${_.registerUniform("output_size","u32").declareVariables(S,x)}
+  ${_.mainStart()}
+    ${_.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+    output[global_idx] = input[global_idx];
+  }`},{name:"TransposeCopy",shaderCache:{inputDependencies:["type"]},getRunData:()=>{let _=k.size(i);return{outputs:[{dims:i,dataType:t.dataType}],dispatchGroup:{x:Math.ceil(_/64/4)},programUniforms:[{type:12,data:Math.ceil(_/4)}]}},getShaderSource:c};let{newShape:p,newPerm:m}=ah(t.dims,o),g=k.areEqual(m,[2,3,1]),b=k.areEqual(m,[3,1,2]);if(p.length===2||g||b){a=g?[p[0],p[1]*p[2]]:b?[p[0]*p[1],p[2]]:p,u=[a[1],a[0]];let _=16;return c=S=>{let x=D("a",r,a.length),$=R("output",r,u.length);return`
+  ${S.registerUniform("output_size","u32").declareVariables(x,$)}
+  var<workgroup> tile : array<array<${$.type.value}, ${_+1}>, ${_}>;
+  ${S.mainStart([_,_,1])}
+    let stride = (uniforms.output_shape[1] - 1) / ${_} + 1;
+    let workgroup_id_x = workgroup_index % stride;
+    let workgroup_id_y = workgroup_index / stride;
+    let input_col = workgroup_id_y * ${_}u + local_id.x;
+    let input_row = workgroup_id_x * ${_}u + local_id.y;
+    if (input_row < uniforms.a_shape[0] && input_col < uniforms.a_shape[1]) {
+      tile[local_id.y][local_id.x] = ${x.getByIndices(`${x.type.indices}(input_row, input_col)`)};
+    }
+    workgroupBarrier();
 
-      ${e.varyingVertex} vec2 TexCoords;
+    let output_col = workgroup_id_x * ${_}u + local_id.x;
+    let output_row = workgroup_id_y * ${_}u + local_id.y;
+    if (output_row < uniforms.output_shape[0] && output_col < uniforms.output_shape[1]) {
+      ${$.setByIndices(`${$.type.indices}(output_row, output_col)`,"tile[local_id.x][local_id.y]")}
+    }
+  }`},{name:"TransposeShared",shaderCache:{inputDependencies:["type"]},getRunData:()=>{let S=k.size(i);return{outputs:[{dims:i,dataType:t.dataType}],dispatchGroup:{x:Math.ceil(u[1]/_),y:Math.ceil(u[0]/_)},programUniforms:[{type:12,data:S},...W(a,u)]}},getShaderSource:c}}return c=_=>{let S=D("a",r,a.length),x=R("output",r,u.length);return`
+  ${_.registerUniform("output_size","u32").declareVariables(S,x)}
 
-      void main()
-      {
-          gl_Position = vec4(position, 1.0);
-          TexCoords = textureCoord;
-      }`}function qu(i){let e=R(i);return`${e.version}
-    precision highp float;
-    precision highp int;
-    precision highp sampler2D;
-    ${e.varyingFrag} vec2 TexCoords;
-    ${e.outputDeclaration}
-    const vec2 halfCR = vec2(0.5, 0.5);
+  ${ih(o,n,S,x)}
 
-    // Custom vector types to handle higher dimenalities.
-    struct ivec5
-    {
-      int x;
-      int y;
-      int z;
-      int w;
-      int u;
-    };
+  ${_.mainStart()}
+    ${_.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
 
-    struct ivec6
-    {
-      int x;
-      int y;
-      int z;
-      int w;
-      int u;
-      int v;
-    };
+    let indices = ${x.offsetToIndices("global_idx")};
+    let aIndices = perm(indices);
 
-    int imod(int x, int y) {
-      return x - y * (x / y);
+    ${x.setByOffset("global_idx",S.getByIndices("aIndices"))}
+  }`},{name:"Transpose",shaderCache:{hint:`${e}`,inputDependencies:["rank"]},getRunData:()=>{let _=k.size(i);return{outputs:[{dims:i,dataType:t.dataType}],dispatchGroup:{x:Math.ceil(_/64)},programUniforms:[{type:12,data:_},...W(a,u)]}},getShaderSource:c}},Qs=(t,e)=>{nh(t.inputs,e.perm),t.compute(ze(t.inputs[0],e.perm))},Zs=t=>J({perm:t.perm})});var uh,dh,lh,ch,ph,mh,fh,hh,gh,yh,it,Ys,Xs,Js,eu,tu,ru,nu,ou,iu,au,su=V(()=>{"use strict";ee();te();oe();Jr();pt();uh={max:"select(bestValue, candidate, candidate > bestValue)",min:"select(bestValue, candidate, candidate < bestValue)",mean:"bestValue + candidate",sum:"bestValue + candidate",prod:"bestValue * candidate",sumSquare:"bestValue + candidate * candidate",logSumExp:"bestValue + exp(candidate)",l1:"bestValue + abs(candidate)",l2:"bestValue + candidate * candidate",logSum:"bestValue + candidate"},dh={max:"select(bestValue, candidate, candidate > bestValue)",min:"select(bestValue, candidate, candidate < bestValue)",mean:"bestValue + candidate",sum:"bestValue + candidate",prod:"bestValue * candidate",sumSquare:"bestValue + candidate",logSumExp:"bestValue + candidate",l1:"bestValue + candidate",l2:"bestValue + candidate",logSum:"bestValue + candidate"},lh={max:"_A[offset]",min:"_A[offset]",mean:"0",sum:"0",prod:"1",sumSquare:"0",logSumExp:"0",l1:"0",l2:"0",logSum:"0"},ch={max:"bestValue",min:"bestValue",sum:"bestValue",prod:"bestValue",sumSquare:"bestValue",logSumExp:"log(bestValue)",l1:"bestValue",l2:"sqrt(bestValue)",logSum:"log(bestValue)"},ph=(t,e)=>{let r=[];for(let n=e-t;n<e;++n)r.push(n);return r},mh=(t,e)=>{let r=[],n=t.length;for(let i=0;i<n;i++)e.indexOf(i)===-1&&r.push(t[i]);let o=e.map(i=>t[i]);return[r,o]},fh=(t,e)=>{let r=t.length+e.length,n=[],o=0;for(let i=0;i<r;i++)e.indexOf(i)===-1?n.push(t[o++]):n.push(1);return n},hh=(t,e)=>{for(let r=0;r<t.length;++r)if(t[t.length-r-1]!==e-1-r)return!1;return!0},gh=(t,e)=>{let r=[];if(!hh(t,e)){for(let n=0;n<e;++n)t.indexOf(n)===-1&&r.push(n);t.forEach(n=>r.push(n))}return r},yh=(t,e,r,n,o,i,a)=>{let u=r[0].dims,d=k.size(i),c=k.size(a),p=D("_A",r[0].dataType,u),m=R("output",o,i),g=64;d===1&&(g=256);let b=`
+          var<workgroup> aBestValues : array<f32, ${g}>;
+       `,y=_=>`
+        ${_.registerUniform("reduceSize","u32").declareVariables(p,m)}
+        ${b}
+        fn DIV_CEIL(a : u32, b : u32) -> u32 {
+          return ((a - 1u) / b + 1u);
+         }
+         ${_.mainStart(g)}
+
+          let outputIndex = global_idx / ${g};
+          let offset = outputIndex * uniforms.reduceSize;
+
+          var bestValue = f32(${lh[n]});
+          let Length = uniforms.reduceSize;
+          for (var k = local_idx; k < Length; k = k + ${g}) {
+           let candidate = f32(${p.getByOffset("offset + k")});
+           bestValue = ${uh[n]};
+          }
+          aBestValues[local_idx] = bestValue;
+          workgroupBarrier();
+
+         var reduceSize = min(Length, ${g}u);
+         for (var currentSize = reduceSize / 2u; reduceSize > 1u;
+             currentSize = reduceSize / 2u) {
+           let interval = DIV_CEIL(reduceSize, 2u);
+           if (local_idx < currentSize) {
+            let candidate = aBestValues[local_idx + interval];
+            bestValue = ${dh[n]};
+            aBestValues[local_idx] = bestValue;
+           }
+           reduceSize = interval;
+           workgroupBarrier();
+         }
+
+         if (local_idx == 0u) {
+          ${m.setByOffset("outputIndex",`${n==="mean"?`${m.type.storage}(bestValue / f32(uniforms.reduceSize))`:`${m.type.storage}(${ch[n]})`}`)};
+         }
+        }`;return{name:t,shaderCache:{hint:`${e};${g}`,inputDependencies:["type"]},getShaderSource:y,getRunData:()=>({outputs:[{dims:i,dataType:o}],dispatchGroup:{x:d},programUniforms:[{type:12,data:c}]})}},it=(t,e,r,n)=>{let o=t.inputs.length===1?r:bo(t.inputs,r),i=o.axes;i.length===0&&!o.noopWithEmptyAxes&&(i=t.inputs[0].dims.map((b,y)=>y));let a=k.normalizeAxes(i,t.inputs[0].dims.length),u=a,d=t.inputs[0],c=gh(u,t.inputs[0].dims.length);c.length>0&&(d=t.compute(ze(t.inputs[0],c),{inputs:[0],outputs:[-1]})[0],u=ph(u.length,d.dims.length));let[p,m]=mh(d.dims,u),g=p;o.keepDims&&(g=fh(p,a)),t.compute(yh(e,o.cacheKey,[d],n,t.inputs[0].dataType,g,m),{inputs:[d]})},Ys=(t,e)=>{it(t,"ReduceMeanShared",e,"mean")},Xs=(t,e)=>{it(t,"ReduceL1Shared",e,"l1")},Js=(t,e)=>{it(t,"ReduceL2Shared",e,"l2")},eu=(t,e)=>{it(t,"ReduceLogSumExpShared",e,"logSumExp")},tu=(t,e)=>{it(t,"ReduceMaxShared",e,"max")},ru=(t,e)=>{it(t,"ReduceMinShared",e,"min")},nu=(t,e)=>{it(t,"ReduceProdShared",e,"prod")},ou=(t,e)=>{it(t,"ReduceSumShared",e,"sum")},iu=(t,e)=>{it(t,"ReduceSumSquareShared",e,"sumSquare")},au=(t,e)=>{it(t,"ReduceLogSumShared",e,"logSum")}});var at,bh,en,bo,st,_h,wh,vh,$h,xh,Sh,Th,Ih,Ch,Ah,ut,uu,du,lu,cu,pu,mu,fu,hu,gu,yu,Jr=V(()=>{"use strict";ee();te();Ce();oe();su();at=t=>{if(!t||t.length===0||t.length>2)throw new Error("Reduce op requires 1 or 2 inputs.");if(t.length===2&&t[1].dims.length!==1)throw new Error("Invalid axes input dims.")},bh=t=>["","",`var value = ${t.getByIndices("input_indices")};`,""],en=(t,e,r,n,o,i,a=!1,u=!1)=>{let d=[],c=r[0].dims,p=c.length,m=k.normalizeAxes(o,p),g=!u&&m.length===0;c.forEach((S,x)=>{g||m.indexOf(x)>=0?a&&d.push(1):d.push(S)});let b=d.length,y=k.size(d);return{name:t,shaderCache:e,getShaderSource:S=>{let x=[],$=D("_A",r[0].dataType,p),T=R("output",i,b),I=n($,T,m),E=I[2];for(let A=0,O=0;A<p;A++)g||m.indexOf(A)>=0?(a&&O++,E=`for(var j${A}: u32 = 0; j${A} < ${c[A]}; j${A}++) {
+                  ${I[2].includes("last_index")?`let last_index = j${A};`:""}
+                  ${$.indicesSet("input_indices",A,`j${A}`)}
+                  ${E}
+                }`):(x.push(`${$.indicesSet("input_indices",A,T.indicesGet("output_indices",O))};`),O++);return`
+
+        ${S.registerUniform("output_size","u32").declareVariables($,T)}
+
+        ${S.mainStart()}
+          ${S.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+          var input_indices: ${$.type.indices};
+          let output_indices = ${T.offsetToIndices("global_idx")};
+
+          ${x.join(`
+`)}
+          ${I[0]}       // init ops for reduce max/min
+          ${I[1]}
+          ${E}
+          ${I[3]}
+          ${I.length===4?T.setByOffset("global_idx","value"):I.slice(4).join(`
+`)}
+        }`},getRunData:()=>({outputs:[{dims:d,dataType:i}],dispatchGroup:{x:Math.ceil(y/64)},programUniforms:[{type:12,data:y},...W(c,d)]})}},bo=(t,e)=>{let r=[];return t[1].dims[0]>0&&t[1].getBigInt64Array().forEach(n=>r.push(Number(n))),J({axes:r,keepDims:e.keepDims,noopWithEmptyAxes:e.noopWithEmptyAxes})},st=(t,e,r,n)=>{let o=t.inputs,i=o.length===1?r:bo(o,r);t.compute(en(e,{hint:i.cacheKey,inputDependencies:["rank"]},[o[0]],i.noopWithEmptyAxes&&i.axes.length===0?bh:n,i.axes,o[0].dataType,i.keepDims,i.noopWithEmptyAxes),{inputs:[0]})},_h=(t,e)=>{at(t.inputs),st(t,"ReduceLogSum",e,(n,o)=>[`var value = ${o.type.storage}(0);`,"",`value += ${n.getByIndices("input_indices")};`,"value = log(value);"])},wh=(t,e)=>{at(t.inputs),st(t,"ReduceL1",e,(n,o)=>[`var value = ${o.type.storage}(0);`,"",`value += abs(${n.getByIndices("input_indices")});`,""])},vh=(t,e)=>{at(t.inputs),st(t,"ReduceL2",e,(n,o)=>[`var t = ${o.type.value}(0); var value = ${o.type.value}(0);`,"",`t = ${n.getByIndices("input_indices")}; value += (t * t);`,"value = sqrt(value);"])},$h=(t,e)=>{at(t.inputs),st(t,"ReduceLogSumExp",e,(n,o)=>[`var value = ${o.type.storage}(0);`,"",`value += exp(${n.getByIndices("input_indices")});`,"value = log(value);"])},xh=(t,e)=>{at(t.inputs),st(t,"ReduceMax",e,(n,o,i)=>{let a=[];for(let u=0;u<n.rank;u++)(i.indexOf(u)>=0||i.length===0)&&a.push(n.indicesSet("input_indices",u,0));return[`${a.join(`
+`)}`,`var value = ${n.getByIndices("input_indices")};`,`value = max(value, ${n.getByIndices("input_indices")});`,""]})},Sh=(t,e)=>{at(t.inputs),st(t,"ReduceMean",e,(n,o,i)=>{let a=1;for(let u=0;u<n.rank;u++)(i.indexOf(u)>=0||i.length===0)&&(a*=t.inputs[0].dims[u]);return["var sum = f32(0);","",`sum += f32(${n.getByIndices("input_indices")});`,`let value = ${o.type.value}(sum / ${a});`]})},Th=(t,e)=>{at(t.inputs),st(t,"ReduceMin",e,(n,o,i)=>{let a=[];for(let u=0;u<n.rank;u++)(i.indexOf(u)>=0||i.length===0)&&a.push(`input_indices[${u}] = 0;`);return[`${a.join(`
+`)}`,`var value = ${n.getByIndices("input_indices")};`,`value = min(value, ${n.getByIndices("input_indices")});`,""]})},Ih=(t,e)=>{at(t.inputs),st(t,"ReduceProd",e,(n,o)=>[`var value = ${o.type.storage}(1);`,"",`value *= ${n.getByIndices("input_indices")};`,""])},Ch=(t,e)=>{at(t.inputs),st(t,"ReduceSum",e,(n,o)=>[`var value = ${o.type.storage}(0);`,"",`value += ${n.getByIndices("input_indices")};`,""])},Ah=(t,e)=>{at(t.inputs),st(t,"ReduceSumSquare",e,(n,o)=>[`var t = ${o.type.value}(0); var value = ${o.type.value}(0);`,"",`t = ${n.getByIndices("input_indices")}; value += t * t;`,""])},ut=(t,e,r)=>{if(e.length===0)return r;let n=1,o=1;for(let i=0;i<e.length;i++)e.indexOf(i)===-1?n*=t[i]:o*=t[i];return o<32&&n>1024},uu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?Sh(t,e):Ys(t,e)},du=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?wh(t,e):Xs(t,e)},lu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?vh(t,e):Js(t,e)},cu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?$h(t,e):eu(t,e)},pu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?xh(t,e):tu(t,e)},mu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?Th(t,e):ru(t,e)},fu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?Ih(t,e):nu(t,e)},hu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?Ch(t,e):ou(t,e)},gu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?Ah(t,e):iu(t,e)},yu=(t,e)=>{ut(t.inputs[0].dims,e.axes,e.noopWithEmptyAxes)?_h(t,e):au(t,e)}});var bu,_u,wu,_o,vu=V(()=>{"use strict";ee();Ce();Jr();bu=t=>{if(!t||t.length===0||t.length>2)throw new Error("ArgMinMaxOp op requires 1 or 2 inputs.");if(t[0].dataType!==1)throw new Error("Invalid input type.")},_u=(t,e)=>{bu(t.inputs);let r=(n,o,i)=>{let a=[];for(let u=0;u<n.rank;u++)(i.indexOf(u)>=0||i.length===0)&&a.push(`input_indices[${u}] = 0;`);return[`${a.join(`
+`)}`,`var value = ${n.getByIndices("input_indices")};
+var best_index : i32 = 0;`,`if (${n.getByIndices("input_indices")} ${e.selectLastIndex>0?"<=":"<"} value) {
+         value = ${n.getByIndices("input_indices")};
+         best_index = i32(last_index);
+       }`,"",o.setByOffset("global_idx","best_index")]};t.compute(en("ArgMin",{hint:e.cacheKey,inputDependencies:["rank"]},[t.inputs[0]],r,[e.axis],7,e.keepDims),{inputs:[0]})},wu=(t,e)=>{bu(t.inputs);let r=(n,o,i)=>{let a=[];for(let u=0;u<n.rank;u++)(i.indexOf(u)>=0||i.length===0)&&a.push(`input_indices[${u}] = 0;`);return[`${a.join(`
+`)}`,`var value = ${n.getByIndices("input_indices")};
+var best_index : i32 = 0;`,`if (${n.getByIndices("input_indices")} ${e.selectLastIndex>0?">=":">"} value) {
+         value = ${n.getByIndices("input_indices")};
+         best_index = i32(last_index);
+       }`,"",o.setByOffset("global_idx","best_index")]};t.compute(en("argMax",{hint:e.cacheKey,inputDependencies:["rank"]},[t.inputs[0]],r,[e.axis],7,e.keepDims),{inputs:[0]})},_o=t=>J(t)});var Eh,wo,kh,Ph,Dh,Ft,Oh,$u,tn=V(()=>{"use strict";ee();te();Zr();oe();Eh=(t,e)=>{let r=t[0],n=t[1],o=t[2],i=t[3],a=t[4],u=t[5];if(a&&u)throw new Error("Attention cannot have both past and attention_bias");if(r.dims.length!==3)throw new Error('Input "input" must have 3 dimensions');let d=r.dims[0],c=r.dims[1],p=r.dims[2];if(o.dims.length!==1)throw new Error('Input "bias" is expected to have 1 dimensions');if(n.dims.length!==2)throw new Error('Input "weights" is expected to have 2 dimensions');if(n.dims[0]!==p)throw new Error("Input 1 dimension 0 should have same length as dimension 2 of input 0");if(o.dims[0]!==n.dims[1])throw new Error('Input "bias" dimension 0 should have same length as dimension 1 of input "weights"');let m=o.dims[0]/3,g=m,b=g;if(e.qkvHiddenSizes.length>0){if(e.qkvHiddenSizes.length!==3)throw new Error("qkv_hidden_sizes attribute should have 3 elements");for(let T of e.qkvHiddenSizes)if(T%e.numHeads!==0)throw new Error("qkv_hidden_sizes should be divisible by num_heads");m=e.qkvHiddenSizes[0],g=e.qkvHiddenSizes[1],b=e.qkvHiddenSizes[2]}let y=c;if(m!==g)throw new Error("qkv_hidden_sizes first element should be same as the second");if(o.dims[0]!==m+g+b)throw new Error('Input "bias" dimension 0 should have same length as sum of Q/K/V hidden sizes');let _=0;if(a){if(g!==b)throw new Error('Input "past" expect k_hidden_size == v_hidden_size');if(a.dims.length!==5)throw new Error('Input "past" must have 5 dimensions');if(a.dims[0]!==2)throw new Error('Input "past" first dimension must be 2');if(a.dims[1]!==d)throw new Error('Input "past" second dimension must be batch_size');if(a.dims[2]!==e.numHeads)throw new Error('Input "past" third dimension must be num_heads');if(a.dims[4]!==g/e.numHeads)throw new Error('Input "past" fifth dimension must be k_hidden_size / num_heads');e.pastPresentShareBuffer||(_=a.dims[3])}let S=y+_,x=-1,$=0;if(i)throw new Error("Mask not supported");if(a)throw new Error("past is not supported");if(u){if(u.dims.length!==4)throw new Error('Input "attention_bias" must have 4 dimensions');if(u.dims[0]!==d||u.dims[1]!==e.numHeads||u.dims[2]!==c||u.dims[3]!==S)throw new Error('Expect "attention_bias" shape (batch_size, num_heads, sequence_length, total_sequence_length)')}return{batchSize:d,sequenceLength:c,pastSequenceLength:_,kvSequenceLength:y,totalSequenceLength:S,maxSequenceLength:x,inputHiddenSize:p,hiddenSize:m,vHiddenSize:b,headSize:Math.floor(m/e.numHeads),vHeadSize:Math.floor(b/e.numHeads),numHeads:e.numHeads,isUnidirectional:!1,pastPresentShareBuffer:!1,maskFilterValue:e.maskFilterValue,maskType:$,scale:e.scale,broadcastResPosBias:!1,passPastInKv:!1,qkvFormat:1}},wo=(t,e,r)=>e&&t?`
+      let total_sequence_length_input = u32(${e.getByOffset("0")});
+      let present_sequence_length = max(total_sequence_length_input, uniforms.past_sequence_length);
+      let is_subsequent_prompt: bool = sequence_length > 1 && sequence_length != total_sequence_length_input;
+      let is_first_prompt: bool = is_subsequent_prompt == false && sequence_length == total_sequence_length_input;
+      total_sequence_length = u32(${t?.getByOffset("batchIdx")}) + 1;
+      var past_sequence_length: u32 = 0;
+      if (is_first_prompt == false) {
+        past_sequence_length = total_sequence_length - sequence_length;
+      }
+       `:`
+    ${r?"let past_sequence_length = uniforms.past_sequence_length":""};
+    let present_sequence_length = total_sequence_length;
+    `,kh=(t,e,r,n,o,i,a,u)=>{let d=fe(a?1:i),c=64,p=i/d;p<c&&(c=32);let m=Math.ceil(i/d/c),g=[{type:12,data:e},{type:12,data:r},{type:12,data:n},{type:12,data:o},{type:12,data:p},{type:12,data:m}],b=we(t.dataType,d),y=Ae(1,d),_=["type"];a&&_.push("type"),u&&_.push("type");let S=x=>{let $=R("x",t.dataType,t.dims,d),T=[$],I=a?D("seq_lens",a.dataType,a.dims):void 0;I&&T.push(I);let E=u?D("total_sequence_length_input",u.dataType,u.dims):void 0;E&&T.push(E);let A=Ae(t.dataType),O=[{name:"batch_size",type:"u32"},{name:"num_heads",type:"u32"},{name:"past_sequence_length",type:"u32"},{name:"sequence_length",type:"u32"},{name:"total_sequence_length",type:"u32"},{name:"elements_per_thread",type:"u32"}];return`
+  var<workgroup> thread_max: array<f32, ${c}>;
+  var<workgroup> thread_sum: array<f32, ${c}>;
+  ${x.registerUniforms(O).declareVariables(...T)}
+  ${x.mainStart([c,1,1])}
+    let batchIdx = workgroup_id.z / uniforms.num_heads;
+    let headIdx = workgroup_id.z % uniforms.num_heads;
+    let sequence_length = uniforms.sequence_length;
+    var total_sequence_length = uniforms.total_sequence_length;
+    ${wo(I,E,!1)}
+    let local_offset = local_idx * uniforms.elements_per_thread;
+    let offset = (global_idx / ${c}) * uniforms.total_sequence_length + local_offset;
+    let seq_causal_length = ${a?"u32(past_sequence_length + workgroup_id.y + 1)":"total_sequence_length"};
+    var thread_max_vector = ${y}(-3.4028234663852886e+38f);
+    for (var i: u32 = 0; i < uniforms.elements_per_thread && i + local_offset < seq_causal_length; i++) {
+      thread_max_vector = max(${y}(x[offset + i]), thread_max_vector);
+    }
+    thread_max[local_idx] = ${(()=>{switch(d){case 1:return"thread_max_vector";case 2:return"max(thread_max_vector.x, thread_max_vector.y)";case 4:return"max(max(thread_max_vector.x, thread_max_vector.y), max(thread_max_vector.z, thread_max_vector.w))";default:throw new Error(`Unsupported components: ${d}`)}})()};
+    workgroupBarrier();
+
+    var max_value =  f32(-3.4028234663852886e+38f);
+    for (var i = 0u; i < ${c}; i++) {
+      max_value = max(thread_max[i], max_value);
     }
 
-    `}function ju(i,e){let o=R(i);return`
-  void main() {
-    int indices[${e}];
-    toVec(TexCoords, indices);
-    vec4 result = vec4(process(indices));
-    ${o.output} = result;
+    var sum_vector = ${y}(0);
+    for (var i: u32 = 0; i < uniforms.elements_per_thread && i + local_offset < seq_causal_length; i++) {
+      sum_vector += exp(${y}(x[offset + i]) - max_value);
+    }
+    thread_sum[local_idx] = ${(()=>{switch(d){case 1:return"sum_vector";case 2:return"sum_vector.x + sum_vector.y";case 4:return"sum_vector.x + sum_vector.y + sum_vector.z + sum_vector.w";default:throw new Error(`Unsupported components: ${d}`)}})()};
+    workgroupBarrier();
+
+    var sum: f32 = 0;
+    for (var i = 0u; i < ${c}; i++) {
+      sum += thread_sum[i];
+    }
+
+    if (sum == 0) {
+      for (var i: u32 = 0; i < uniforms.elements_per_thread && i + local_offset < seq_causal_length; i++) {
+        x[offset + i] = ${$.type.value}(${A}(1.0) / ${A}(seq_causal_length));
+      }
+    } else {
+      for (var i: u32 = 0; i < uniforms.elements_per_thread && i + local_offset < seq_causal_length; i++) {
+        var f32input = ${y}(x[offset + i]);
+        x[offset + i] = ${$.type.value}(exp(f32input - max_value) / sum);
+      }
+    }
+      ${a?`
+        for (var total_seq_id: u32 = seq_causal_length; total_seq_id + local_offset < uniforms.total_sequence_length; total_seq_id++) {
+          x[offset + total_seq_id] = ${$.type.value}(${A}(0));
+        }`:""};
+  }`};return{name:"AttentionProbsSoftmax",shaderCache:{hint:`${c};${b};${d}`,inputDependencies:_},getShaderSource:S,getRunData:()=>({outputs:[],dispatchGroup:{x:1,y:o,z:e*r},programUniforms:g})}},Ph=(t,e,r,n,o,i,a,u,d)=>{let c=a+i.kvSequenceLength,p=[i.batchSize,i.numHeads,i.sequenceLength,c],m=t>1&&n,g=i.kvNumHeads?i.kvNumHeads:i.numHeads,b=m?[i.batchSize,g,c,i.headSize]:void 0,y=i.nReps?i.nReps:1,_=i.scale===0?1/Math.sqrt(i.headSize):i.scale,S=fe(i.headSize),x=i.headSize/S,$=12,T={x:Math.ceil(c/$),y:Math.ceil(i.sequenceLength/$),z:i.batchSize*i.numHeads},I=[{type:12,data:i.sequenceLength},{type:12,data:x},{type:12,data:c},{type:12,data:i.numHeads},{type:12,data:i.headSize},{type:1,data:_},{type:12,data:a},{type:12,data:i.kvSequenceLength},{type:12,data:y}],E=m&&n&&k.size(n.dims)>0,A=["type","type"];E&&A.push("type"),o&&A.push("type"),u&&A.push("type"),d&&A.push("type");let O=[{dims:p,dataType:e.dataType,gpuDataType:0}];m&&O.push({dims:b,dataType:e.dataType,gpuDataType:0});let w=U=>{let N=D("q",e.dataType,e.dims,S),F=D("key",r.dataType,r.dims,S),q=[N,F];if(E){let ne=D("past_key",n.dataType,n.dims,S);q.push(ne)}o&&q.push(D("attention_bias",o.dataType,o.dims));let X=u?D("seq_lens",u.dataType,u.dims):void 0;X&&q.push(X);let z=d?D("total_sequence_length_input",d.dataType,d.dims):void 0;z&&q.push(z);let L=R("output",e.dataType,p),Z=[L];m&&Z.push(R("present_key",e.dataType,b,S));let Y=Ae(1,S),Q=[{name:"M",type:"u32"},{name:"K",type:"u32"},{name:"N",type:"u32"},{name:"num_heads",type:"u32"},{name:"head_size",type:"u32"},{name:"alpha",type:"f32"},{name:"past_sequence_length",type:"u32"},{name:"kv_sequence_length",type:"u32"},{name:"n_reps",type:"u32"}];return`
+  const TILE_SIZE = ${$}u;
+
+  var<workgroup> tileQ: array<${N.type.storage}, ${$*$}>;
+  var<workgroup> tileK: array<${N.type.storage}, ${$*$}>;
+  ${U.registerUniforms(Q).declareVariables(...q,...Z)}
+  ${U.mainStart([$,$,1])}
+    // x holds the N and y holds the M
+    let headIdx = workgroup_id.z % uniforms.num_heads;
+    let kvHeadIdx = ${y===1?"headIdx":"headIdx / uniforms.n_reps"};
+    let kv_num_heads = ${y===1?"uniforms.num_heads":"uniforms.num_heads / uniforms.n_reps"};
+    let batchIdx = workgroup_id.z / uniforms.num_heads;
+    let m = workgroup_id.y * TILE_SIZE;
+    let n = workgroup_id.x * TILE_SIZE;
+    let sequence_length = uniforms.M;
+    var total_sequence_length = uniforms.N;
+    ${wo(X,z,!0)}
+    let absKvHeadIdx = batchIdx * kv_num_heads + kvHeadIdx;
+    let qOffset = workgroup_id.z * uniforms.M * uniforms.K + m * uniforms.K;
+    ${E&&m?"let pastKeyOffset = absKvHeadIdx * uniforms.past_sequence_length * uniforms.K;":""};
+    let kOffset = absKvHeadIdx * uniforms.kv_sequence_length * uniforms.K;
+    ${m?"let presentKeyOffset = absKvHeadIdx * uniforms.N * uniforms.K;":""}
+    var value = ${Y}(0);
+    for (var w: u32 = 0u; w < uniforms.K; w += TILE_SIZE) {
+      if (global_id.y < uniforms.M && w + local_id.x < uniforms.K) {
+        tileQ[TILE_SIZE * local_id.y + local_id.x] = q[qOffset + local_id.y * uniforms.K + w + local_id.x];
+      }
+      if (n + local_id.y < uniforms.N && w + local_id.x < uniforms.K) {
+        var idx = TILE_SIZE * local_id.y + local_id.x;
+      ${E&&m?`
+              if (n + local_id.y < past_sequence_length) {
+                tileK[idx] = past_key[pastKeyOffset + (n + local_id.y) * uniforms.K + w + local_id.x];
+              } else if (n + local_id.y - past_sequence_length < uniforms.kv_sequence_length) {
+                tileK[idx] = key[kOffset + (n + local_id.y - past_sequence_length) * uniforms.K + w + local_id.x];
+              }`:`
+          if (n + local_id.y < uniforms.kv_sequence_length) {
+            tileK[idx] = key[kOffset + (n + local_id.y) * uniforms.K + w + local_id.x];
+          }`}
+      ${m?`if (n + local_id.y < present_sequence_length) {
+        present_key[presentKeyOffset + (n + local_id.y) * uniforms.K + w + local_id.x] = tileK[idx];
+      }`:""}
+      }
+      workgroupBarrier();
+
+      for (var k: u32 = 0u; k < TILE_SIZE && w+k < uniforms.K; k++) {
+          value += ${Y}(tileQ[TILE_SIZE * local_id.y + k] * tileK[TILE_SIZE * local_id.x + k]);
+      }
+
+      workgroupBarrier();
+    }
+
+    if (global_id.y < uniforms.M && global_id.x < total_sequence_length) {
+      let headOffset = workgroup_id.z * uniforms.M * uniforms.N;
+      let outputIdx = headOffset + global_id.y * uniforms.N + global_id.x;
+      var sum: f32 = ${(()=>{switch(S){case 1:return"value";case 2:return"value.x + value.y";case 4:return"value.x + value.y + value.z + value.w";default:throw new Error(`Unsupported components: ${S}`)}})()};
+        output[outputIdx] = ${L.type.value} (sum * uniforms.alpha) + ${o?"attention_bias[outputIdx]":"0.0"};
+    }
+  }`};return{name:"AttentionProbs",shaderCache:{hint:`${S};${o!==void 0};${n!==void 0};${t}`,inputDependencies:A},getRunData:()=>({outputs:O,dispatchGroup:T,programUniforms:I}),getShaderSource:w}},Dh=(t,e,r,n,o,i,a=void 0,u=void 0)=>{let d=i+o.kvSequenceLength,c=o.nReps?o.nReps:1,p=o.vHiddenSize*c,m=t>1&&n,g=o.kvNumHeads?o.kvNumHeads:o.numHeads,b=m?[o.batchSize,g,d,o.headSize]:void 0,y=[o.batchSize,o.sequenceLength,p],_=12,S={x:Math.ceil(o.vHeadSize/_),y:Math.ceil(o.sequenceLength/_),z:o.batchSize*o.numHeads},x=[{type:12,data:o.sequenceLength},{type:12,data:d},{type:12,data:o.vHeadSize},{type:12,data:o.numHeads},{type:12,data:o.headSize},{type:12,data:p},{type:12,data:i},{type:12,data:o.kvSequenceLength},{type:12,data:c}],$=m&&n&&k.size(n.dims)>0,T=["type","type"];$&&T.push("type"),a&&T.push("type"),u&&T.push("type");let I=[{dims:y,dataType:e.dataType,gpuDataType:0}];m&&I.push({dims:b,dataType:e.dataType,gpuDataType:0});let E=A=>{let O=D("probs",e.dataType,e.dims),w=D("v",r.dataType,r.dims),U=[O,w];$&&U.push(D("past_value",n.dataType,n.dims));let N=a?D("seq_lens",a.dataType,a.dims):void 0;a&&U.push(N);let F=u?D("total_sequence_length_input",u.dataType,u.dims):void 0;u&&U.push(F);let X=[R("output",e.dataType,y)];m&&X.push(R("present_value",e.dataType,b));let z=[{name:"M",type:"u32"},{name:"K",type:"u32"},{name:"N",type:"u32"},{name:"num_heads",type:"u32"},{name:"head_size",type:"u32"},{name:"v_hidden_size",type:"u32"},{name:"past_sequence_length",type:"u32"},{name:"kv_sequence_length",type:"u32"},{name:"n_reps",type:"u32"}];return`
+  const TILE_SIZE = ${_}u;
+  var<workgroup> tileQ: array<${O.type.value}, ${_*_}>;
+  var<workgroup> tileV: array<${O.type.value}, ${_*_}>;
+  ${A.registerUniforms(z).declareVariables(...U,...X)}
+  ${A.mainStart([_,_,1])}
+   let headIdx = workgroup_id.z % uniforms.num_heads;
+   let batchIdx = workgroup_id.z / uniforms.num_heads;
+   let kvHeadIdx = ${c===1?"headIdx":"headIdx / uniforms.n_reps"};
+   let kv_num_heads = ${c===1?"uniforms.num_heads":"uniforms.num_heads / uniforms.n_reps"};
+   let m = global_id.y;
+   let n = global_id.x;
+   let sequence_length = uniforms.M;
+   var total_sequence_length = uniforms.K;
+   ${wo(N,F,!0)}
+   let offsetA = workgroup_id.z * uniforms.M * uniforms.K + m * uniforms.K;
+   let absKvHeadIdx = batchIdx * kv_num_heads + kvHeadIdx; // kvHeadIdx is relative to the batch
+   ${$&&m?"let pastValueOffset = absKvHeadIdx * uniforms.N * uniforms.past_sequence_length + n;":""};
+   let vOffset = absKvHeadIdx * uniforms.N * uniforms.kv_sequence_length + n;
+   ${m?"let presentValueOffset = absKvHeadIdx * uniforms.N * uniforms.K + n;":""}
+   var value = ${O.type.storage}(0);
+   for (var w: u32 = 0u; w < uniforms.K; w += TILE_SIZE) {
+      if (m < uniforms.M && w + local_id.x < uniforms.K) {
+        tileQ[TILE_SIZE * local_id.y + local_id.x] = probs[offsetA + w + local_id.x];
+      }
+      if (n < uniforms.N && w + local_id.y < uniforms.K) {
+        var idx = TILE_SIZE * local_id.y + local_id.x;
+        ${$&&m?`
+        if (w + local_id.y < past_sequence_length) {
+          tileV[idx] = past_value[pastValueOffset + (w + local_id.y) * uniforms.N];
+        } else if (w + local_id.y - past_sequence_length < uniforms.kv_sequence_length) {
+          tileV[idx] = v[vOffset + (w + local_id.y - past_sequence_length) * uniforms.N];
+        }
+      `:`
+            if (w + local_id.y < uniforms.kv_sequence_length) {
+              tileV[idx] = v[vOffset + (w + local_id.y) * uniforms.N];
+            }`}
+        ${m?`
+            if (w + local_id.y < present_sequence_length) {
+          present_value[presentValueOffset + (w + local_id.y) * uniforms.N] = tileV[idx];
+        }`:""}
+      }
+     workgroupBarrier();
+     for (var k: u32 = 0u; k < TILE_SIZE && w+k < total_sequence_length; k++) {
+       value += tileQ[TILE_SIZE * local_id.y + k] * tileV[TILE_SIZE * k + local_id.x];
+     }
+     workgroupBarrier();
+   }
+
+   // we need to transpose output from BNSH_v to BSND_v
+   if (m < uniforms.M && n < uniforms.N) {
+     let outputIdx = batchIdx * uniforms.M * uniforms.v_hidden_size + m * uniforms.v_hidden_size
+       + headIdx * uniforms.N + n;
+     output[outputIdx] = value;
+   }
+  }`};return{name:"AttentionScore",shaderCache:{hint:`${n!==void 0};${t}`,inputDependencies:T},getRunData:()=>({outputs:I,dispatchGroup:S,programUniforms:x}),getShaderSource:E}},Ft=(t,e,r,n,o,i,a,u,d,c,p=void 0,m=void 0)=>{let g=Math.min(t.outputCount,1+(a?1:0)+(u?1:0)),b=g>1?a:void 0,y=g>1?u:void 0,_=g>1?c.pastSequenceLength:0,S=_+c.kvSequenceLength,x=d&&k.size(d.dims)>0?d:void 0,$=[e,r];b&&k.size(b.dims)>0&&$.push(b),x&&$.push(x),p&&$.push(p),m&&$.push(m);let T=t.compute(Ph(g,e,r,b,x,c,_,p,m),{inputs:$,outputs:g>1?[-1,1]:[-1]})[0];t.compute(kh(T,c.batchSize,c.numHeads,_,c.sequenceLength,S,p,m),{inputs:p&&m?[T,p,m]:[T],outputs:[]});let I=[T,n];y&&k.size(y.dims)>0&&I.push(y),p&&I.push(p),m&&I.push(m),t.compute(Dh(g,T,n,y,c,_,p,m),{inputs:I,outputs:g>1?[0,2]:[0]})},Oh=(t,e)=>{let r=[e.batchSize,e.numHeads,e.sequenceLength,e.headSize],n=e.sequenceLength,o=e.inputHiddenSize,i=e.headSize,a=12,u={x:Math.ceil(e.headSize/a),y:Math.ceil(e.sequenceLength/a),z:e.batchSize*e.numHeads},d=[t.inputs[0],t.inputs[1],t.inputs[2]],c=[{type:12,data:n},{type:12,data:o},{type:12,data:i},{type:12,data:e.numHeads},{type:12,data:e.headSize},{type:12,data:e.hiddenSize},{type:12,data:e.hiddenSize+e.hiddenSize+e.vHiddenSize}],p=m=>{let g=R("output_q",d[0].dataType,r),b=R("output_k",d[0].dataType,r),y=R("output_v",d[0].dataType,r),_=D("input",d[0].dataType,d[0].dims),S=D("weight",d[1].dataType,d[1].dims),x=D("bias",d[2].dataType,d[2].dims),$=_.type.storage,T=[{name:"M",type:"u32"},{name:"K",type:"u32"},{name:"N",type:"u32"},{name:"num_heads",type:"u32"},{name:"head_size",type:"u32"},{name:"hidden_size",type:"u32"},{name:"ldb",type:"u32"}];return`
+  const TILE_SIZE = ${a}u;
+  var<workgroup> tileInput: array<${$}, ${a*a}>;
+  var<workgroup> tileWeightQ: array<${$}, ${a*a}>;
+  var<workgroup> tileWeightK: array<${$}, ${a*a}>;
+  var<workgroup> tileWeightV: array<${$}, ${a*a}>;
+  ${m.registerUniforms(T).declareVariables(_,S,x,g,b,y)}
+  ${m.mainStart([a,a,1])}
+    let batchIndex = workgroup_id.z / uniforms.num_heads;
+    let headNumber = workgroup_id.z % uniforms.num_heads;
+    let m = global_id.y;
+    let n = global_id.x;
+
+    let inputOffset = batchIndex * (uniforms.M * uniforms.K) + m * uniforms.K;
+    let biasOffsetQ = headNumber * uniforms.head_size;
+    let biasOffsetK = uniforms.hidden_size + biasOffsetQ;
+    let biasOffsetV = uniforms.hidden_size + biasOffsetK;
+
+    var valueQ = ${$}(0);
+    var valueK = ${$}(0);
+    var valueV = ${$}(0);
+    for (var w: u32 = 0u; w < uniforms.K; w += TILE_SIZE) {
+      if (m < uniforms.M && w + local_id.x < uniforms.K) {
+        tileInput[TILE_SIZE * local_id.y + local_id.x] = input[inputOffset + w + local_id.x];
+      }
+      if (n < uniforms.N && w + local_id.y < uniforms.K) {
+        let offset = n + (w + local_id.y) * uniforms.ldb;
+        tileWeightQ[TILE_SIZE * local_id.y + local_id.x] = weight[biasOffsetQ + offset];
+        tileWeightK[TILE_SIZE * local_id.y + local_id.x] = weight[biasOffsetK + offset];
+        tileWeightV[TILE_SIZE * local_id.y + local_id.x] = weight[biasOffsetV + offset];
+      }
+      workgroupBarrier();
+      for (var k: u32 = 0u; k<TILE_SIZE && w+k < uniforms.K; k++) {
+        let inputTileOffset = TILE_SIZE * local_id.y + k;
+        let weightTileOffset = TILE_SIZE * k + local_id.x;
+        valueQ += tileInput[inputTileOffset] * tileWeightQ[weightTileOffset];
+        valueK += tileInput[inputTileOffset] * tileWeightK[weightTileOffset];
+        valueV += tileInput[inputTileOffset] * tileWeightV[weightTileOffset];
+      }
+
+      workgroupBarrier();
+    }
+
+    let headOffset = (m * uniforms.N + n) % uniforms.head_size;
+    valueQ += bias[headOffset + biasOffsetQ];
+    valueK += bias[headOffset + biasOffsetK];
+    valueV += bias[headOffset + biasOffsetV];
+
+    let offset = workgroup_id.z * uniforms.M * uniforms.N;
+    if (m < uniforms.M && n < uniforms.N) {
+      let outputIdx = offset + m * uniforms.N + n;
+      output_q[outputIdx] = valueQ;
+      output_k[outputIdx] = valueK;
+      output_v[outputIdx] = valueV;
+    }
+  }`};return t.compute({name:"AttentionPrepare",shaderCache:{inputDependencies:["type","type","type"]},getRunData:()=>({outputs:[{dims:r,dataType:t.inputs[0].dataType,gpuDataType:0},{dims:r,dataType:t.inputs[0].dataType,gpuDataType:0},{dims:r,dataType:t.inputs[0].dataType,gpuDataType:0}],dispatchGroup:u,programUniforms:c}),getShaderSource:p},{inputs:d,outputs:[-1,-1,-1]})},$u=(t,e)=>{let r=Eh(t.inputs,e),[n,o,i]=Oh(t,r);return Ft(t,n,o,i,t.inputs[4],void 0,void 0,void 0,t.inputs[5],r)}});var zh,Bh,Mh,xu,Su=V(()=>{"use strict";Le();ee();te();Ce();oe();zh=(t,e)=>{if(!t||t.length!==5)throw new Error("BatchNormalization requires 5 inputs");let r=(n,o,i)=>{let a=o.length;if(a!==n.length)throw new Error(`${i}: num dimensions != ${a}`);o.forEach((u,d)=>{if(u!==n[d])throw new Error(`${i}: dim[${d}] do not match`)})};if(t[0].dims.length>1){let n=e.format==="NHWC"?e.spatial?t[0].dims.slice(-1):t[0].dims.slice(-1).concat(t[0].dims.slice(1,t[0].dims.length-1)):t[0].dims.slice(1,e.spatial?2:void 0);r(t[1].dims,n,"Invalid input scale"),r(t[2].dims,n,"Invalid input B"),r(t[3].dims,n,"Invalid input mean"),r(t[4].dims,n,"Invalid input var")}else r(t[1].dims,[1],"Invalid input scale"),r(t[2].dims,[1],"Invalid input B"),r(t[3].dims,[1],"Invalid input mean"),r(t[4].dims,[1],"Invalid input var")},Bh=(t,e)=>{let{epsilon:r,spatial:n,format:o}=e,i=t[0].dims,a=n?fe(i[i.length-1]):1,u=o==="NHWC"&&i.length>1?a:1,d=k.size(i)/a,c=n,p=c?i.length:i,m=D("x",t[0].dataType,t[0].dims,a),g=D("scale",t[1].dataType,t[1].dims,u),b=D("bias",t[2].dataType,t[2].dims,u),y=D("inputMean",t[3].dataType,t[3].dims,u),_=D("inputVar",t[4].dataType,t[4].dims,u),S=R("y",t[0].dataType,p,a),x=()=>{let T="";if(n)T=`let cOffset = ${i.length===1?"0u":o==="NHWC"?`outputIndices[${i.length-1}] / ${a}`:"outputIndices[1]"};`;else if(o==="NCHW")T=`
+            ${S.indicesSet("outputIndices","0","0")}
+            let cOffset = ${S.indicesToOffset("outputIndices")};`;else{T=`var cIndices = ${g.type.indices}(0);
+                       cIndices[0] = outputIndices[${i.length-1}];`;for(let I=1;I<g.rank;I++)T+=`cIndices[${I}] = outputIndices[${I}];`;T+=`let cOffset = ${g.indicesToOffset("cIndices")};`}return T},$=T=>`
+  const epsilon = ${r};
+  ${T.registerUniform("outputSize","u32").declareVariables(m,g,b,y,_,S)}
+  ${T.mainStart()}
+  ${T.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+    var outputIndices = ${S.offsetToIndices(`global_idx * ${a}`)};
+    ${x()}
+    let scale = ${g.getByOffset("cOffset")};
+    let bias = ${b.getByOffset("cOffset")};
+    let inputMean = ${y.getByOffset("cOffset")};
+    let inputVar = ${_.getByOffset("cOffset")};
+    let x = ${m.getByOffset("global_idx")};
+    let value = (x - inputMean) * inverseSqrt(inputVar + epsilon) * scale + bias;
+    ${S.setByOffset("global_idx","value")}
+  }`;return{name:"BatchNormalization",shaderCache:{hint:`${e.epsilon}_${e.format}_${n}_${a}`,inputDependencies:c?["rank","type","type","type","type"]:void 0},getShaderSource:$,getRunData:()=>({outputs:[{dims:t[0].dims,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(d/64)},programUniforms:c?[{type:12,data:d},...W(i)]:[{type:12,data:d}]})}},Mh=t=>J(t),xu=(t,e)=>{let{inputs:r,outputCount:n}=t,o=Mh({...e,outputCount:n});if(_e.webgpu.validateInputContent&&zh(r,o),e.trainingMode)throw new Error("BatchNormalization trainingMode is not supported yet.");t.compute(Bh(r,o))}});var Rh,Uh,Tu,Iu=V(()=>{"use strict";te();oe();Rh=t=>{if(t[0].dims.length!==3)throw new Error("input should have 3 dimensions");if(![320,640,1280].includes(t[0].dims[2]))throw new Error("number of channels should be 320, 640 or 1280");if(t[1].dims.length!==1)throw new Error("bias is expected to have 1 dimensions");if(t[0].dims[2]!==t[1].dims[0])throw new Error("last dimension of input and bias are not the same")},Uh=t=>{let e=t[0].dims,r=t[0].dims[2],n=k.size(e)/4,o=t[0].dataType,i=D("input",o,e,4),a=D("bias",o,[r],4),u=D("residual",o,e,4),d=R("output",o,e,4);return{name:"BiasAdd",getRunData:()=>({outputs:[{dims:e,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(n/64)}}),getShaderSource:p=>`
+  const channels = ${r}u / 4;
+  ${p.declareVariables(i,a,u,d)}
+
+  ${p.mainStart()}
+    ${p.guardAgainstOutOfBoundsWorkgroupSizes(n)}
+    let value = ${i.getByOffset("global_idx")}
+      + ${a.getByOffset("global_idx % channels")} + ${u.getByOffset("global_idx")};
+    ${d.setByOffset("global_idx","value")}
+  }`}},Tu=t=>{Rh(t.inputs),t.compute(Uh(t.inputs))}});var Nh,he,Cu,Au,Eu,ku,Pu,Du,Ou,zu,Bu,Vh,Mu,Ru,Uu,Nu,ar,Vu,rn,Lu,Wu,Gu,Hu,Fu,qu,Ku,ju,Qu,Zu,Yu,Xu,Ju,ed,td,rd,nd,od,id,vo,$o,ad,sd,ud,Lh,Wh,dd,nn=V(()=>{"use strict";ee();te();Ce();oe();Nh=(t,e,r,n,o,i,a)=>{let u=Math.ceil(e/4),d="";typeof o=="string"?d=`${o}(a)`:d=o("a");let c=D("inputData",r,[u],4),p=R("outputData",n,[u],4),m=[{name:"vec_size",type:"u32"}];return a&&m.push(...a),`
+      ${t.registerUniforms(m).declareVariables(c,p)}
+
+  ${i??""}
+
+  ${t.mainStart()}
+    ${t.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.vec_size")}
+
+    let a = ${c.getByOffset("global_idx")};
+    ${p.setByOffset("global_idx",d)}
+  }`},he=(t,e,r,n,o,i=t.dataType,a,u)=>{let d=[{type:12,data:Math.ceil(k.size(t.dims)/4)}];return a&&d.push(...a),{name:e,shaderCache:{hint:o,inputDependencies:["type"]},getShaderSource:c=>Nh(c,k.size(t.dims),t.dataType,i,r,n,u),getRunData:c=>({outputs:[{dims:t.dims,dataType:i}],dispatchGroup:{x:Math.ceil(k.size(c[0].dims)/64/4)},programUniforms:d})}},Cu=t=>{t.compute(he(t.inputs[0],"Abs","abs"))},Au=t=>{t.compute(he(t.inputs[0],"Acos","acos"))},Eu=t=>{t.compute(he(t.inputs[0],"Acosh","acosh"))},ku=t=>{t.compute(he(t.inputs[0],"Asin","asin"))},Pu=t=>{t.compute(he(t.inputs[0],"Asinh","asinh"))},Du=t=>{t.compute(he(t.inputs[0],"Atan","atan"))},Ou=t=>{t.compute(he(t.inputs[0],"Atanh","atanh"))},zu=t=>J(t),Bu=(t,e)=>{let r;switch(e.to){case 10:r="vec4<f16>";break;case 1:r="vec4<f32>";break;case 12:r="vec4<u32>";break;case 6:r="vec4<i32>";break;case 9:r="vec4<bool>";break;default:throw new RangeError(`not supported type (specified in attribute 'to' from 'Cast' operator): ${e.to}`)}t.compute(he(t.inputs[0],"Cast",r,void 0,e.cacheKey,e.to))},Vh=t=>{let e,r,n=t.length>=2&&t[1].data!==0,o=t.length>=3&&t[2].data!==0;switch(t[0].dataType){case 1:e=n?t[1].getFloat32Array()[0]:-34028234663852886e22,r=o?t[2].getFloat32Array()[0]:34028234663852886e22;break;case 10:e=n?t[1].getUint16Array()[0]:64511,r=o?t[2].getUint16Array()[0]:31743;break;default:throw new Error("Unsupport data type")}return J({min:e,max:r})},Mu=(t,e)=>{let r=e||Vh(t.inputs),n=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"Clip",o=>`clamp(${o}, vec4<${n}>(uniforms.min), vec4<${n}>(uniforms.max))`,void 0,r.cacheKey,void 0,[{type:t.inputs[0].dataType,data:r.min},{type:t.inputs[0].dataType,data:r.max}],[{name:"min",type:n},{name:"max",type:n}]),{inputs:[0]})},Ru=t=>{t.compute(he(t.inputs[0],"Ceil","ceil"))},Uu=t=>{t.compute(he(t.inputs[0],"Cos","cos"))},Nu=t=>{t.compute(he(t.inputs[0],"Cosh","cosh"))},ar=t=>J(t),Vu=(t,e)=>{let r=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"Elu",n=>`elu_vf32(${n})`,`
+  const elu_alpha_ = ${r}(${e.alpha});
+
+  fn elu_f32(a: ${r}) -> ${r} {
+  return select((exp(a) - 1.0) * elu_alpha_, a, a >= 0.0);
   }
-  `}var ch,ph,ut=O(()=>{"use strict";ch={version:"",attribute:"attribute",varyingVertex:"varying",varyingFrag:"varying",texture2D:"texture2D",output:"gl_FragColor",outputDeclaration:""},ph={version:"#version 300 es",attribute:"in",varyingVertex:"out",varyingFrag:"in",texture2D:"texture",output:"outputColor",outputDeclaration:"out vec4 outputColor;"}});var j=O(()=>{"use strict"});async function oi(i,e=t=>0,o){return new Promise((t,r)=>{let n=0,s=()=>{if(i()){t();return}n++;let a=e(n);if(o!=null&&n>=o){r();return}setTimeout(s,a)};s()})}function _n(i){return ir(typeof i<"u"&&i.length!==0,()=>"empty string found for sampler name"),"get"+i.charAt(0).toUpperCase()+i.slice(1)}function Xu(i){return ir(typeof i<"u"&&i.length!==0,()=>"empty string found for sampler name"),"get"+i.charAt(0).toUpperCase()+i.slice(1)+"AtOutCoords"}function ar(i,e){let o=JSON.parse(JSON.stringify(i));return o=e,o}function sr(i,e){return e.map(o=>i[o]).join(", ")}function $t(i){if(i<=1)return"int";if(i===2)return"ivec2";if(i===3)return"ivec3";if(i===4)return"ivec4";if(i===5)return"ivec5";if(i===6)return"ivec6";throw Error(`GPU for rank ${i} is not yet supported`)}function oe(i=6){return["x","y","z","w","u","v"].slice(0,i)}var ue=O(()=>{"use strict";Z()});function dh(i,e){return oe(e).map(o=>`${i}.${o}`)}function ur(i,e){return e===1?[i]:dh(i,e)}function le(){return`
-    float getChannel(vec4 frag, int dim) {
-      int modCoord = imod(dim, 2);
-      return modCoord == 0 ? frag.r : frag.g;
+
+  fn elu_vf32(v: vec4<${r}>) -> vec4<${r}> {
+  return vec4(elu_f32(v.x), elu_f32(v.y), elu_f32(v.z), elu_f32(v.w));
+  }`,e.cacheKey))},rn=(t="f32")=>`
+const r0: ${t} = 0.3275911;
+const r1: ${t} = 0.254829592;
+const r2: ${t} = -0.284496736;
+const r3: ${t} = 1.421413741;
+const r4: ${t} = -1.453152027;
+const r5: ${t} = 1.061405429;
+
+fn erf_vf32(v: vec4<${t}>) -> vec4<${t}> {
+  let absv = abs(v);
+  let x = 1.0 / (1.0 + r0 * absv);
+  return sign(v) * (1.0 - ((((r5 * x + r4) * x + r3) * x + r2) * x + r1) * x * exp(-absv * absv));
+}`,Lu=t=>{let e=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"Erf",r=>`erf_vf32(${r})`,rn(e)))},Wu=t=>{t.compute(he(t.inputs[0],"Exp","exp"))},Gu=t=>{t.compute(he(t.inputs[0],"Floor","floor"))},Hu=t=>{let e=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"Gelu",r=>`0.5 * ${r} * (1.0 + erf_vf32(${r} * 0.7071067811865475))`,rn(e)))},Fu=(t,e)=>{let r=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"LeakyRelu",n=>`select(leaky_relu_alpha_ * ${n}, ${n}, ${n} >= vec4<${r}>(0.0))`,`const leaky_relu_alpha_ = ${r}(${e.alpha});`,e.cacheKey))},qu=t=>{t.compute(he(t.inputs[0],"Not",e=>`!${e}`))},Ku=t=>{t.compute(he(t.inputs[0],"Neg",e=>`-${e}`))},ju=t=>{t.compute(he(t.inputs[0],"Reciprocal",e=>`1.0/${e}`))},Qu=t=>{let e=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"Relu",r=>`select(vec4<${e}>(0.0), ${r}, ${r} > vec4<${e}>(0.0))`))},Zu=t=>{t.compute(he(t.inputs[0],"Sigmoid",e=>`(1.0 / (1.0 + exp(-${e})))`))},Yu=t=>J(t),Xu=(t,e)=>{let r=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"HardSigmoid",n=>`max(vec4<${r}>(0.0), min(vec4<${r}>(1.0), ${e.alpha} * ${n} + vec4<${r}>(${e.beta})))`,void 0,e.cacheKey))},Ju=t=>{let e=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"HardSwish",r=>`${r} * max(vec4<${e}>(0.0), min(vec4<${e}>(1.0), vec4<${e}>(${e}(1.0 / 6.0)) * ${r} + vec4<${e}>(0.5)))`))},ed=t=>{t.compute(he(t.inputs[0],"Sin","sin"))},td=t=>{t.compute(he(t.inputs[0],"Sinh","sinh"))},rd=t=>{t.compute(he(t.inputs[0],"Sqrt","sqrt"))},nd=t=>{t.compute(he(t.inputs[0],"Tan","tan"))},od=t=>`sign(${t}) * (1 - exp(-2 * abs(${t}))) / (1 + exp(-2 * abs(${t})))`,id=t=>{t.compute(he(t.inputs[0],"Tanh",od))},vo=(t="f32")=>`
+const fast_gelu_a: ${t} = 0.5;
+const fast_gelu_b: ${t} = 0.7978845608028654;
+const fast_gelu_c: ${t} = 0.035677408136300125;
+
+fn tanh_v(v: vec4<${t}>) -> vec4<${t}> {
+  return ${od("v")};
+}
+`,$o=t=>`(fast_gelu_a + fast_gelu_a * tanh_v(${t} * (fast_gelu_c * ${t} * ${t} + fast_gelu_b))) * ${t}`,ad=t=>{let e=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"FastGelu",$o,vo(e),void 0,t.inputs[0].dataType))},sd=(t,e)=>{let r=Ae(t.inputs[0].dataType);return t.compute(he(t.inputs[0],"ThresholdedRelu",n=>`select(vec4<${r}>(0.0), ${n}, ${n} > thresholded_relu_alpha_)`,`const thresholded_relu_alpha_ = vec4<${r}>(${e.alpha});`,e.cacheKey)),0},ud=t=>{t.compute(he(t.inputs[0],"Log","log"))},Lh=(t,e)=>`
+const alpha = vec4<${t}>(${e});
+const one = ${t}(1.0);
+const zero = ${t}(0.0);
+
+fn quick_gelu_impl(x: vec4<${t}>) -> vec4<${t}> {
+  let v = x *alpha;
+  var x1 : vec4<${t}>;
+  for (var i = 0; i < 4; i = i + 1) {
+    if (v[i] >= zero) {
+      x1[i] = one / (one + exp(-v[i]));
+    } else {
+      x1[i] = one - one / (one + exp(v[i]));
+    }
+  }
+  return x * x1;
+}
+`,Wh=t=>`quick_gelu_impl(${t})`,dd=(t,e)=>{let r=Ae(t.inputs[0].dataType);t.compute(he(t.inputs[0],"QuickGelu",Wh,Lh(r,e.alpha),e.cacheKey,t.inputs[0].dataType))}});var Gh,Hh,cd,pd=V(()=>{"use strict";te();oe();nn();Gh=t=>{if(t[0].dims.length!==3)throw new Error("input should have 3 dimensions");if(![2560,5120,10240].includes(t[0].dims[2]))throw new Error("hidden state should be 2560, 5120 or 10240");if(t[1].dims.length!==1)throw new Error("bias is expected to have 1 dimensions");if(t[0].dims[2]!==t[1].dims[0])throw new Error("last dimension of input and bias are not the same")},Hh=t=>{let e=t[0].dims.slice();e[2]=e[2]/2;let r=D("input",t[0].dataType,t[0].dims,4),n=D("bias",t[0].dataType,[t[0].dims[2]],4),o=R("output",t[0].dataType,e,4),i=k.size(e)/4,a=we(t[0].dataType);return{name:"BiasSplitGelu",getRunData:()=>({outputs:[{dims:e,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(i/64)}}),getShaderSource:d=>`
+  const M_SQRT2 = sqrt(2.0);
+  const halfChannels = ${t[0].dims[2]/4/2}u;
+
+  ${d.declareVariables(r,n,o)}
+
+  ${rn(a)}
+
+  ${d.mainStart()}
+    ${d.guardAgainstOutOfBoundsWorkgroupSizes(i)}
+    let biasIdx = global_idx % halfChannels;
+    let batchIndex = global_idx / halfChannels;
+    let inputOffset = biasIdx + batchIndex * halfChannels * 2;
+    let valueLeft = input[inputOffset] + bias[biasIdx];
+    let valueRight = input[inputOffset + halfChannels] + bias[biasIdx + halfChannels];
+    let geluRight = valueRight * 0.5 * (erf_vf32(valueRight / M_SQRT2) + 1);
+
+    ${o.setByOffset("global_idx","valueLeft * geluRight")}
+  }`}},cd=t=>{Gh(t.inputs),t.compute(Hh(t.inputs))}});var Fh,qh,dt,md,fd,hd,gd,yd,bd,_d,wd,vd,$d,xd=V(()=>{"use strict";ee();te();oe();Fh=(t,e,r,n,o,i,a,u,d,c,p,m)=>{let g,b;typeof u=="string"?g=b=($,T)=>`${u}((${$}),(${T}))`:typeof u=="function"?g=b=u:(g=u.scalar,b=u.vector);let y=R("outputData",p,n.length,4),_=D("aData",d,e.length,4),S=D("bData",c,r.length,4),x;if(o)if(i){let $=k.size(e)===1,T=k.size(r)===1,I=e.length>0&&e[e.length-1]%4===0,E=r.length>0&&r[r.length-1]%4===0;$||T?x=y.setByOffset("global_idx",b($?`${_.type.value}(${_.getByOffset("0")}.x)`:_.getByOffset("global_idx"),T?`${S.type.value}(${S.getByOffset("0")}.x)`:S.getByOffset("global_idx"))):x=`
+            let outputIndices = ${y.offsetToIndices("global_idx * 4u")};
+            let offsetA = ${_.broadcastedIndicesToOffset("outputIndices",y)};
+            let offsetB = ${S.broadcastedIndicesToOffset("outputIndices",y)};
+            ${y.setByOffset("global_idx",b(a||I?_.getByOffset("offsetA / 4u"):`${_.type.value}(${_.getByOffset("offsetA / 4u")}[offsetA % 4u])`,a||E?S.getByOffset("offsetB / 4u"):`${S.type.value}(${S.getByOffset("offsetB / 4u")}[offsetB % 4u])`))}
+          `}else x=y.setByOffset("global_idx",b(_.getByOffset("global_idx"),S.getByOffset("global_idx")));else{if(!i)throw new Error("no necessary to use scalar implementation for element-wise binary op implementation.");let $=(T,I,E="")=>{let A=`aData[indexA${I}][componentA${I}]`,O=`bData[indexB${I}][componentB${I}]`;return`
+            let outputIndices${I} = ${y.offsetToIndices(`global_idx * 4u + ${I}u`)};
+            let offsetA${I} = ${_.broadcastedIndicesToOffset(`outputIndices${I}`,y)};
+            let offsetB${I} = ${S.broadcastedIndicesToOffset(`outputIndices${I}`,y)};
+            let indexA${I} = offsetA${I} / 4u;
+            let indexB${I} = offsetB${I} / 4u;
+            let componentA${I} = offsetA${I} % 4u;
+            let componentB${I} = offsetB${I} % 4u;
+            ${T}[${I}] = ${E}(${g(A,O)});
+          `};p===9?x=`
+            var data = vec4<u32>(0);
+            ${$("data",0,"u32")}
+            ${$("data",1,"u32")}
+            ${$("data",2,"u32")}
+            ${$("data",3,"u32")}
+            outputData[global_idx] = dot(vec4<u32>(0x1, 0x100, 0x10000, 0x1000000), vec4<u32>(data));`:x=`
+            ${$("outputData[global_idx]",0)}
+            ${$("outputData[global_idx]",1)}
+            ${$("outputData[global_idx]",2)}
+            ${$("outputData[global_idx]",3)}
+          `}return`
+        ${t.registerUniform("vec_size","u32").declareVariables(_,S,y)}
+
+        ${m??""}
+
+        ${t.mainStart()}
+        ${t.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.vec_size")}
+        ${x}
+      }`},qh=(t,e,r,n,o,i,a=r.dataType)=>{let u=r.dims.map(Number),d=n.dims.map(Number),c=!k.areEqual(u,d),p=u,m=k.size(u),g=!1,b=!1,y=[c];if(c){let _=ot.calcShape(u,d,!1);if(!_)throw new Error("Can't perform binary op on the given tensors");p=_.slice(),m=k.size(p);let S=k.size(u)===1,x=k.size(d)===1,$=u.length>0&&u[u.length-1]%4===0,T=d.length>0&&d[d.length-1]%4===0;y.push(S),y.push(x),y.push($),y.push(T);let I=1;for(let E=1;E<p.length;E++){let A=u[u.length-E],O=d[d.length-E];if(A===O)I*=A;else break}I%4===0?(b=!0,g=!0):(S||x||$||T)&&(g=!0)}else g=!0;return y.push(g),{name:t,shaderCache:{hint:e+y.map(_=>_.toString()).join("_"),inputDependencies:["rank","rank"]},getShaderSource:_=>Fh(_,u,d,p,g,c,b,o,r.dataType,n.dataType,a,i),getRunData:()=>({outputs:[{dims:p,dataType:a}],dispatchGroup:{x:Math.ceil(m/64/4)},programUniforms:[{type:12,data:Math.ceil(k.size(p)/4)},...W(u,d,p)]})}},dt=(t,e,r,n,o,i)=>{t.compute(qh(e,o??"",t.inputs[0],t.inputs[1],r,n,i))},md=t=>{dt(t,"Add",(e,r)=>`${e}+${r}`)},fd=t=>{dt(t,"Div",(e,r)=>`${e}/${r}`)},hd=t=>{dt(t,"Equal",{scalar:(e,r)=>`u32(${e}==${r})`,vector:(e,r)=>`vec4<u32>(${e}==${r})`},void 0,void 0,9)},gd=t=>{dt(t,"Mul",(e,r)=>`${e}*${r}`)},yd=t=>{let e=D("input",t.inputs[0].dataType,t.inputs[0].dims).type.value;dt(t,"Pow",{scalar:(n,o)=>`pow_custom(${n},${o})`,vector:(n,o)=>`pow_vector_custom(${n},${o})`},`
+    fn pow_custom(a : ${e}, b : ${e}) -> ${e} {
+      if (b == ${e}(0.0)) {
+        return ${e}(1.0);
+      } else if (a < ${e}(0.0) && f32(b) != floor(f32(b))) {
+        return ${e}(pow(f32(a), f32(b))); // NaN
+      }
+      return select(sign(a), ${e}(1.0), round(f32(abs(b) % ${e}(2.0))) != 1.0) * ${e}(${e==="i32"?"round":""}(pow(f32(abs(a)), f32(b))));
+    }
+    fn pow_vector_custom(a : vec4<${e}>, b : vec4<${e}>) -> vec4<${e}> {
+      // TODO: implement vectorized pow
+      return vec4<${e}>(pow_custom(a.x, b.x), pow_custom(a.y, b.y), pow_custom(a.z, b.z), pow_custom(a.w, b.w));
+    }
+      `)},bd=t=>{dt(t,"Sub",(e,r)=>`${e}-${r}`)},_d=t=>{dt(t,"Greater",{scalar:(e,r)=>`u32(${e}>${r})`,vector:(e,r)=>`vec4<u32>(${e}>${r})`},void 0,void 0,9)},wd=t=>{dt(t,"Less",{scalar:(e,r)=>`u32(${e}<${r})`,vector:(e,r)=>`vec4<u32>(${e}<${r})`},void 0,void 0,9)},vd=t=>{dt(t,"GreaterOrEqual",{scalar:(e,r)=>`u32(${e}>=${r})`,vector:(e,r)=>`vec4<u32>(${e}>=${r})`},void 0,void 0,9)},$d=t=>{dt(t,"LessOrEqual",{scalar:(e,r)=>`u32(${e}<=${r})`,vector:(e,r)=>`vec4<u32>(${e}<=${r})`},void 0,void 0,9)}});var jh,Qh,Zh,Yh,Sd,Td,Id=V(()=>{"use strict";ee();te();Ce();oe();jh=(t,e)=>{if(!t||t.length<1)throw new Error("too few inputs");let r=0,n=t[r],o=n.dataType,i=n.dims.length;t.forEach((a,u)=>{if(u!==r){if(a.dataType!==o)throw new Error("input tensors should be one type");if(a.dims.length!==i)throw new Error("input tensors should have the same shape");a.dims.forEach((d,c)=>{if(c!==e&&d!==n.dims[c])throw new Error("non concat dimensions must match")})}})},Qh=(t,e)=>`
+  fn calculateInputIndex(index: u32) -> u32 {
+    let sizeInConcatAxis = array<u32, ${t}u>(${e});
+    for (var i: u32 = 0u; i < ${t}; i += 1u ) {
+      if (index < sizeInConcatAxis[i]) {
+        return i;
+      }
+    }
+    return ${t}u;
+  }`,Zh=(t,e)=>{let r=t.length,n=[];for(let o=0;o<r;++o){let i=e.setByOffset("global_idx",t[o].getByIndices("indices"));r===1?n.push(i):o===0?n.push(`if (inputIndex == ${o}u) { ${i} }`):o===r-1?n.push(`else { ${i} }`):n.push(`else if (inputIndex == ${o}) { ${i} }`)}return n.join(`
+`)},Yh=(t,e,r,n)=>{let o=k.size(r),i=new Array(t.length),a=new Array(t.length),u=0,d=[],c=[],p=[{type:12,data:o}];for(let _=0;_<t.length;++_)u+=t[_].dims[e],i[_]=u,c.push(t[_].dims.length),a[_]=D(`input${_}`,n,c[_]),d.push("rank"),p.push({type:12,data:i[_]});for(let _=0;_<t.length;++_)p.push(...W(t[_].dims));p.push(...W(r));let m=R("output",n,r.length),g=m.indicesGet("indices",e),b=Array.from(Array(i.length).keys()).map(_=>`uniforms.sizeInConcatAxis${_}`).join(","),y=_=>`
+
+  ${(()=>{_.registerUniform("outputSize","u32");for(let S=0;S<t.length;S++)_.registerUniform(`sizeInConcatAxis${S}`,"u32");return _.declareVariables(...a,m)})()}
+
+  ${Qh(i.length,b)}
+
+  ${_.mainStart()}
+    ${_.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+
+    var indices = ${m.offsetToIndices("global_idx")};
+
+    let inputIndex = calculateInputIndex(${g});
+    if (inputIndex != 0u) {
+      let sizeInConcatAxis = array<u32, ${i.length}u>(${b});
+      ${g} -= sizeInConcatAxis[inputIndex - 1u];
     }
 
-    float getChannel(vec4 frag, vec2 innerDims) {
-      vec2 modCoord = mod(innerDims, 2.);
-      return modCoord.x == 0. ?
-        (modCoord.y == 0. ? frag.r : frag.g) :
-        (modCoord.y == 0. ? frag.b : frag.a);
+    ${Zh(a,m)}
+  }`;return{name:"Concat",shaderCache:{hint:`${e}`,inputDependencies:d},getRunData:()=>({outputs:[{dims:r,dataType:n}],dispatchGroup:{x:Math.ceil(o/64)},programUniforms:p}),getShaderSource:y}},Sd=(t,e)=>{let r=t.inputs,n=r[0].dims,o=k.normalizeAxis(e.axis,n.length);jh(r,o);let i=n.slice();i[o]=r.reduce((u,d)=>u+(d.dims.length>o?d.dims[o]:0),0);let a=r.filter(u=>k.size(u.dims)>0);t.compute(Yh(a,o,i,r[0].dataType),{inputs:a})},Td=t=>J({axis:t.axis})});var Ze,Ye,Xe,on,St=V(()=>{"use strict";ee();te();Ze=(t,e,r="f32")=>{switch(t.activation){case"Relu":return`value = max(value, ${e}(0.0));`;case"Sigmoid":return`value = (${e}(1.0) / (${e}(1.0) + exp(-value)));`;case"Clip":return`value = clamp(value, ${e}(${r}(uniforms.clip_min)), ${e}(${r}(uniforms.clip_max)));`;case"HardSigmoid":return`value = max(${e}(0.0), min(${e}(1.0), ${r}(uniforms.alpha) * value + ${r}(uniforms.beta)));`;case"LeakyRelu":return`value = select(${r}(uniforms.alpha) * value, value, value >= ${e}(0.0));`;case"Tanh":return`let e2x = exp(-2.0 * abs(value));
+              value = sign(value) * (1.0 - e2x) / (1.0 + e2x);
+        `;case"":return"";default:throw new Error(`Unsupported activation ${t.activation}`)}},Ye=(t,e)=>{t.activation==="Clip"?e.push({type:1,data:t.clipMax},{type:1,data:t.clipMin}):t.activation==="HardSigmoid"?e.push({type:1,data:t.alpha},{type:1,data:t.beta}):t.activation==="LeakyRelu"&&e.push({type:1,data:t.alpha})},Xe=(t,e)=>{t.activation==="Clip"?e.push({name:"clip_max",type:"f32"},{name:"clip_min",type:"f32"}):t.activation==="HardSigmoid"?e.push({name:"alpha",type:"f32"},{name:"beta",type:"f32"}):t.activation==="LeakyRelu"&&e.push({name:"alpha",type:"f32"})},on=t=>{let e=t?.activation||"";if(e==="HardSigmoid"){let[r,n]=t?.activation_params||[.2,.5];return{activation:e,alpha:r,beta:n}}else if(e==="Clip"){let[r,n]=t?.activation_params||[Ds,Os];return{activation:e,clipMax:n,clipMin:r}}else if(e==="LeakyRelu"){let[r]=t?.activation_params||[.01];return{activation:e,alpha:r}}return{activation:e}}});var Pe,Cd,an=V(()=>{"use strict";Pe=(t,e)=>{switch(t){case 1:return e;case 2:return`vec2<${e}>`;case 3:return`vec3<${e}>`;case 4:return`vec4<${e}>`;default:throw new Error(`${t}-component is not supported.`)}},Cd=t=>`
+      ${t?"value = value + getBiasByOutputCoords(coords);":""}
+      `});var Ad,Ed=V(()=>{"use strict";Ad=t=>`
+fn getIndexFromCoords4D(coords : vec4<i32>, shape : vec4<i32>) -> i32 {
+  return dot(coords, vec4<i32>(
+      shape.y * shape.z * shape.w, shape.z * shape.w, shape.w, 1));
+}
+fn getOutputIndexFromCoords(coords : vec4<i32>) -> i32 {
+  return dot(coords, vec4<i32>(
+    i32(${t}.x), i32(${t}.y), i32(${t}.z), 1));
+}
+`});var sr,sn,un=V(()=>{"use strict";ee();te();oe();St();sr=(t,e,r,n,o)=>{let i=n-r;return`
+      ${Array.from({length:r}).map((a,u)=>`
+      if (${j(e.shape,u,e.rank)} != 1) {
+        ${e.indicesSet(t,u,j(o,u+i,n))}
+      } else {
+        ${e.indicesSet(t,u,0)}
+      }`).join("")}
+`},sn=(t,e,r,n,o=!1,i)=>{let a=t[0].dims,u=t[1].dims,d=a[a.length-2],c=u[u.length-1],p=a[a.length-1],m=fe(c),g=fe(p),b=fe(d),y=k.size(r)/m/b,_=t.length>2,S=n?n.slice(0,-2):r.slice(0,-2),$=[k.size(S),d,c],T=[{type:12,data:y},{type:12,data:d},{type:12,data:c},{type:12,data:p}];Ye(e,T),T.push(...W(S,a,u)),_&&T.push(...W(t[2].dims)),T.push(...W($));let I=E=>{let A=Xr("batch_dims",t[0].dataType,S.length),O=D("a",t[0].dataType,a.length,g),w=D("b",t[1].dataType,u.length,m),U=R("output",t[0].dataType,$.length,m),N=we(U.type.tensor),F=Ze(e,U.type.value,N),q=[O,w],X="";if(_){let Z=o?m:1;q.push(D("bias",t[2].dataType,t[2].dims.length,Z)),X=`${o?`value += bias[col / ${Z}];`:`value += ${U.type.value}(bias[row + i]);`}`}let z=[{name:"output_size",type:"u32"},{name:"M",type:"u32"},{name:"N",type:"u32"},{name:"K",type:"u32"}];Xe(e,z);let L=()=>{let Z=`var a_data: ${O.type.value};`;for(let Y=0;Y<g;Y++)Z+=`
+              let b_data${Y} = b[(b_offset + (k + ${Y}) * uniforms.N + col) / ${m}];`;for(let Y=0;Y<b;Y++){Z+=`a_data = a[(a_offset + (row + ${Y}) * uniforms.K + k) / ${g}];`;for(let Q=0;Q<g;Q++)Z+=`
+            values[${Y}] = fma(${w.type.value}(a_data${g===1?"":`[${Q}]`}), b_data${Q}, values[${Y}]);
+`}return Z};return`
+  ${E.registerUniforms(z).registerInternalVariables(A).declareVariables(...q,U)}
+  ${E.mainStart()}
+    ${E.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+    let col = (global_idx % (uniforms.N / ${m})) * ${m};
+    var index1 = global_idx / (uniforms.N / ${m});
+    let stride1 = uniforms.M / ${b};
+    let row = (index1 % stride1) * ${b};
+    let batch = index1 / stride1;
+
+    ${r.length===2?"":`let batch_indices = ${A.offsetToIndices("batch")};`}
+
+    var a_indices: ${O.type.indices};
+    ${sr("a_indices",O,O.rank-2,A.rank,"batch_indices")}
+    ${O.indicesSet("a_indices",O.rank-2,0)}
+    ${O.indicesSet("a_indices",O.rank-1,0)}
+    let a_offset = ${O.indicesToOffset("a_indices")};
+
+    var b_indices: ${w.type.indices};
+    ${sr("b_indices",w,w.rank-2,A.rank,"batch_indices")}
+    ${w.indicesSet("b_indices",w.rank-2,0)}
+    ${w.indicesSet("b_indices",w.rank-1,0)}
+    let b_offset = ${w.indicesToOffset("b_indices")};
+    var values: array<${U.type.value}, ${b}>;
+    for (var k: u32 = 0u; k < uniforms.K; k = k + ${g}) {
+      ${L()}
     }
-  `}var ze=O(()=>{"use strict";ue()});function mh(i,e,o){if(i===0)return"false";if(i===1)return`rc > ${e[0]}`;let t="";for(let r=i-2;r<i;r++)t+=`${o[r]} >= ${e[r-i+2]}`,r<i-1&&(t+="||");return t}function bh(i,e){let o=i.length;if(o===0)return"getA(), 0, 0, 0";if(o===1)return`getA(rc),
-            rc + 1 >= ${i[0]} ? 0. : getA(rc + 1),
-            0, 0`;let t="r, c",r="r, cp1",n="rp1, c",s="rp1, cp1",a="";if(o>2)for(let u=0;u<o-2;++u)a=a+`${e[u]},`;return`getA(${a}${t}),
-          rEdge ? 0. : getA(${a}${n}),
-          cEdge ? 0. : getA(${a}${r}),
-          rEdge || cEdge ? 0. : getA(${a}${s})`}function gh(i,e,o,t){return i===0||i===1?"":`
-    int r = ${e[i-2]};
-    int c = ${e[i-1]};
-    int rp1 = ${e[i-2]} + 1;
-    int cp1 = ${e[i-1]} + 1;
-    bool rEdge = rp1 >= ${t};
-    bool cEdge = cp1 >= ${o};
-    `}var Ku,hh,Ju,Yu=O(()=>{"use strict";ut();j();ue();ze();Ku={name:"pack",inputNames:["A"],inputTypes:[1]},hh=(i,e)=>{let o=R(i.session.backend.glContext.version),t=e.dims,r=t.length,n=e.dims.length,s=$t(n),a=ur("rc",n),u=gh(n,a,t[t.length-2],t[t.length-1]),l;r===0?l=[1,1]:r===1?l=[t[0],1]:l=[t[n-1],t[n-2]];let f=mh(n,l,a),p=bh(t,a),d=`
-        void main() {
-          ${s} rc = getOutputCoords();
+    for (var i = 0u; i < ${b}u; i++) {
+      var value = values[i];
+      ${X}
+      ${F}
+      let cur_indices = ${U.type.indices}(batch, row + i, col);
+      let offset = ${U.indicesToOffset("cur_indices")};
+      ${U.setByOffset(`offset / ${m}`,"value")};
+    }
+  }
+  `};return{name:"MatMulNaive",shaderCache:{hint:`${e.activation};${m};${g};${b};${o}`,inputDependencies:_?["rank","rank","rank"]:["rank","rank"]},getRunData:()=>({outputs:[{dims:i?i(r):r,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(y/64)},programUniforms:T}),getShaderSource:I}}});var Xh,Jh,xo,kd,eg,So,tg,ur,dn=V(()=>{"use strict";ee();te();oe();St();un();an();Xh=(t,e)=>t?`
+        mm_Asub[inputRow][inputCol] = mm_readA(batch,
+          kStart + inputRow,
+          globalRowStart / innerElementSize + inputCol${e?", batchIndices":""});
+        `:`
+        mm_Asub[inputRow][inputCol] = mm_readA(batch,
+          globalRow + innerRow,
+          kStart / innerElementSize + inputCol${e?", batchIndices":""});
+        `,Jh=(t,e)=>t?`
+        let ACached0 = mm_Asub[k * innerElementSize][localRow];
+        let ACached1 = mm_Asub[k * innerElementSize + 1][localRow];
+        let ACached2 = mm_Asub[k * innerElementSize + 2][localRow];
+        ${e===3?"":"let ACached3 = mm_Asub[k * innerElementSize + 3][localRow];"}
+        for (var i = 0; i < rowPerThread; i = i + 1) {
+          acc[i] = BCached0 * ACached0[i] + acc[i];
+          acc[i] = BCached1 * ACached1[i] + acc[i];
+          acc[i] = BCached2 * ACached2[i] + acc[i];
+          ${e===3?"":"acc[i] = BCached3 * ACached3[i] + acc[i];"}
+        }`:`
+        for (var i = 0; i < rowPerThread; i = i + 1) {
+          let ACached = mm_Asub[tileRow + i][k];
+          acc[i] = BCached0 * ACached.x + acc[i];
+          acc[i] = BCached1 * ACached.y + acc[i];
+          acc[i] = BCached2 * ACached.z + acc[i];
+          ${e===3?"":"acc[i] = BCached3 * ACached.w + acc[i];"}
+        }`,xo=(t,e,r="f32",n,o=!1,i=32,a=!1,u=32)=>{let d=e[1]*t[1],c=e[0]*t[0],p=o?d:i,m=o?i:d,g=p/e[0],b=i/e[1];if(!((o&&g===4&&t[1]===4||!o&&(g===3||g===4))&&p%e[0]===0&&i%e[1]===0&&t[0]===4))throw new Error(`If transposeA ${o} is true, innerElementSize ${g} and workPerThread[1] ${t[1]} must be 4.
+      Otherwise, innerElementSize ${g} must be 3 or 4.
+  tileAWidth ${p} must be divisible by workgroupSize[0]${e[0]}. tileInner ${i} must be divisible by workgroupSize[1] ${e[1]}. colPerThread ${t[0]} must be 4.`);return`
+var<workgroup> mm_Asub: array<array<vec${g}<${r}>, ${p/g}>, ${m}>;
+var<workgroup> mm_Bsub: array<array<vec4<${r}>, ${c/t[0]}>, ${i}>;
 
-          if(${f}) {
-            ${o.output} = vec4(0);
-          } else {
-            ${u}
+const rowPerThread = ${t[1]};
+const colPerThread = ${t[0]};
+const innerElementSize = ${g};
+const tileInner = ${i};
 
-            ${o.output} = vec4(${p});
+@compute @workgroup_size(${e[0]}, ${e[1]}, ${e[2]})
+fn main(@builtin(local_invocation_id) localId : vec3<u32>,
+        @builtin(global_invocation_id) globalId : vec3<u32>,
+        @builtin(workgroup_id) workgroupId : vec3<u32>) {
+  let localRow = i32(localId.y);
+  let tileRow = localRow * rowPerThread;
+  let tileCol = i32(localId.x);
+
+  let globalRow =i32(globalId.y) * rowPerThread;
+  let globalCol = i32(globalId.x);
+  let batch = ${a?"0":"i32(globalId.z)"};
+  ${n?`let batchIndices = ${n.offsetToIndices("u32(batch)")};`:""}
+  let globalRowStart = i32(workgroupId.y) * ${d};
+
+  let num_tiles = ${a?`${Math.ceil(u/i)}`:"(uniforms.dim_inner - 1) / tileInner + 1"};
+  var kStart = ${a?`i32(globalId.z) * ${u}`:"0"};
+
+  var acc: array<vec4<${r}>, rowPerThread>;
+
+  // Loop over shared dimension.
+  let tileRowB = localRow * ${b};
+  for (var t = 0; t < num_tiles; t = t + 1) {
+      // Load one tile of A into local memory.
+      for (var innerRow = 0; innerRow < rowPerThread; innerRow = innerRow + 1) {
+          let inputRow = tileRow + innerRow;
+          let inputCol = tileCol;
+          ${Xh(o,n)}
+      }
+
+      // Load one tile of B into local memory.
+      for (var innerRow = 0; innerRow < ${b}; innerRow = innerRow + 1) {
+          let inputRow = tileRowB + innerRow;
+          let inputCol = tileCol;
+          mm_Bsub[inputRow][inputCol] = mm_readB(batch, kStart + inputRow, globalCol${n?", batchIndices":""});
+      }
+      kStart = kStart + tileInner;
+      workgroupBarrier();
+
+      // Compute acc values for a single thread.
+      for (var k = 0; k < tileInner / innerElementSize; k = k + 1) {
+          let BCached0 = mm_Bsub[k * innerElementSize][tileCol];
+          let BCached1 = mm_Bsub[k * innerElementSize + 1][tileCol];
+          let BCached2 = mm_Bsub[k * innerElementSize + 2][tileCol];
+          ${g===3?"":"let BCached3 = mm_Bsub[k * innerElementSize + 3][tileCol];"}
+
+          ${Jh(o,g)}
+      }
+
+      workgroupBarrier();
+  }
+
+  for (var innerRow = 0; innerRow < rowPerThread; innerRow = innerRow + 1) {
+      mm_write(batch, globalRow + innerRow, globalCol, acc[innerRow]);
+  }
+}`},kd=(t,e)=>t?`
+            mm_Asub[inputRow][inputCol] = mm_readA(batch,
+              kStart + inputRow,
+              globalRowStart + inputCol${e?", batchIndices":""});
+            `:`
+            mm_Asub[inputRow][inputCol] = mm_readA(batch,
+              globalRowStart + inputRow,
+              kStart + inputCol${e?", batchIndices":""});
+            `,eg=t=>t?"let ACached = mm_Asub[k][tileRow + innerRow];":"let ACached = mm_Asub[tileRow + innerRow][k];",So=(t,e,r="f32",n,o=!1,i=32,a=!1,u=32,d=!1)=>{let c=t[1]*e[1],p=t[0]*e[0],m=o?c:i,g=o?i:c;if(!(g%e[1]===0&&m%e[0]===0&&i%e[1]===0))throw new Error(`tileAHight ${g} must be divisible by workgroupSize[1]${e[1]}, tileAWidth ${m} must be divisible by workgroupSize[0]${e[0]}, tileInner ${i} must be divisible by workgroupSize[1]${e[1]}`);let b=g/e[1],y=m/e[0],_=i/e[1],S=d?`
+    let localRow = i32(localId.y);
+    let localCol = i32(localId.x);
+    let globalRowStart = i32(workgroupId.y) * ${c};
+    let globalColStart = i32(workgroupId.x) * ${p};
+
+    // Loop over shared dimension.
+    for (var t = 0; t < num_tiles; t = t + 1) {
+      // Load one tile of A into local memory.
+      for (var inputRow = localRow; inputRow < ${g}; inputRow = inputRow + ${e[1]}) {
+        for (var inputCol = localCol; inputCol < ${m}; inputCol = inputCol + ${e[0]}) {
+          ${kd(o,n)}
+        }
+      }
+      // Load one tile of B into local memory.
+      for (var inputRow = localRow; inputRow < ${i}; inputRow = inputRow + ${e[1]}) {
+            for (var inputCol = localCol; inputCol < ${p}; inputCol = inputCol + ${e[0]}) {
+          mm_Bsub[inputRow][inputCol] = mm_readB(batch,
+            kStart + inputRow,
+            globalColStart + inputCol${n?", batchIndices":""});
+        }
+      }
+      kStart = kStart + tileInner;
+      workgroupBarrier();
+
+      // Compute acc values for a single thread.
+      var BCached : array<${r}, colPerThread>;
+      for (var k = 0; k < tileInner; k = k + 1) {
+        for (var inner = 0; inner < colPerThread; inner = inner + 1) {
+          BCached[inner] = mm_Bsub[k][localCol + inner * ${e[0]}];
+        }
+        for (var innerRow = 0; innerRow < rowPerThread; innerRow = innerRow + 1) {
+          let ACached = ${o?`mm_Asub[k][localRow + innerRow * ${e[1]}];`:`mm_Asub[localRow + innerRow * ${e[1]}][k];`}
+          for (var innerCol = 0; innerCol < colPerThread; innerCol = innerCol + 1) {
+            acc[innerRow][innerCol] = acc[innerRow][innerCol] +
+                ACached * BCached[innerCol];
           }
         }
-      `;return{...Ku,hasMain:!0,output:{dims:e.dims,type:e.type,textureType:2},shaderSource:d}},Ju=(i,e)=>({...Ku,get:()=>hh(i,e)})});function ii(i){if(i.length===0)return[1,1,1];let e=1;for(let o=0;o<i.length-2;++o)e*=i[o];return[e,i.length>1?i[i.length-2]:1,i[i.length-1]]}function Qu(i,e){let o=!1;return i.length===0||e.length===0?o=!0:i.length<2||e.length<2?o=i[i.length-1]===e[e.length-1]:o=i[i.length-1]===e[e.length-1]&&i[i.length-2]===e[e.length-2],o}function Th(i){let e=B.computeStrides(i),o=["b","r","c"],t="index";return`
-    ivec3 inputCoordsFromReshapedOutCoords(int index) {
-      ${e.map((n,s)=>{let a=`int ${o[s]} = ${t} / ${n}`,u=s===e.length-1?`int ${o[s+1]} = ${t} - ${o[s]} * ${n}`:`index -= ${o[s]} * ${n}`;return`${a}; ${u};`}).join("")}
-      return ivec3(b, r, c);
-    }
-  `}function wh(i){let e=B.computeStrides(i);return`
-  int getFlattenedIndex(ivec3 coords) {
-    // reverse y, z order
-    return coords.x * ${e[0]} + coords.z * ${e[1]} + coords.y;
-  }
-`}var yh,xh,Zu,tl=O(()=>{"use strict";Z();ut();j();ze();yh=i=>({name:"Reshape (packed)",inputTypes:[2],inputNames:["A"],cacheHint:`${i}`}),xh=(i,e,o,t)=>{let r=e.dims,n=t,s="";for(let l=0;l<4;l++){let f="";switch(l){case 0:f="outputCoords = rc;";break;case 1:f="outputCoords = ivec3(rc.x, rc.y+1, rc.z);";break;case 2:f="outputCoords = ivec3(rc.x, rc.y, rc.z+1);";break;case 3:f="outputCoords = ivec3(rc.x, rc.y+1, rc.z+1);";break;default:throw new Error}s+=`
-        ${f}
-        ${l>0?"if(outputCoords.y < rows && outputCoords.z < cols){":""}
-          int flattenedIndex = getFlattenedIndex(outputCoords);
-
-          ivec3 inputRC = inputCoordsFromReshapedOutCoords(flattenedIndex);
-          vec2 innerDims = vec2(float(inputRC.y),float(inputRC.z));
-
-          result[${l}] = getChannel(getA(inputRC.x, inputRC.y, inputRC.z), innerDims);
-
-        ${l>0?"}":""}
-      `}let a=R(i.session.backend.glContext.version),u=`
-      ${Th(r)}
-      ${wh(n)}
-      ${le()}
-
-      void main() {
-        ivec3 rc = getOutputCoords();
-
-        vec4 result = vec4(0.0);
-
-        ivec3 outputCoords;
-        int rows = ${n[2]};
-        int cols = ${n[1]};
-
-        ${s}
-        ${a.output} = result;
       }
-    `;return{...o,output:{dims:n,type:e.type,textureType:2},shaderSource:u,hasMain:!0}},Zu=(i,e,o)=>{let t=yh(o);return{...t,get:()=>xh(i,e,t,o)}}});var ai,el=O(()=>{"use strict";ut();j();ai=(i,e)=>{let o=e.shape,t=R(i.session.backend.glContext.version),r=`
-    const float FLOAT_MAX = 1.70141184e38;
-    const float FLOAT_MIN = 1.17549435e-38;
-
-    bool isNaN(float val) {
-      return (val < 1.0 || 0.0 < val || val == 0.0) ? false : true;
+      workgroupBarrier();
     }
-
-    highp vec4 encodeAsUint8(highp float v) {
-      if (isNaN(v)) {
-        return vec4(255, 255, 255, 255);
+    for (var innerRow = 0; innerRow < rowPerThread; innerRow = innerRow + 1) {
+      let gRow = globalRowStart + localRow + innerRow * ${e[1]};
+      for (var innerCol = 0; innerCol < colPerThread; innerCol = innerCol + 1) {
+        let gCol = globalColStart + localCol + innerCol * ${e[0]};
+        mm_write(batch, gRow, gCol, acc[innerRow][innerCol]);
       }
+    }
+    `:`
+let tileRow = i32(localId.y) * rowPerThread;
+let tileCol = i32(localId.x) * colPerThread;
 
-      highp float av = abs(v);
+let globalRow = i32(globalId.y) * rowPerThread;
+let globalCol = i32(globalId.x) * colPerThread;
+let globalRowStart = i32(workgroupId.y) * ${c};
 
-      if(av < FLOAT_MIN) {
-        return vec4(0.0, 0.0, 0.0, 0.0);
-      } else if(v > FLOAT_MAX) {
-        return vec4(0.0, 0.0, 128.0, 127.0) / 255.0;
-      } else if(v < -FLOAT_MAX) {
-        return vec4(0.0, 0.0,  128.0, 255.0) / 255.0;
+let tileRowA = i32(localId.y) * ${b};
+let tileColA = i32(localId.x) * ${y};
+let tileRowB = i32(localId.y) * ${_};
+// Loop over shared dimension.
+for (var t = 0; t < num_tiles; t = t + 1) {
+  // Load one tile of A into local memory.
+  for (var innerRow = 0; innerRow < ${b}; innerRow = innerRow + 1) {
+    for (var innerCol = 0; innerCol < ${y}; innerCol = innerCol + 1) {
+      let inputRow = tileRowA + innerRow;
+      let inputCol = tileColA + innerCol;
+      ${kd(o,n)}
+    }
+  }
+
+  // Load one tile of B into local memory.
+  for (var innerRow = 0; innerRow < ${_}; innerRow = innerRow + 1) {
+    for (var innerCol = 0; innerCol < colPerThread; innerCol = innerCol + 1) {
+      let inputRow = tileRowB + innerRow;
+      let inputCol = tileCol + innerCol;
+      mm_Bsub[inputRow][inputCol] = mm_readB(batch,
+        kStart + inputRow,
+        globalCol + innerCol${n?", batchIndices":""});
+    }
+  }
+  kStart = kStart + tileInner;
+  workgroupBarrier();
+
+  // Compute acc values for a single thread.
+  var BCached : array<${r}, colPerThread>;
+  for (var k = 0; k < tileInner; k = k + 1) {
+    for (var inner = 0; inner < colPerThread; inner = inner + 1) {
+      BCached[inner] = mm_Bsub[k][tileCol + inner];
+    }
+
+    for (var innerRow = 0; innerRow < rowPerThread; innerRow = innerRow + 1) {
+      ${eg(o)}
+      for (var innerCol = 0; innerCol < colPerThread; innerCol = innerCol + 1) {
+        acc[innerRow][innerCol] = acc[innerRow][innerCol] + ACached * BCached[innerCol];
       }
+    }
+  }
 
-      highp vec4 c = vec4(0,0,0,0);
+  workgroupBarrier();
+}
 
-      highp float e = floor(log2(av));
-      highp float m = exp2(fract(log2(av))) - 1.0;
+for (var innerRow = 0; innerRow < rowPerThread; innerRow = innerRow + 1) {
+  for (var innerCol = 0; innerCol < colPerThread; innerCol = innerCol + 1) {
+    mm_write(batch, globalRow + innerRow, globalCol + innerCol,
+        acc[innerRow][innerCol]);
+  }
+}
+`;return`
+  var<workgroup> mm_Asub : array<array<${r}, ${m}>, ${g}>;
+  var<workgroup> mm_Bsub : array<array<${r}, ${p}>, ${i}>;
+  const rowPerThread = ${t[1]};
+  const colPerThread = ${t[0]};
+  const tileInner = ${i};
 
-      c[2] = floor(128.0 * m);
-      m -= c[2] / 128.0;
-      c[1] = floor(32768.0 * m);
-      m -= c[1] / 32768.0;
-      c[0] = floor(8388608.0 * m);
+@compute @workgroup_size(${e[0]}, ${e[1]}, ${e[2]})
+fn main(@builtin(local_invocation_id) localId : vec3<u32>,
+        @builtin(global_invocation_id) globalId : vec3<u32>,
+        @builtin(workgroup_id) workgroupId : vec3<u32>) {
+    let batch = ${a?"0":"i32(globalId.z)"};
+    ${n?`let batchIndices = ${n.offsetToIndices("u32(batch)")};`:""}
+    let num_tiles = ${a?`${Math.ceil(u/i)}`:"(uniforms.dim_inner - 1) / tileInner + 1"};
+    var kStart = ${a?`i32(globalId.z) * ${u}`:"0"};
 
-      highp float ebias = e + 127.0;
-      c[3] = floor(ebias / 2.0);
-      ebias -= c[3] * 2.0;
-      c[2] += floor(ebias) * 128.0;
-
-      c[3] += 128.0 * step(0.0, -v);
-
-      return c / 255.0;
+    var acc : array<array<${r}, colPerThread>, rowPerThread>;
+    ${S}
+  }
+`},tg=(t,e,r,n,o=!1)=>{let[i,a,u,d]=n,c=we(n[0].type.tensor);return`
+    fn mm_readA(batch: i32, row: i32, colIn: i32, batchIndices: ${i.type.indices}) -> ${Pe(t,c)} {
+      var value = ${Pe(t,c)}(0.0);
+      let col = colIn * ${t};
+      if(row < uniforms.dim_a_outer && col < uniforms.dim_inner)
+      {
+        var aIndices: ${a.type.indices};
+        ${sr("aIndices",a,a.rank-2,i.rank,"batchIndices")}
+        ${a.indicesSet("aIndices",a.rank-2,"u32(row)")}
+        ${a.indicesSet("aIndices",a.rank-1,"u32(colIn)")}
+        value = ${a.getByIndices("aIndices")};
+      }
+      return value;
     }
 
-    void main() {
-      float value = ${t.texture2D}(X,TexCoords).r;
-      ${t.output} = encodeAsUint8(value);
-    }`,n={name:"Uint8Encode",inputTypes:[0],inputNames:["X"],output:{dims:o,type:e.tensor.type,textureType:3},shaderSource:r,hasMain:!0};return i.executeProgram(n,[e.tensor])}});function Ih(i,e){if(i===1)return"rc";let o="";for(let t=0;t<i;t++)o+=e[t],t<i-1&&(o+=",");return o}var rl,vh,nl,ol=O(()=>{"use strict";ut();j();ue();ze();rl={name:"unpack",inputNames:["A"],inputTypes:[2]},vh=(i,e)=>{let o=e.dims.length,t=ur("rc",o),r=t.slice(-2),n=$t(o),s=le(),u=e.dims.length===0?"":Ih(o,t),l=o<=1?"rc":`vec2(${r.join(",")})`,f=R(i.session.backend.glContext.version),p=`
-    ${s}
-    void main() {
-      ${n} rc = getOutputCoords();
-
-       // Sample the texture with the coords to get the rgba channel value.
-       vec4 packedInput = getA(${u});
-
-       ${f.output} = vec4(getChannel(packedInput, ${l}), 0, 0, 0);
-     }
-   `;return{...rl,hasMain:!0,output:{dims:e.dims,type:e.type,textureType:0},shaderSource:p}},nl=(i,e)=>({...rl,get:()=>vh(i,e)})});var On,Br,Sn,Fr=O(()=>{"use strict";zt();On=class{constructor(e,o=1){if(o===1)this.internalFormat=e.R32F,this.format=e.RED,this.textureType=e.FLOAT,this.channelSize=o;else if(o===4)this.internalFormat=e.RGBA32F,this.format=e.RGBA,this.textureType=e.FLOAT,this.channelSize=o;else throw new Error(`Invalid number of channels: ${o}`)}encode(e,o){let t,r;return e.constructor!==Float32Array&&(et.warning("Encoder","data was not of type Float32; creating new Float32Array"),r=new Float32Array(e)),o*this.channelSize>e.length?(et.warning("Encoder","Source data too small. Allocating larger array"),r=e,t=this.allocate(o*this.channelSize),r.forEach((n,s)=>t[s]=n)):(r=e,t=r),t}allocate(e){return new Float32Array(e*4)}decode(e,o){return this.channelSize===1?e.filter((r,n)=>n%4===0).subarray(0,o):e.subarray(0,o)}},Br=class{constructor(e,o=1,t){if(o!==1&&o!==4)throw new Error(`Invalid number of channels: ${o}`);this.internalFormat=e.RGBA,this.format=e.RGBA,this.channelSize=o,this.textureType=t||e.FLOAT}encode(e,o){let t=e;return this.channelSize===1&&(et.verbose("Encoder","Exploding into a larger array"),t=this.allocate(o),e.forEach((r,n)=>t[n*4]=r)),t}allocate(e){return new Float32Array(e*4)}decode(e,o){return this.channelSize===1?e.filter((r,n)=>n%4===0).subarray(0,o):e.subarray(0,o)}},Sn=class{constructor(e,o=1){this.channelSize=4;if(o===1)this.internalFormat=e.ALPHA,this.format=e.ALPHA,this.textureType=e.UNSIGNED_BYTE,this.channelSize=o;else if(o===4)this.internalFormat=e.RGBA,this.format=e.RGBA,this.textureType=e.UNSIGNED_BYTE,this.channelSize=o;else throw new Error(`Invalid number of channels: ${o}`)}encode(e,o){return new Uint8Array(e.buffer,e.byteOffset,e.byteLength)}allocate(e){return new Uint8Array(e*this.channelSize)}decode(e,o){if(e instanceof Uint8Array)return e.subarray(0,o);throw new Error(`Invalid array type: ${e.constructor}`)}}});var Cr,il,si,al=O(()=>{"use strict";Z();j();Cr=(i,e,o)=>{let t=o===0||o===1?1:4,r=o===2,n=o===1||o===2,s=o===4?e.length-1:void 0,a=o===4?e.map((u,l)=>l===e.length-1?u*4:u):void 0;return si(i,e,t,a,{isPacked:r,reverseWH:n,breakAxis:s})},il=(i,e,o)=>{let t=Cr(i,e,o);return[t.width,t.height]},si=(i,e,o=1,t,r)=>{let n=!!(r&&r.isPacked),[s,a]=i.computeTextureWH(n&&t||e,r),u=e.length,l=e.slice(0);if(u===0&&(l=[1]),o===1)t=e;else if(n){if(o!==4)throw new Error("a packed texture must be 4-channel");t=e,u>0&&(l[u-1]=Math.ceil(l[u-1]/2)),u>1&&(l[u-2]=Math.ceil(l[u-2]/2))}else if(!t)throw new Error("Unpacked shape is needed when using channels > 1");return{width:s,height:a,channels:o,isPacked:n,shape:l,strides:B.computeStrides(l),unpackedShape:t,reversedWH:r&&r.reverseWH}}});var Oh,An,ul=O(()=>{"use strict";zt();Ve();Z();Yu();tl();el();ol();Fr();al();j();Oh=(i,e)=>{let o=e.map(r=>`${r.unpackedShape.join(",")};${r.width}x${r.height}`).join("_"),t=i.name;return i.cacheHint&&(t+="["+i.cacheHint+"]"),t+=":"+o,t},An=class{constructor(e){this.session=e;this.packedTextureDataCache=new Map,this.unpackedTextureDataCache=new Map}calculateTextureWidthAndHeight(e,o){return il(this.session.layoutStrategy,e,o)}executeProgram(e,o){if(o.length<e.inputNames.length)throw new Error(`Input size mustn't be less than ${e.inputNames.length}.`);if(e.inputNames.length!==e.inputTypes.length)throw new Error("input names size does not match input types");let t=[];for(let l=0;l<e.inputNames.length;++l)t[l]=this.getOrCreateTextureData(o[l],e.inputTypes[l]);let r=Oh(e,t),n=this.session.programManager.getArtifact(r),s=n?n.programInfo:typeof e.get=="function"?e.get():e,a=Cr(this.session.layoutStrategy,s.output.dims,s.output.textureType),u=this.createTextureData(a,s.output.type);return n||(n=this.session.programManager.build(s,t,u),this.session.programManager.setArtifact(r,n)),this.runProgram(n,t,u),u}run(e,o){return this.executeProgram(e,o).tensor}runProgram(e,o,t){for(let r=0;r<o.length;++r)if(!!o[r].isPacked!=(e.programInfo.inputTypes[r]===2))throw new Error(`input[${r}] property packed inconsistent`);if(!!t.isPacked!=(e.programInfo.output.textureType===2))throw new Error("output property packed inconsistent");this.session.programManager.run(e,o,t)}getOrCreateTextureData(e,o){let t=this.getTextureData(e.dataId,o===2);if(!t&&(t=this.getTextureData(e.dataId,o!==2),t))return o===2?this.pack(t):this.unpack(t);if(!t){let r=Cr(this.session.layoutStrategy,e.dims,o);if(o===4){let a=e.dims;if(a.length===4){let u=[a[0],Math.ceil(a[1]*a[2]*a[3]/4)],l=Cr(this.session.layoutStrategy,u,o),f=e.numberData;if(a[1]*a[2]*a[3]%4!==0){let p=a[0],d=a[1]*a[2]*a[3],y=Math.ceil(d*1/4)*4,w=p*y;f=new Float32Array(w);for(let v=0;v<p;++v){let S=v*d,D=v*y+v%1*d;f.set(e.numberData.subarray(S,S+d),D)}}return this.createTextureData(l,e.type,f,e,1)}}if(o===2){let n=si(this.session.layoutStrategy,e.dims,1,[],{reverseWH:!0}),s=this.createTextureData(n,e.type,e.numberData,e,1);t=this.pack(s)}else t=this.createTextureData(r,e.type,e.numberData,e,1)}return t}createTextureDataFromLayoutBindTensor(e,o,t,r){return this.createTextureData(e,o,t,r,1)}createTextureData(e,o,t,r,n){et.verbose("InferenceHandler",`Creating TextureData: layout:[${JSON.stringify(e)}]`);let s=this.session.textureManager.createTextureFromLayout(o,e,t,n);return this.createTextureDataFromTexture(e,o,s,r)}reshapeUnpacked(e,o){let t=this.getOrCreateTextureData(e,0),r={channels:t.channels,height:t.height,width:t.width,shape:o.length!==0?o:[1],strides:B.computeStrides(o),unpackedShape:o};return this.createTextureDataFromTexture(r,e.type,t.texture).tensor}reshapePacked(e,o){let t=this.getOrCreateTextureData(e,2);if(Qu(e.dims,o)){let l={channels:t.channels,height:t.height,width:t.width,shape:o.length!==0?o:[1],strides:B.computeStrides(o),unpackedShape:o,isPacked:!0};return this.createTextureDataFromTexture(l,e.type,t.texture).tensor}let r=ii(e.dims),n=ii(o),s=this.reshapePacked(e,r),a=this.run(Zu(this,s,n),[s]);return this.reshapePacked(a,o)}cast(e,o){let t=this.getOrCreateTextureData(e,0);return this.createTextureDataFromTexture(t,o,t.texture).tensor}createTextureDataFromTexture(e,o,t,r,n){let s={...e,tensor:r||new bt(e.unpackedShape,o,a=>this.readTexture(s),async a=>this.readTextureAsync(s),void 0,n),texture:t};return this.setTextureData(s.tensor.dataId,s,e.isPacked),s}getTextureData(e,o=!1){return this.session.isInitializer(e)?this.session.getTextureData(e,o):o?this.packedTextureDataCache.get(e):this.unpackedTextureDataCache.get(e)}setTextureData(e,o,t=!1){this.session.isInitializer(e)?this.session.setTextureData(e,o,t):(t?this.packedTextureDataCache:this.unpackedTextureDataCache).set(e,o)}isTextureLayoutCached(e,o=!1){return!!this.getTextureData(e.dataId,o)}dispose(){this.session.textureManager.clearActiveTextures(),this.packedTextureDataCache.forEach(e=>this.session.textureManager.releaseTexture(e)),this.packedTextureDataCache=new Map,this.unpackedTextureDataCache.forEach(e=>this.session.textureManager.releaseTexture(e)),this.unpackedTextureDataCache=new Map}readTexture(e){return e.isPacked?this.readTexture(this.unpack(e)):this.session.backend.glContext.isFloat32DownloadSupported?this.session.textureManager.readTexture(e,e.tensor.type,e.channels):this.session.textureManager.readUint8TextureAsFloat(ai(this,e))}async readTextureAsync(e){return e.isPacked?this.readTextureAsync(this.unpack(e)):this.session.backend.glContext.isFloat32DownloadSupported?this.session.textureManager.readTextureAsync(e,e.tensor.type,e.channels):this.session.textureManager.readUint8TextureAsFloat(ai(this,e))}pack(e){return this.executeProgram(Ju(this,e.tensor),[e.tensor])}unpack(e){return this.executeProgram(nl(this,e.tensor),[e.tensor])}}});var ui,W,wt=O(()=>{"use strict";ui=class{constructor(e){Object.assign(this,e)}get cacheKey(){return this.key||(this.key=Object.getOwnPropertyNames(this).sort().map(e=>`${this[e]}`).join(";")),this.key}},W=i=>new ui(i)});var ll,fl,cl,Sh,Ah,pl=O(()=>{"use strict";wt();ut();j();ll={name:"BatchNormalization",inputNames:["A","Scale","B","Mean","Variance"],inputTypes:[0,0,0,0,0]},fl=(i,e,o)=>(Ah(e),[i.run({...ll,cacheHint:o.cacheKey,get:()=>Sh(i,e,o)},e)]),cl=i=>{let e=i.attributes.getFloat("epsilon",1e-5),o=i.attributes.getFloat("momentum",.9),t=i.attributes.getInt("spatial",1);return W({epsilon:e,momentum:o,spatial:t})},Sh=(i,e,o)=>{let t=R(i.session.backend.glContext.version),r=e[0].dims.length,[n,s]=i.calculateTextureWidthAndHeight(e[1].dims,0),a=`
-  float process(int[${r}] indices) {
-    vec2 position = offsetToCoords(indices[1], ${n}, ${s});
-    float scale = getColorAsFloat(${t.texture2D}(Scale, position));
-    float mean = getColorAsFloat(${t.texture2D}(Mean, position));
-    float variance = getColorAsFloat(${t.texture2D}(Variance, position));
-    float b = getColorAsFloat(${t.texture2D}(B, position));
-
-    return scale * ( (_A(indices) - mean) / sqrt(variance + float(${o.epsilon})) ) + b;
-  }`;return{...ll,output:{dims:e[0].dims,type:e[0].type,textureType:0},shaderSource:a}},Ah=i=>{if(!i||i.length!==5)throw new Error("BatchNormalization requires 5 inputs.");let e=i[0],o=i[1],t=i[2],r=i[3],n=i[4];if(e.dims.length<3||o.dims.length!==1||t.dims.length!==1||r.dims.length!==1||n.dims.length!==1)throw new Error("invalid input shape.");if(o.dims[0]!==e.dims[1]||t.dims[0]!==e.dims[1]||r.dims[0]!==e.dims[1]||n.dims[0]!==e.dims[1])throw new Error("invalid input shape.");if(e.type!=="float32"&&e.type!=="float64"||o.type!=="float32"&&o.type!=="float64"||t.type!=="float32"&&t.type!=="float64"||r.type!=="float32"&&r.type!=="float64"||n.type!=="float32"&&n.type!=="float64")throw new Error("invalid input tensor types.")}});var Pn,jt,k,Nr,En,ge=O(()=>{"use strict";Pn=class{constructor(e,o,t,r){this.glContext=e;this.programInfo=o;this.inputTextureLayouts=t;this.outputTextureLayout=r}},jt=class{constructor(e){this.context=e}},k=class{constructor(e,o){this.routineBody=e;this.dependencies=o}},Nr=class{constructor(e,o,t){this.name=e;t?this.dependencies=t:this.dependencies=[],o&&(this.routineBody=o)}addDependency(e){e&&this.dependencies.push(e)}},En=class{static returnOrderedNodes(e){if(!e||e.length===0)return[];if(e.length===1)return e;let o=new Set,t=new Set,r=new Array;return this.createOrderedNodes(e,o,t,r),r}static createOrderedNodes(e,o,t,r){for(let n=0;n<e.length;++n)this.dfsTraverse(e[n],o,t,r)}static dfsTraverse(e,o,t,r){if(!e||t.has(e.name))return;if(o.has(e.name))throw new Error("Cyclic dependency detected. Can't topologically sort routines needed for shader.");o.add(e.name);let n=e.dependencies;if(n&&n.length>0)for(let s=0;s<n.length;++s)this.dfsTraverse(n[s],o,t,r);r.push(e),t.add(e.name),o.delete(e.name)}}});function Eh(){let i="add_";return{body:`
-  float ${i}(float a, float b) {
-    return a + b;
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return v1 + v2;
-  }
-  `,name:i,type:0}}function Dh(){let i="div_";return{body:`
-  float ${i}(float a, float b) {
-    return a / b;
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return v1 / v2;
-  }
-  `,name:i,type:0}}function Lh(){let i="mul_";return{body:`
-  float ${i}(float a, float b) {
-    return a * b;
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return v1 * v2;
-  }
-  `,name:i,type:0}}function $h(){let i="sub_";return{body:`
-  float ${i}(float a, float b) {
-    return a - b;
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return v1 - v2;
-  }
-  `,name:i,type:0}}function kh(){let i="equal_";return{body:`
-  float ${i}(float a, float b) {
-    return float(a == b);
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return vec4(equal(v1, v2));
-  }
-  `,name:i,type:0}}function Bh(){let i="greater_";return{body:`
-  float ${i}(float a, float b) {
-    return float(a > b);
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return vec4( v1.r > v2.r ,
-      v1.g > v2.g,
-      v1.b > v2.b,
-      v1.a > v2.a );
-  }
-  `,name:i,type:0}}function Fh(){let i="less_";return{body:`
-  float ${i}(float a, float b) {
-    return float(a < b);
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return vec4( v1.r < v2.r ,
-                v1.g < v2.g,
-                v1.b < v2.b,
-                v1.a < v2.a );
-  }
-  `,name:i,type:0}}function Ch(){let i="and_";return{body:`
-  float ${i}(float a, float b) {
-    return float( bool(a) && bool(b) );
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    bvec4 b1 = bvec4(v1);
-    bvec4 b2 = bvec4(v2);
-    return vec4( b1.r && b2.r ,
-                b1.g && b2.g,
-                b1.b && b2.b,
-                b1.a && b2.a );
-  }
-  `,name:i,type:0}}function Nh(){let i="or_";return{body:`
-  float ${i}(float a, float b) {
-    return float( bool(a) || bool(b) );
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    bvec4 b1 = bvec4(v1);
-    bvec4 b2 = bvec4(v2);
-    return vec4( b1.r || b2.r ,
-                b1.g || b2.g,
-                b1.b || b2.b,
-                b1.a || b2.a );
-  }
-  `,name:i,type:0}}function Rh(){let i="xor_";return{body:`
-  float ${i}(float a, float b) {
-    return float( bool(a) ^^ bool(b) );
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    bvec4 b1 = bvec4(v1);
-    bvec4 b2 = bvec4(v2);
-    return vec4( b1.r ^^ b2.r ,
-                b1.g ^^ b2.g,
-                b1.b ^^ b2.b,
-                b1.a ^^ b2.a );
-  }
-  `,name:i,type:0}}function Gh(){return Uh("pow")}function Mh(){let i="prelu_";return{body:`
-  float ${i}(float a, float b) {
-    return a < 0.0 ? a * b: a;
-  }
-  vec4 ${i}(vec4 v1, vec4 v2) {
-    return vec4(
-      v1.r < 0.0 ? v1.r * v2.r: v1.r,
-      v1.g < 0.0 ? v1.g * v2.g: v1.g,
-      v1.b < 0.0 ? v1.b * v2.b: v1.b,
-      v1.a < 0.0 ? v1.a * v2.a: v1.a
-      );
-  }
-  `,name:i,type:0}}function Uh(i){let e=`${i}_`;return{body:`
-  float ${e}(float a, float b) {
-    return ${i}(a, b);
-  }
-  vec4 ${e}(vec4 v1, vec4 v2) {
-    return ${i}(v1, v2);
-  }
-  `,name:e,type:0}}var Xt,Vh,dl,hl,ml,bl,gl,yl,xl,Tl,wl,vl,Il,_l,Ol=O(()=>{"use strict";Z();ge();ut();j();Xt=(i,e,o,t=e[0].type,r)=>{let n=i.session.pack?2:0;return{name:o.name,inputNames:["A","B"],inputTypes:[n,n],cacheHint:r,get:()=>Vh(i,e,o,t)}},Vh=(i,e,o,t=e[0].type)=>{let r=i.session.pack?2:0,n=!B.areEqual(e[0].dims,e[1].dims),s=e[0].dims,a=i.session.pack;if(n){let f=Lt.calcShape(e[0].dims,e[1].dims,!1);if(!f)throw new Error("Can't perform binary op on the given tensors");s=f;let p=s.length,d=e[0].dims.length!==0?e[0].dims.length:1,y=e[1].dims.length!==0?e[1].dims.length:1,w=e[0].dims.length!==0?"bcastIndices_A(indices, aindices);":"aindices[0] = 0;",v=e[1].dims.length!==0?"bcastIndices_B(indices, bindices);":"bindices[0] = 0;",S=R(i.session.backend.glContext.version),D=a?`
-      ${o.body}
-      void main() {
-        vec4 a = getAAtOutCoords();
-        vec4 b = getBAtOutCoords();
-        vec4 result = ${o.name}(a, b);
-        ${S.output} = result;
-      }`:`
-      ${o.body}
-      float process(int indices[${p}]) {
-        int aindices[${d}];
-        int bindices[${y}];
-        ${w}
-        ${v}
-        return ${o.name}(_A(aindices), _B(bindices));
-      }`;return{name:o.name,inputNames:["A","B"],inputTypes:[r,r],output:{dims:s,type:t,textureType:r},shaderSource:D,hasMain:a}}let u=R(i.session.backend.glContext.version),l=`
-    ${o.body}
-    void main() {
-      vec4 v1 = ${u.texture2D}(A, TexCoords);
-      vec4 v2 = ${u.texture2D}(B, TexCoords);
-      vec4 result = ${o.name}(v1, v2);
-      ${u.output} = result;
+    fn mm_readB(batch: i32, row: i32, colIn: i32, batchIndices: ${i.type.indices}) -> ${Pe(t,c)} {
+      var value = ${Pe(t,c)}(0.0);
+      let col = colIn * ${t};
+      if(row < uniforms.dim_inner && col < uniforms.dim_b_outer)
+      {
+        var bIndices: ${u.type.indices};
+        ${sr("bIndices",u,u.rank-2,i.rank,"batchIndices")}
+        ${u.indicesSet("bIndices",u.rank-2,"u32(row)")}
+        ${u.indicesSet("bIndices",u.rank-1,"u32(colIn)")}
+        value = ${u.getByIndices("bIndices")};
+      }
+      return value;
     }
-    `;return{name:o.name,inputNames:["A","B"],inputTypes:[r,r],output:{dims:e[0].dims,type:t,textureType:r},shaderSource:l,hasMain:!0}},dl=(i,e)=>[i.run(Xt(i,e,Eh()),e)],hl=(i,e)=>[i.run(Xt(i,e,Ch(),"bool"),e)],ml=(i,e)=>[i.run(Xt(i,e,Dh()),e)],bl=(i,e)=>[i.run(Xt(i,e,kh(),"bool"),e)],gl=(i,e)=>[i.run(Xt(i,e,Bh(),"bool"),e)],yl=(i,e)=>[i.run(Xt(i,e,Fh(),"bool"),e)],xl=(i,e)=>[i.run(Xt(i,e,Lh()),e)],Tl=(i,e)=>[i.run(Xt(i,e,Nh(),"bool"),e)],wl=(i,e)=>[i.run(Xt(i,e,Gh()),e)],vl=(i,e)=>[i.run(Xt(i,e,Mh()),e)],Il=(i,e)=>[i.run(Xt(i,e,$h()),e)],_l=(i,e)=>[i.run(Xt(i,e,Rh(),"bool"),e)]});var Sl,Al,Wh,Pl=O(()=>{"use strict";Z();Sl=(i,e,o)=>(Wh(e),[i.cast(e[0],o)]),Al=i=>vt.tensorDataTypeFromProto(i.attributes.getInt("to")),Wh=i=>{if(!i||i.length!==1)throw new Error("Cast requires 1 input.");if(i[0].type==="string")throw new Error("Invalid input type.")}});var Hh,qh,El,Dn,Dl=O(()=>{"use strict";ut();j();ue();ze();Hh=(i,e)=>({name:"Concat (packed)",inputNames:Array.from({length:i},(o,t)=>`X${t}`),inputTypes:Array(i).fill(2),cacheHint:e}),qh=(i,e,o,t)=>{let r=o[0].dims.slice();if(t>=r.length||t<-1*r.length)throw new Error("axis specified for concat doesn't match input dimensionality");t<0&&(t=r.length+t);let n=r.slice(0);for(let V=1;V<o.length;V++){let lt=o[V].dims.slice();for(let J=0;J<r.length;J++)if(J===t)n[t]+=lt[J];else if(r[J]!==lt[J])throw new Error("non concat dimensions must match")}let s=n.length,a=ur("coords",s),u=$t(s),l=le(),f=o.map(V=>V.dims),p=oe(s),d=new Array(f.length-1);d[0]=f[0][t];for(let V=1;V<d.length;V++)d[V]=d[V-1]+f[V][t];let y=p[t],w=p.slice(-2),v=p.join(),S=`if (${y} < ${d[0]}) {
-        return getChannel(
-            getX0(${v}), vec2(${w.join()}));
-        }`;for(let V=1;V<d.length;V++){let lt=d[V-1];S+=`
-            if (${y} < ${d[V]}  && ${y} >= ${d[V-1]}) {
-              return getChannel(
-                getX${V}(${Dn(p,y,lt)}),
-                vec2(${Dn(w,y,lt)}));
-            }`}let D=d.length,P=d[d.length-1];S+=`
-            return getChannel(
-              getX${D}(${Dn(p,y,P)}),
-              vec2(${Dn(w,y,P)}));`;let A=R(i.session.backend.glContext.version),G=`
-          ${l}
-          float getValue(${p.map(V=>"int "+V)}) {
-            ${S}
-          }
 
-          void main() {
-            ${u} coords = getOutputCoords();
-            int lastDim = coords.${p[s-1]};
-            coords.${p[s-1]} = coords.${p[s-2]};
-            coords.${p[s-2]} = lastDim;
+    fn mm_write(batch: i32, row: i32, colIn: i32, valueIn: ${Pe(t,c)}) {
+      let col = colIn * ${t};
+      if (row < uniforms.dim_a_outer && col < uniforms.dim_b_outer) {
+        var value = valueIn;
+        let coords = vec3<i32>(batch, row, colIn);
+        ${e?`value = value + ${o?"bias[colIn]":`${Pe(t,c)}(bias[row])`};`:""}
+        ${r}
+        ${d.setByIndices("vec3<u32>(coords)","value")}
+      }
+    }
+    `},ur=(t,e,r,n,o=!1,i)=>{let a=t[0].dims,u=t[1].dims,d=a.slice(0,-2),c=u.slice(0,-2),p=n?n.slice(0,-2):r.slice(0,-2),m=k.size(p),g=a[a.length-2],b=a[a.length-1],y=u[u.length-1],_=b%4===0&&y%4===0,S=g<=8?[4,1,1]:[4,4,1],x=[8,8,1],$=[Math.ceil(y/x[0]/S[0]),Math.ceil(g/x[1]/S[1]),Math.ceil(m/x[2]/S[2])],T=_?4:1,I=[...d,g,b/T],E=I.length,A=[...c,b,y/T],O=A.length,w=[m,g,y/T],U=[{type:6,data:g},{type:6,data:y},{type:6,data:b}];Ye(e,U),U.push(...W(p,I,A));let N=["rank","rank"],F=t.length>2;F&&(U.push(...W(t[2].dims)),N.push("rank")),U.push(...W(w));let q=X=>{let z=p.length,L=Xr("batchDims",t[0].dataType,z,1),Z=we(t[0].dataType),Y=D("a",t[0].dataType,E,T),Q=D("b",t[1].dataType,O,T),ne=R("result",t[0].dataType,w.length,T),ie=[Y,Q];if(F){let G=o?T:1;ie.push(D("bias",t[2].dataType,t[2].dims.length,G))}let ce=[{name:"dim_a_outer",type:"i32"},{name:"dim_b_outer",type:"i32"},{name:"dim_inner",type:"i32"}];Xe(e,ce);let Me=we(ne.type.tensor),ve=Ze(e,ne.type.value,Me),M=tg(T,F,ve,[L,Y,Q,ne],o);return`
+  ${X.registerUniforms(ce).registerInternalVariables(L).declareVariables(...ie,ne)}
+  ${M}
+  ${_?xo(S,x,Z,L):So(S,x,Z,L)}
+                   `};return{name:"MatMul",shaderCache:{hint:`${S};${e.activation};${_};${o}`,inputDependencies:N},getRunData:()=>({outputs:[{dims:i?i(r):r,dataType:t[0].dataType}],dispatchGroup:{x:$[0],y:$[1],z:$[2]},programUniforms:U}),getShaderSource:q}}});var rg,Pd,Dd=V(()=>{"use strict";ee();nt();oe();St();an();Ed();dn();rg=(t,e,r,n,o=!1,i,a=4,u=4,d=4,c="f32")=>{let p=N=>{switch(N){case 1:return"resData = x[xIndex];";case 3:return`resData = vec3<${c}>(x[xIndex], x[xIndex + 1], x[xIndex + 2]);`;case 4:return"resData = x[xIndex / 4];";default:throw new Error(`innerElementSize ${N} is not supported.`)}},m=N=>{switch(N){case 1:return"return w[row * i32(uniforms.w_shape[3]) + colIn];";case 4:return"return w[row * i32(uniforms.w_shape[3]) / 4 + colIn];";default:throw new Error(`innerElementSize ${N} is not supported.`)}},g=t?`
+    let coord = vec4<i32>(batch, xRow, xCol, xCh);
+    `:`
+    let coord = vec4<i32>(batch, xCh, xRow, xCol);
+    `,b=t?`
+    let coords = vec4<i32>(
+      batch,
+      row / outWidth,
+      row % outWidth,
+      col);
+    `:`
+    let coords = vec4<i32>(
+      batch,
+      row,
+      col / outWidth,
+      col % outWidth);
+    `,y=t?"i32(uniforms.x_shape[1])":"i32(uniforms.x_shape[2])",_=t?"i32(uniforms.x_shape[2])":"i32(uniforms.x_shape[3])",S=t?"row":"col",x=t?"col":"row",$=`
+    let inChannels = i32(uniforms.w_shape[2]);
+    let outWidth = ${t?"i32(uniforms.result_shape[2])":"i32(uniforms.result_shape[3])"};
+    let outRow = ${S} / outWidth;
+    let outCol = ${S} % outWidth;
 
-            vec4 result = vec4(getValue(${a}), 0., 0., 0.);
+    let WRow = ${x} / (i32(uniforms.w_shape[1]) * inChannels);
+    let WCol = ${x} / inChannels % i32(uniforms.w_shape[1]);
+    let xRow = outRow * uniforms.stride[0] + uniforms.dilation[0] * WRow - uniforms.pad[0];
+    let xCol = outCol * uniforms.stride[1] + uniforms.dilation[1] * WCol - uniforms.pad[1];
+    let xCh = ${x} % inChannels;
+    var resData = ${Pe(a,c)}(0.0);
+    // The bounds checking is always needed since we use it to pad zero for
+    // the 'same' padding type.
+    if (xRow >= 0 && xRow < ${y} && xCol >= 0 && xCol < ${_}) {
+      ${g}
+      let xIndex = getIndexFromCoords4D(coord, vec4<i32>(uniforms.x_shape));
+      ${p(a)}
+    }
+    return resData;`,T=t?e&&n?`
+    let col = colIn * ${a};
+    ${$}`:`
+    let col = colIn * ${a};
+    if (row < uniforms.dim_a_outer && col < uniforms.dim_inner) {
+      ${$}
+    }
+    return ${Pe(a,c)}(0.0);`:n&&r?`
+    let col = colIn * ${a};
+    ${$}`:`
+    let col = colIn * ${a};
+    if (row < uniforms.dim_inner && col < uniforms.dim_b_outer) {
+      ${$}
+    }
+    return ${Pe(a,c)}(0.0);`,I=t?n&&r?m(u):`
+    let col = colIn * ${u};
+    if (row < uniforms.dim_inner && col < uniforms.dim_b_outer) {
+      ${m(u)}
+    }
+    return ${Pe(u,c)}(0.0);`:`
+    let col = colIn * ${u};
+    if (row < uniforms.dim_inner && col < uniforms.dim_a_outer) {
+      ${m(u)}
+    }
+    return ${Pe(u,c)}(0.0);`,E=Pe(d,c),A=t?Pe(a,c):Pe(u,c),O=t?Pe(u,c):Pe(a,c),w=Ze(i,E,c);return`
+    fn mm_readA(batch: i32, row : i32, colIn : i32) -> ${A} {
+      ${t?T:I}
+    }
 
-            ${a[s-1]} = ${a[s-1]} + 1;
-            if (${a[s-1]} < ${n[s-1]}) {
-              result.g = getValue(${a});
+    fn mm_readB(batch: i32, row : i32, colIn : i32) -> ${O} {
+      ${t?I:T}
+    }
+
+    fn mm_write(batch: i32, row : i32, colIn : i32, valueIn : ${E}) {
+      let col = colIn * ${d};
+      if (row < uniforms.dim_a_outer && col < uniforms.dim_b_outer)
+      {
+      var value = valueIn;
+      let outWidth = ${t?"i32(uniforms.result_shape[2])":"i32(uniforms.result_shape[3])"};
+      ${b}
+      ${Cd(o)}
+      ${w}
+      setOutputAtCoords(coords[0], coords[1], coords[2], coords[3], value);
+      }
+    }`},Pd=(t,e,r,n,o,i,a,u,d)=>{let c=e.format==="NHWC",p=c?t[0].dims[3]:t[0].dims[1],m=r[0],g=c?r[2]:r[3],b=c?r[1]:r[2],y=c?r[3]:r[1],_=c&&(p%4===0||p%3===0)&&y%4===0,S=c?y:g*b,x=c?g*b:y,$=[8,8,1],T=n<=8?[4,1,1]:[4,4,1],I=[Math.ceil(S/$[0]/T[0]),Math.ceil(x/$[1]/T[1]),Math.ceil(m/$[2]/T[2])];se("verbose",()=>`[conv2d_mm_webgpu] dispatch = ${I}`);let E=_?c&&p%4!==0?3:4:1,A=$[1]*T[1],O=$[0]*T[0],w=Math.max($[0]*E,$[1]),U=n%A===0,N=o%O===0,F=i%w===0,q=_?[E,4,4]:[1,1,1],X=[{type:6,data:n},{type:6,data:o},{type:6,data:i},{type:6,data:[e.pads[0],e.pads[1]]},{type:6,data:e.strides},{type:6,data:e.dilations}];Ye(e,X),X.push(...W(t[0].dims,t[1].dims));let z=["rank","rank"];a&&(X.push(...W(t[2].dims)),z.push("rank")),X.push(...W(r));let L=Z=>{let Y=[{name:"dim_a_outer",type:"i32"},{name:"dim_b_outer",type:"i32"},{name:"dim_inner",type:"i32"},{name:"pad",type:"i32",length:2},{name:"stride",type:"i32",length:2},{name:"dilation",type:"i32",length:2}];Xe(e,Y);let Q=_?4:1,ne=we(t[0].dataType),ie=`
+      fn setOutputAtIndex(flatIndex : i32, value : ${_?`vec4<${ne}>`:ne}) {
+        result[flatIndex] = ${_?`vec4<${ne}>`:ne}(value);
+      }
+      fn setOutputAtCoords(d0 : i32, d1 : i32, d2 : i32, d3 : i32, value : ${_?`vec4<${ne}>`:ne}) {
+        let flatIndex = getOutputIndexFromCoords(vec4<i32>(d0, d1, d2, d3));
+        setOutputAtIndex(flatIndex ${_?"/ 4":""}, value);
+      }`,ce=D("x",t[0].dataType,t[0].dims.length,E===3?1:E),Me=D("w",t[1].dataType,t[1].dims.length,Q),ve=[ce,Me],M=R("result",t[0].dataType,r.length,Q);if(a){let G=D("bias",t[2].dataType,t[2].dims.length,Q);ve.push(G),ie+=`
+        fn getBiasByOutputCoords(coords : vec4<i32>) -> ${_?`vec4<${ne}>`:ne} {
+          return bias[coords.${c?"w":"y"}${_?"/ 4":""}];
+        }`}return`
+        ${Ad("uniforms.result_strides")}
+        //struct Uniforms { xShape : vec4<i32>, wShape : vec4<i32>, outShape : vec4<i32>,
+        //  outShapeStrides: vec3<i32>, filterDims : vec2<i32>, pad : vec2<i32>, stride : vec2<i32>,
+        //  dilation : vec2<i32>, dimAOuter : i32, dimBOuter : i32, dimInner : i32 };
+        ${Z.registerUniforms(Y).declareVariables(...ve,M)}
+        ${ie}
+        ${rg(c,U,N,F,a,e,q[0],q[1],q[2],ne)}
+        ${_?xo(T,$,ne,void 0,!c,w):So(T,$,ne,void 0,!c,w,!1,void 0,u)}`};return{name:"Conv2DMatMul",shaderCache:{hint:`${e.cacheKey};${E};${_};${U};${N};${F};${A};${O};${w}`,inputDependencies:z},getRunData:()=>({outputs:[{dims:d?d(r):r,dataType:t[0].dataType}],dispatchGroup:{x:I[0],y:I[1],z:I[2]},programUniforms:X}),getShaderSource:L}}});var ng,Od,ln,og,zd,ig,Bd,Md,Rd=V(()=>{"use strict";ee();nt();te();oe();St();an();ng=t=>{let e=1;for(let r=0;r<t.length;r++)e*=t[r];return e},Od=t=>typeof t=="number"?[t,t,t]:t,ln=(t,e)=>e<=1?t:t+(t-1)*(e-1),og=(t,e,r,n=1)=>{let o=ln(e,n);return Math.floor((t[0]*(r-1)-r+o)/2)},zd=(t,e,r,n,o)=>{o==null&&(o=og(t,e[0],n[0]));let i=[0,0,0,r];for(let a=0;a<3;a++)t[a]+2*o>=e[a]&&(i[a]=Math.trunc((t[a]-e[a]+2*o)/n[a]+1));return i},ig=(t,e,r,n,o,i,a,u,d,c)=>{let p,m,g,b;if(t==="VALID"&&(t=0),typeof t=="number"){p={top:t,bottom:t,left:t,right:t,front:t,back:t};let y=zd([e,r,n,1],[u,d,c],1,[o,i,a],t);m=y[0],g=y[1],b=y[2]}else if(Array.isArray(t)){if(!t.every((_,S,x)=>_===x[0]))throw Error(`Unsupported padding parameter: ${t}`);p={top:t[0],bottom:t[1],left:t[2],right:t[3],front:t[4],back:t[5]};let y=zd([e,r,n,1],[u,d,c],1,[o,i,a],t[0]);m=y[0],g=y[1],b=y[2]}else if(t==="SAME_UPPER"){m=Math.ceil(e/o),g=Math.ceil(r/i),b=Math.ceil(n/a);let y=(m-1)*o+u-e,_=(g-1)*i+d-r,S=(b-1)*a+c-n,x=Math.floor(y/2),$=y-x,T=Math.floor(_/2),I=_-T,E=Math.floor(S/2),A=S-E;p={top:T,bottom:I,left:E,right:A,front:x,back:$}}else throw Error(`Unknown padding parameter: ${t}`);return{padInfo:p,outDepth:m,outHeight:g,outWidth:b}},Bd=(t,e,r,n,o,i=!1,a="channelsLast")=>{let u,d,c,p,m;if(a==="channelsLast")[u,d,c,p,m]=t;else if(a==="channelsFirst")[u,m,d,c,p]=t;else throw new Error(`Unknown dataFormat ${a}`);let[g,,b,y,_]=e,[S,x,$]=Od(r),[T,I,E]=Od(n),A=ln(b,T),O=ln(y,I),w=ln(_,E),{padInfo:U,outDepth:N,outHeight:F,outWidth:q}=ig(o,d,c,p,S,x,$,A,O,w),X=i?g*m:g,z=[0,0,0,0,0];return a==="channelsFirst"?z=[u,X,N,F,q]:a==="channelsLast"&&(z=[u,N,F,q,X]),{batchSize:u,dataFormat:a,inDepth:d,inHeight:c,inWidth:p,inChannels:m,outDepth:N,outHeight:F,outWidth:q,outChannels:X,padInfo:U,strideDepth:S,strideHeight:x,strideWidth:$,filterDepth:b,filterHeight:y,filterWidth:_,effectiveFilterDepth:A,effectiveFilterHeight:O,effectiveFilterWidth:w,dilationDepth:T,dilationHeight:I,dilationWidth:E,inShape:t,outShape:z,filterShape:e}},Md=(t,e,r,n,o,i)=>{let a=i==="channelsLast",u=a?t[0].dims[3]:t[0].dims[1],d=!1,c=[64,1,1],p={x:r.map(($,T)=>T)},m=[Math.ceil(ng(p.x.map($=>r[$]))/c[0]),1,1];se("verbose",()=>`[conv3d_naive_webgpu] dispatch = ${m}`);let g=d?a&&u%4!==0?3:4:1,b=k.size(r),y=[{type:12,data:b},{type:12,data:n},{type:12,data:o},{type:12,data:e.strides},{type:12,data:e.dilations}];Ye(e,y),y.push(...W(t[0].dims,t[1].dims));let _=["rank","rank"],S=t.length===3;S&&(y.push(...W(t[2].dims)),_.push("rank")),y.push(...W(r));let x=$=>{let T=[{name:"output_size",type:"u32"},{name:"filter_dims",type:"u32",length:n.length},{name:"pads",type:"u32",length:o.length},{name:"strides",type:"u32",length:e.strides.length},{name:"dilations",type:"u32",length:e.dilations.length}];Xe(e,T);let I=d?4:1,E=we(t[0].dataType),A=D("x",t[0].dataType,t[0].dims.length,g===3?1:g),O=D("W",t[1].dataType,t[1].dims.length,I),w=[A,O],U=R("result",t[0].dataType,r.length,I),N="";if(S){let X=D("bias",t[2].dataType,t[2].dims.length,I);w.push(X),N+=`
+        fn getBiasByOutputCoords(coords : array<u32, 5>) -> ${d?`vec4<${E}>`:E} {
+          return bias[${a?j("coords",4,5):j("coords",1,5)}${d?"/ 4":""}];
+        }`}let F=Pe(g,E),q=Ze(e,F,E);return`
+            ${N}
+            fn getX(d0 : u32, d1 : u32, d2 : u32, d3 : u32, d4 : u32) -> f32 {
+              let aIndices = array<u32, 5>(d0, d1, d2, d3, d4);
+              return ${A.getByIndices("aIndices")};
             }
-
-            ${a[s-2]} = ${a[s-2]} + 1;
-            if (${a[s-2]} < ${n[s-2]}) {
-              result.a = getValue(${a});
+            fn getW(d0 : u32, d1 : u32, d2 : u32, d3 : u32, d4 : u32) -> f32 {
+              let aIndices = array<u32, 5>(d0, d1, d2, d3, d4);
+              return ${O.getByIndices("aIndices")};
             }
+          ${$.registerUniforms(T).declareVariables(...w,U)}
+          ${$.mainStart()}
+          ${$.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+              let coords = ${U.offsetToIndices("global_idx")};
+              let batch = ${j("coords",0,A.rank)};
+              let d2 = ${a?j("coords",A.rank-1,A.rank):j("coords",1,A.rank)};
+              let xFRCCorner = vec3<u32>(${a?j("coords",1,A.rank):j("coords",2,A.rank)},
+              ${a?j("coords",2,A.rank):j("coords",3,A.rank)},
+              ${a?j("coords",3,A.rank):j("coords",4,A.rank)}) * uniforms.strides - uniforms.pads;
+              let xFCorner = xFRCCorner.x;
+              let xRCorner = xFRCCorner.y;
+              let xCCorner = xFRCCorner.z;
+              let xShapeY = ${a?j("uniforms.x_shape",1,A.rank):j("uniforms.x_shape",2,A.rank)};
+              let xShapeZ = ${a?j("uniforms.x_shape",2,A.rank):j("uniforms.x_shape",3,A.rank)};
+              let xShapeW = ${a?j("uniforms.x_shape",3,A.rank):j("uniforms.x_shape",4,A.rank)};
+              let xShapeU = ${a?j("uniforms.x_shape",4,A.rank):j("uniforms.x_shape",1,A.rank)};
+              let inputDepthNearestVec4 = (xShapeU / 4) * 4;
+              let inputDepthVec4Remainder = xShapeU % 4;
 
-            ${a[s-1]} = ${a[s-1]} - 1;
-            if (${a[s-2]} < ${n[s-2]} &&
-                ${a[s-1]} < ${n[s-1]}) {
-              result.b = getValue(${a});
-            }
-            ${A.output} = result;
-          }
-        `;return{...e,output:{dims:n,type:o[0].type,textureType:2},shaderSource:G,hasMain:!0}},El=(i,e,o)=>{let t=Hh(e.length,o.cacheKey);return{...t,get:()=>qh(i,t,e,o.axis)}},Dn=(i,e,o)=>{let t=i.indexOf(e);return i.map((n,s)=>s===t?`${n} - ${o}`:n).join()}});var Ll,jh,Xh,Kh,$l,Jh,Yh,Zh,kl,Qh,Bl=O(()=>{"use strict";wt();j();Dl();Ll=(i,e,o)=>(Qh(e),i.session.pack&&e[0].dims.length>1?[i.run(El(i,e,o),e)]:[i.run(Kh(i,e,o),e)]),jh=(i,e)=>({name:"Concat",inputNames:Array.from({length:i},(o,t)=>`X${t}`),inputTypes:Array(i).fill(0),cacheHint:e}),Xh=(i,e,o,t)=>{let r=o[0].dims.slice();if(t>=r.length||t<-1*r.length)throw new Error("axis specified for concat doesn't match input dimensionality");t<0&&(t=r.length+t);let n=r.slice(0);for(let y=1;y<o.length;y++){let w=o[y].dims.slice();for(let v=0;v<r.length;v++)if(v===t)n[t]+=w[v];else if(r[v]!==w[v])throw new Error("non concat dimensions must match")}let s=n.length,a=new Array(o.length),u=0;for(let y=0;y<a.length;++y)u+=o[y].dims[t],a[y]=u;let l="";o.length<5?l=$l(a):l=Jh(a);let f=Yh(o.length,s),p=Zh(a),d=`
-        ${f}
-        ${p}
-        ${l}
-        float process(int indices[${s}]) {
-          int textureIndex = getTextureWhereDataResides (indices[${t}]);
+              var value = 0.0;
+              for (var wF = 0u; wF < uniforms.filter_dims[0]; wF++) {
+                let xF = xFCorner + wF * uniforms.dilations[0];
+                if (xF < 0 || xF >= xShapeY) {
+                  continue;
+                }
 
-          if(textureIndex != 0) {
-            indices[${t}] = indices[${t}] - int(getSizeInConcatAxisValueFromIndex(textureIndex-int(1)));
-          }
+                for (var wR = 0u; wR < uniforms.filter_dims[1]; wR++) {
+                  let xR = xRCorner + wR * uniforms.dilations[1];
+                  if (xR < 0 || xR >= xShapeZ) {
+                    continue;
+                  }
 
-          return fetchDataFromCorrectTexture(textureIndex, indices);
-        }`;return{...e,output:{dims:n,type:o[0].type,textureType:0},shaderSource:d}},Kh=(i,e,o)=>{let t=jh(e.length,o.cacheKey);return{...t,get:()=>Xh(i,t,e,o.axis)}},$l=i=>`int getTextureWhereDataResides(int index) {
-      ${i.map((o,t)=>`if(index<${o}) {return ${t};}
-`).join("")}
-    }`,Jh=i=>$l(i),Yh=(i,e)=>{let o=[`float fetchDataFromCorrectTexture(int textureIndex, int indices[${e}]) {`];for(let t=0;t<i;++t)t===0?o.push(`	if (textureIndex == ${t}) { return _X${t}(indices); }`):t===i-1?o.push(`	else { return _X${t}(indices); }`):o.push(`	else if (textureIndex == ${t}) { return _X${t}(indices); }`);return o.push("	}"),o.join(`
-`)},Zh=i=>{let e=["int getSizeInConcatAxisValueFromIndex(int index) {"];for(let o=0;o<i.length;++o)o===0?e.push(`	if (index == ${o}) { return ${i[o]}; }`):o===i.length-1?e.push(`	else { return ${i[o]}; }`):e.push(`	else if (index == ${o}) { return ${i[o]}; }`);return e.push("	}"),e.join(`
-`)},kl=i=>W({axis:i.attributes.getInt("axis")}),Qh=i=>{if(!i||i.length<1)throw new Error("too few inputs");let e=i[0].type,o=i[0].dims.length;if(e==="string")throw new Error("string tensor is not supported yet");for(let t of i){if(t.type!==e)throw new Error("input tensors should be one type");if(t.dims.length!==o)throw new Error("input tensors should have the same shape")}}});function tm(){return Kt("abs")}function em(){return Kt("acos")}function rm(){return Kt("asin")}function nm(){return Kt("atan")}function om(){return Kt("ceil")}function im(){return Kt("cos")}function am(i){let e="elu";return{body:`
-  const float alpha = float(${i});
+                  for (var wC = 0u; wC < uniforms.filter_dims[2]; wC++) {
+                    let xC = xCCorner + wC * uniforms.dilations[2];
+                    if (xC < 0 || xC >= xShapeW) {
+                      continue;
+                    }
 
-  float ${e}_(float a) {
-    return a >= 0.0 ? a: (exp(a) - 1.0) * alpha;
-  }
-  vec4 ${e}_(vec4 v) {
-    return vec4(${e}_(v.x), ${e}_(v.y), ${e}_(v.z), ${e}_(v.w));
-  }
-  `,name:e,type:0}}function sm(){return Kt("exp")}function um(){return Kt("floor")}function li(i,e){let o="clip";return{body:`
-  const float min = float(${i});
-  const float max = float(${e});
+                    for (var d1 = 0u; d1 < inputDepthNearestVec4; d1 += 4) {
+                      ${a?`let xValues = vec4<f32>(
+                               getX(batch, xF, xR, xC, d1),
+                               getX(batch, xF, xR, xC, d1 + 1),
+                               getX(batch, xF, xR, xC, d1 + 2),
+                               getX(batch, xF, xR, xC, d1 + 3));
+                            `:`let xValues = vec4<f32>(
+                               getX(batch, d1, xF, xR, xC),
+                               getX(batch, d1 + 1, xF, xR, xC),
+                               getX(batch, d1 + 2, xF, xR, xC),
+                               getX(batch, d1 + 3, xF, xR, xC));
+                            `}
+                            let wValues = vec4<f32>(
+                              getW(d2, d1, wF, wR, wC),
+                              getW(d2, d1 + 1, wF, wR, wC),
+                              getW(d2, d1 + 2, wF, wR, wC),
+                              getW(d2, d1 + 3, wF, wR, wC));
+                      value += dot(xValues, wValues);
+                    }
+                    if (inputDepthVec4Remainder == 1) {
+                        ${a?`value += getX(batch, xF, xR, xC, inputDepthNearestVec4)
+                          * getW(d2, inputDepthNearestVec4, wF, wR, wC);`:`value += getX(batch, inputDepthNearestVec4, xF, xR, xC)
+                          * getW(d2, inputDepthNearestVec4, wF, wR, wC);`}
+                    } else if (inputDepthVec4Remainder == 2) {
+                      ${a?`let xValues = vec2<f32>(
+                        getX(batch, xF, xR, xC, inputDepthNearestVec4),
+                        getX(batch, xF, xR, xC, inputDepthNearestVec4 + 1));
+                      `:`let xValues = vec2<f32>(
+                        getX(batch, inputDepthNearestVec4, xF, xR, xC),
+                        getX(batch, inputDepthNearestVec4 + 1, xF, xR, xC));
+                    `}
+                    let wValues = vec2<f32>(
+                      getW(d2, inputDepthNearestVec4, wF, wR, wC),
+                      getW(d2, inputDepthNearestVec4 + 1, wF, wR, wC));
+                      value += dot(xValues, wValues);
+                    } else if (inputDepthVec4Remainder == 3) {
+                      ${a?`let xValues = vec3<f32>(
+                        getX(batch, xF, xR, xC, inputDepthNearestVec4),
+                        getX(batch, xF, xR, xC, inputDepthNearestVec4 + 1),
+                        getX(batch, xF, xR, xC, inputDepthNearestVec4 + 2));
+                      `:`let xValues = vec3<f32>(
+                        getX(batch, inputDepthNearestVec4, xF, xR, xC),
+                        getX(batch, inputDepthNearestVec4 + 1, xF, xR, xC),
+                        getX(batch, inputDepthNearestVec4 + 2, xF, xR, xC));
+                    `}
+                    let wValues = vec3<f32>(
+                      getW(d2, inputDepthNearestVec4, wF, wR, wC),
+                      getW(d2, inputDepthNearestVec4 + 1, wF, wR, wC),
+                      getW(d2, inputDepthNearestVec4 + 2, wF, wR, wC));
+                      value += dot(xValues, wValues);
+                    }
+                  }
+                }
+              }
+              ${S?"value = value + getBiasByOutputCoords(coords)":""};
+              ${q}
+              result[global_idx] = f32(value);
+          }`};return{name:"Conv3DNaive",shaderCache:{hint:`${e.cacheKey};${a};${g};${S}`,inputDependencies:_},getRunData:()=>({outputs:[{dims:r,dataType:t[0].dataType}],dispatchGroup:{x:m[0],y:m[1],z:m[2]},programUniforms:y}),getShaderSource:x}}});var Ud,Nd,Vd=V(()=>{"use strict";ee();te();oe();St();Ud=(t,e,r,n)=>{let o=t.length>2,i=o?"value += b[output_channel];":"",a=t[0].dims,u=t[1].dims,d=e.format==="NHWC",c=d?r[3]:r[1],p=c/e.group,m=d&&p>=4?fe(c):1,g=k.size(r)/m,b=[{type:12,data:g},{type:12,data:e.dilations},{type:12,data:[e.strides[0],e.strides[1]]},{type:12,data:[e.pads[0],e.pads[1]]},{type:12,data:p}];Ye(e,b),b.push(...W(a,[u[0],u[1],u[2],u[3]/m]));let y=o?["rank","rank","rank"]:["rank","rank"];b.push(...W([r[0],r[1],r[2],r[3]/m]));let _=S=>{let x=R("output",t[0].dataType,r.length,m),$=we(x.type.tensor),T=Ze(e,x.type.value,$),I=D("x",t[0].dataType,a.length),E=D("w",t[1].dataType,u.length,m),A=[I,E];o&&A.push(D("b",t[2].dataType,t[2].dims,m));let O=[{name:"output_size",type:"u32"},{name:"dilations",type:"u32",length:e.dilations.length},{name:"strides",type:"u32",length:2},{name:"pads",type:"u32",length:2},{name:"output_channels_per_group",type:"u32"}];Xe(e,O);let w=d?`
+      for (var wHeight: u32 = 0u; wHeight < uniforms.w_shape[0]; wHeight++) {
+        let xHeight = xRCCorner.x + wHeight * uniforms.dilations[0];
 
-  float ${o}_(float a) {
-    return clamp(a, min, max);
-  }
-  vec4 ${o}_(vec4 v) {
-    return clamp(v, min, max);
-  }
-  `,name:o,type:0}}function lm(){let i="indentity";return{body:`
-  float ${i}_(float a) {
-    return a;
-  }
-  vec4 ${i}_(vec4 v) {
-    return v;
-  }
-  `,name:i,type:0}}function fm(i){let e="leakyRelu";return{body:`
-  const float alpha = float(${i});
-
-  float ${e}_(float a) {
-    return a < 0.0 ? a * alpha : a;
-  }
-  vec4 ${e}_(vec4 v) {
-    return vec4(${e}_(v.x), ${e}_(v.y), ${e}_(v.z), ${e}_(v.w));
-  }
-  `,name:e,type:0}}function cm(){return Kt("log")}function pm(){let i="neg";return{body:`
-  float ${i}_(float a) {
-    return -a;
-  }
-  vec4 ${i}_(vec4 v) {
-    return -v;
-  }
-  `,name:i,type:0}}function dm(){let i="not";return{body:`
-  float ${i}_(float a) {
-    return float( ! bool(a) );
-  }
-  bool ${i}_(bool a) {
-    return !a;
-  }
-  vec4 ${i}_(vec4 v) {
-    return vec4(!bool(v.x), !bool(v.y), !bool(v.z), !bool(v.w));
-  }
-  bvec4 ${i}_(bvec4 v) {
-    return bvec4(!v.x, !v.y, !v.z, !v.w);
-  }
-  `,name:i,type:0}}function hm(){return Kt("sin")}function fi(){let i="relu";return{body:`
-  float ${i}_(float a) {
-    return max( a, 0.0 );
-  }
-  vec4 ${i}_(vec4 v) {
-    return max( v, 0.0 );
-  }
-  `,name:i,type:0}}function ci(){let i="sigmoid";return{body:`
-  float ${i}_(float a) {
-    return 1.0 / (1.0 + exp(-a));
-  }
-  vec4 ${i}_(vec4 v) {
-    return 1.0 / (1.0 + exp(-v));
-  }
-  `,name:i,type:0}}function mm(){return Kt("sqrt")}function bm(){return Kt("tan")}function gm(){let i="tanh";return{body:`
-  float ${i}_(float a) {
-    a = clamp(a, -10., 10.);
-    a = exp(2.*a);
-    return (a - 1.) / (a + 1.);
-  }
-  vec4 ${i}_(vec4 v) {
-    v = clamp(v, -10., 10.);
-    v = exp(2.*v);
-    return (v - 1.) / (v + 1.);
-  }
-  `,name:i,type:0}}function Kt(i){return{body:`
-  float ${i}_(float a) {
-    return ${i}(a);
-  }
-  vec4 ${i}_(vec4 v) {
-    return ${i}(v);
-  }
-  `,name:i,type:0}}var ym,dt,Fl,Cl,Nl,Rl,pi,Gl,Ml,xm,Ul,Vl,zl,Wl,Hl,ql,di,jl,Xl,Kl,Jl,Yl,Zl,Ql,tf,ef,rf,nf,hi=O(()=>{"use strict";wt();Z();ge();ut();j();ym=(i,e,o,t)=>{let r=i.session.pack?2:0,n=R(i.session.backend.glContext.version);return{...e,output:{dims:o.dims,type:o.type,textureType:r},shaderSource:`
-     ${t.body}
-     void main() {
-       vec4 v = ${n.texture2D}(A, TexCoords);
-       v = ${t.name}_(v);
-       ${n.output} = v;
-     }
-     `,hasMain:!0}},dt=(i,e,o,t)=>{let r=i.session.pack?2:0,n={name:o.name,inputTypes:[r],inputNames:["A"],cacheHint:t};return{...n,get:()=>ym(i,n,e,o)}},Fl=(i,e)=>[i.run(dt(i,e[0],tm()),e)],Cl=(i,e)=>[i.run(dt(i,e[0],em()),e)],Nl=(i,e)=>[i.run(dt(i,e[0],rm()),e)],Rl=(i,e)=>[i.run(dt(i,e[0],nm()),e)],pi=(i,e,o)=>[i.run(dt(i,e[0],li(o.min,o.max),o.cacheKey),e)],Gl=i=>W({min:i.attributes.getFloat("min",Me),max:i.attributes.getFloat("max",Ue)}),Ml=(i,e)=>{let o=xm(i,e);return pi(i,[e[0]],o)},xm=(i,e)=>{if(e.length>=3&&(!i.session.isInitializer(e[1].dataId)||!i.session.isInitializer(e[2].dataId)))throw new Error("dynamic clip attributes are not allowed");let o=e.length>=3?e[1].numberData[0]:Me,t=e.length>=3?e[2].numberData[0]:Ue;return W({min:o,max:t})},Ul=(i,e)=>[i.run(dt(i,e[0],om()),e)],Vl=(i,e)=>[i.run(dt(i,e[0],im()),e)],zl=(i,e,o)=>[i.run(dt(i,e[0],am(o.alpha),o.cacheKey),e)],Wl=i=>W({alpha:i.attributes.getFloat("alpha",1)}),Hl=(i,e)=>[i.run(dt(i,e[0],sm()),e)],ql=(i,e)=>[i.run(dt(i,e[0],um()),e)],di=(i,e)=>[i.run(dt(i,e[0],lm()),e)],jl=(i,e,o)=>[i.run(dt(i,e[0],fm(o.alpha),o.cacheKey),e)],Xl=i=>W({alpha:i.attributes.getFloat("alpha",.01)}),Kl=(i,e)=>[i.run(dt(i,e[0],cm()),e)],Jl=(i,e)=>[i.run(dt(i,e[0],pm()),e)],Yl=(i,e)=>[i.run(dt(i,e[0],dm()),e)],Zl=(i,e)=>[i.run(dt(i,e[0],fi()),e)],Ql=(i,e)=>[i.run(dt(i,e[0],ci()),e)],tf=(i,e)=>[i.run(dt(i,e[0],hm()),e)],ef=(i,e)=>[i.run(dt(i,e[0],mm()),e)],rf=(i,e)=>[i.run(dt(i,e[0],bm()),e)],nf=(i,e)=>[i.run(dt(i,e[0],gm()),e)]});function fe(i){let e;switch(i.activation){case"Relu":e=fi();break;case"Sigmoid":e=ci();break;case"Clip":e=li(i.clipMin,i.clipMax);break;default:return{activationFunction:"",applyActivation:""}}let o=e.name,t=e.body,r=`value = ${o}_(value);`;return{activationFunction:t,applyActivation:r}}var lr,We=O(()=>{"use strict";Z();hi();lr=i=>{let e=i.getString("activation","");if(e==="Clip"){let[o,t]=i.getFloats("activation_params",[Me,Ue]);return{activation:e,clipMax:t,clipMin:o,activationCacheKey:`${e}:${o},${t}`}}return{activation:e,activationCacheKey:e}}});var wm,vm,of,af=O(()=>{"use strict";zt();ut();j();Ln();We();wm=(i,e)=>({name:"GroupedConv",inputNames:i?["X","W","Bias"]:["X","W"],inputTypes:i?[0,0,0]:[0,0],cacheHint:e}),vm=(i,e,o,t)=>{let n=e.length>2?"value += getBias(output_channel);":"",s=e[0].dims.slice(),a=e[1].dims.slice(),u=a[0]/t.group;et.verbose("GroupedConv",`autpPad:${t.autoPad}, dilations:${t.dilations}, group:${t.group}, kernelShape:${t.kernelShape}, pads:${t.pads}, strides:${t.strides}`);let l=fr(s,a,t.dilations,t.pads,t.strides),f=R(i.session.backend.glContext.version),{activationFunction:p,applyActivation:d}=fe(t),y=`
-  const ivec2 strides = ivec2(${t.strides[0]}, ${t.strides[1]});
-  const ivec2 pads = ivec2(${t.pads[0]}, ${t.pads[1]});
-  ${p}
-  void main() {
-    ivec4 coords = getOutputCoords();
-    int batch = coords.x;
-    int output_channel = coords.y;
-    ivec2 xRCCorner = coords.zw * strides - pads;
-    int group_id = output_channel / ${u};
-
-    float value = 0.0;
-    for (int wInChannel = 0; wInChannel < ${a[1]}; wInChannel++) {
-      int input_channel = group_id * ${a[1]} + wInChannel;
-      for (int wHeight = 0; wHeight < ${a[2]}; wHeight++) {
-        int xHeight = xRCCorner.x + wHeight * ${t.dilations[0]};
-
-        if (xHeight < 0 || xHeight >= ${s[2]}) {
+        if (xHeight < 0u || xHeight >= uniforms.x_shape[1]) {
           continue;
         }
 
-        for (int wWidth = 0; wWidth < ${a[3]}; wWidth++) {
-          int xWidth = xRCCorner.y + wWidth * ${t.dilations[1]};
-          if (xWidth < 0 || xWidth >= ${s[3]}) {
+        for (var wWidth: u32 = 0u; wWidth < uniforms.w_shape[1]; wWidth++) {
+          let xWidth = xRCCorner.y + wWidth * uniforms.dilations[1];
+          if (xWidth < 0u || xWidth >= uniforms.x_shape[2]) {
             continue;
           }
 
-          float xVal = getX(batch, input_channel, xWidth, xHeight);
-          float wVal = getW(output_channel, wInChannel, wWidth, wHeight);
-          value += xVal*wVal;
-        }
-      }
-    }
-    ${n}
-    ${d}
-    ${f.output} = vec4(value, .0, .0, .0);
-  }
-`;return{...o,output:{dims:l,type:e[0].type,textureType:0},shaderSource:y,hasMain:!0}},of=(i,e,o)=>{let t=wm(e.length>2,o.cacheKey);return{...t,get:()=>vm(i,e,t,o)}}});var Im,_m,sf,uf=O(()=>{"use strict";ut();j();ze();Im=i=>({name:"Im2Col (packed)",inputNames:["A"],inputTypes:[2],cacheHint:i}),_m=(i,e,o,t,r,n)=>{let s=o.dims,a=t.dims,u=2,l=3,f=r.length,p=[a[1]*a[2]*a[3],r[2]*r[3]],d=a[2]*a[3],y=le(),w=R(i.session.backend.glContext.version),v="";for(let D=0;D<=1;D++)for(let P=0;P<=1;P++)v+=`
-            blockIndex = rc.x + ${P};
-            pos = rc.y + ${D};
-
-            if(blockIndex < ${p[1]} && pos < ${p[0]}) {
-              offsetY = int(blockIndex / (${r[f-1]})) * ${n.strides[0]} -
-                ${n.pads[0]};
-              d0 = offsetY + ${n.dilations[0]} * (imod(pos, ${d}) / ${a[2]});
-
-              if(d0 < ${s[u]} && d0 >= 0) {
-                offsetX = imod(blockIndex, ${r[f-1]}) * ${n.strides[1]} -
-                  ${n.pads[1]};
-                d1 = offsetX + ${n.dilations[1]} * imod(imod(pos, ${d}), ${a[2]});
-
-                if(d1 < ${s[l]} && d1 >= 0) {
-
-                  ch = int(float(pos)/ ${d}.);
-                    innerDims = vec2(d0, d1);
-                    result[${D*2+P}] = getChannel(
-                      getA(0, ch, int(innerDims.x),
-                      int(innerDims.y)), innerDims);
-                }
-              }
-            }
-
-          `;let S=`
-      ${y}
-
-      void main() {
-        ivec2 rc = getOutputCoords();
-          vec4 result = vec4(0.0);
-          int blockIndex, pos, offsetY, d0, offsetX, d1, ch;
-          vec2 innerDims;
-          ${v}
-          ${w.output} = result;
-      }
-            `;return{...e,output:{dims:p,type:o.type,textureType:2},shaderSource:S,hasMain:!0}},sf=(i,e,o,t,r)=>{let n=Im(r.cacheKey);return{...n,get:()=>_m(i,n,e,o,t,r)}}});function Sm(i,e,o){let t=e[0].dims,r=e[1].dims,n=Lt.calcShape(t,r,!0);if(!n)throw new Error("Can't use matmul on the given tensors");let s=$t(n.length),a=oe(),{activationFunction:u,applyActivation:l}=fe(o),f=e.length>2,p=f?"value += getBiasForMatmul();":"",d=f?`${bi(s,a,e[2].dims,n,!1)}`:"",y=n.length,w=t.length,v=r.length,S=t[t.length-1],D=`
-    ${u}
-    ${d}
-    float process(int indices[${y}]) {
-        int a[${w}];
-        int b[${v}];
-        bcastMatmulIndices_A(indices, a);
-        bcastMatmulIndices_B(indices, b);
-
-        float value;
-        for (int k=0; k<${S}; ++k) {
-            a[${w-1}] = k;
-            b[${v-2}] = k;
-            value += _A(a) * _B(b);
-        }
-        ${p}
-        ${l}
-        return value;
-    }`;return{...i,output:{dims:n,type:e[0].type,textureType:0},shaderSource:D}}function mi(i,e){let o=Om(i.length>2,e.activationCacheKey);return{...o,get:()=>Sm(o,i,e)}}function bi(i,e,o,t,r){let n="",s=o.length,a=t.length,u=a-s;a<2&&s>0?n="coords":n=o.map((v,S)=>`coords.${e[S+u]}`).join(", ");let f=Lt.getBroadcastDims(o,t).map(v=>`coords.${e[v+u]} = 0;`).join(`
-`),d=B.size(o)===1,y="vec4(outputValue.xx, outputValue.yy)";return d&&(y="vec4(outputValue.x)"),r?`
-vec4 getBiasForMatmul() {
-  ${i} coords = getOutputCoords();
-  ${f}
-  vec4 outputValue = getBias(${n});
-  return ${y};
-}`:`
-float getBiasForMatmul() {
-  ${i} coords = getOutputCoords();
-  ${f}
-  return getBias(coords.x);
-}`}var lf,ff,Om,Am,$n=O(()=>{"use strict";Z();j();ue();We();gi();lf=(i,e,o)=>(Am(e),i.session.pack?[i.run(kn(i,e,o),e)]:[i.run(mi(e,o),e)]),ff=i=>lr(i.attributes),Om=(i,e)=>({name:"MatMul",inputNames:i?["A","B","Bias"]:["A","B"],inputTypes:i?[0,0,0]:[0,0],cacheHint:e});Am=i=>{if(!i||i.length!==2)throw new Error("MatMul requires 2 inputs.");if(i[0].dims[i[0].dims.length-1]!==i[1].dims[i[1].dims.length-2])throw new Error("shared dimension does not match.");if(i[0].type!=="float32"&&i[0].type!=="float64"||i[1].type!=="float32"&&i[1].type!=="float64")throw new Error("inputs should be float type");if(i[0].type!==i[1].type)throw new Error("inputs types should match")}});function Dm(i,e,o,t){let r=[],n=[],s=o[0].dims,a=o[1].dims,u=s.length,l=a.length,f=t.length,p=f-u,d=f-l;r=s.map((A,G)=>`coords.${e[G+p]}`),r[u-1]="i*2",r.join(", "),n=a.map((A,G)=>`coords.${e[G+d]}`),n[l-2]="i*2",n.join(", ");let y=Lt.getBroadcastDims(s,t),w=Lt.getBroadcastDims(a,t),v=y.map(A=>`coords.${e[A+p]} = 0;`).join(`
-`),S=w.map(A=>`coords.${e[A+d]} = 0;`).join(`
-`),D=`int lastDim = coords.${e[f-1]};
-  coords.${e[f-1]} = coords.${e[f-2]};
-  coords.${e[f-2]} = lastDim;`;return`
-vec4 getAAtOutCoordsMatmul(int i) {
-  ${i} coords = getOutputCoords();
-  ${D}
-  ${v}
-  vec4 outputValue = getA(${r});
-  return outputValue;
-}
-
-vec4 getBAtOutCoordsMatmul(int i) {
-  ${i} coords = getOutputCoords();
-  ${D}
-  ${S}
-  vec4 outputValue = getB(${n});
-  return outputValue;
-}`}function Lm(i,e){let o="";for(let t=0;t<e-2;t++)o+=`rc.${i[t]}, `;return o+=`rc.${i[e-2]}, i*2`,o}function $m(i,e){let o="";for(let t=0;t<e-2;t++)o+=`rc.${i[t]}, `;return o+=`i*2, rc.${i[e-1]}`,o}var Pm,Em,kn,gi=O(()=>{"use strict";Z();ut();j();ue();We();$n();Pm=(i,e)=>({name:"MatMul (packed)",inputNames:i?["A","B","Bias"]:["A","B"],inputTypes:i?[2,2,2]:[2,2],cacheHint:e}),Em=(i,e,o,t)=>{let r=o.length>2,n=r?"value += getBiasForMatmul();":"",s=o[0].dims,a=o[1].dims,u=Lt.calcShape(s,a,!0),l=!B.areEqual(o[0].dims,o[1].dims);if(!u)throw new Error("Can't use matmul on the given tensors");let f=s[s.length-1],p=Math.ceil(f/2),d=s.length,y=a.length,w=R(i.session.backend.glContext.version),v=$t(u.length),S=u.length,D=oe(),{activationFunction:P,applyActivation:A}=fe(t),G=r?`${bi(v,D,o[2].dims,u,!0)}`:"",V=l?`${Dm(v,D,o,u)}`:"",lt=l?"getAAtOutCoordsMatmul(i)":`getA(${Lm(D,d)})`,J=l?"getBAtOutCoordsMatmul(i)":`getB(${$m(D,y)})`,Ut=l?"":`${v} rc =
-          getOutputCoords(); int lastDim = rc.${D[S-1]}; rc.${D[S-1]} =
-          rc.${D[S-2]}; rc.${D[S-2]} = lastDim;
-      `,Pt=`
-            ${V}
-            ${G}
-            ${P}
-            void main() {
-              ${Ut}
-
-              vec4 value = vec4(0);
-              for (int i = 0; i < ${p}; i++) {
-                vec4 a = ${lt};
-                vec4 b = ${J};
-
-                value += (a.rrbb * b.rgrg);
-                value += (a.ggaa * b.baba);
-              }
-              ${n}
-              ${A}
-              ${w.output} = value;
-            }`;return{...e,output:{dims:u,type:o[0].type,textureType:2},shaderSource:Pt,hasMain:!0}},kn=(i,e,o)=>{let t=Pm(e.length>2,o.activationCacheKey);return{...t,get:()=>Em(i,t,e,o)}}});var cf,pf=O(()=>{"use strict";Ln();uf();gi();cf=(i,e,o)=>{let t=e[0].dims,r=e[1].dims,n=fr(t,r,o.dilations,o.pads,o.strides),s=i.run(sf(i,e[0],e[1],n,o),[e[0]]),a=i.reshapePacked(e[1],[r[0],r[1]*r[2]*r[3]]),u=e.length===3?[a,s,e[2]]:[a,s],l=i.run(kn(i,u,o),u);return i.reshapePacked(l,n)}});var km,Bm,df,yi,xi=O(()=>{"use strict";j();km=i=>({name:"Im2Col",inputNames:["X"],inputTypes:[0],cacheHint:i}),Bm=(i,e,o,t,r,n)=>{let s=o.dims,a=t.dims,u=r.length,l=yi(s,a,r,4),f=`
-        const int XC = ${s[1]};
-        const int XH = ${s[2]};
-        const int XW = ${s[3]};
-        const int KH = ${n.kernelShape[0]};
-        const int KW = ${n.kernelShape[1]};
-        const int dilationH = ${n.dilations[0]};
-        const int dilationW = ${n.dilations[1]};
-        const int strideH = ${n.strides[0]};
-        const int strideW = ${n.strides[1]};
-        const int padH = ${n.pads[0]};
-        const int padW = ${n.pads[1]};
-        const int KHKW = KH*KW;
-        const int XCKHKW = XC * KHKW;
-        const int outputChannels = 4;
-        vec4 process(int indices[${u}]) {
-          int b  = indices[0]; // batch size
-          int oh = indices[1] * strideH - padH; //output height
-          int ow = indices[2] * strideW - padW; //output width
-          int p = indices[3] * outputChannels; //patch
-          vec4 value = vec4(0.0);
-          for(int i=0; i < outputChannels; ++i) {
-            if(p < XCKHKW) {
-              int patchC = p / KHKW;
-              int patchH = (p - patchC*KHKW) / KW;
-              int patchW = (p - patchC*KHKW) - patchH * KW;
-              int xh2 = oh + patchH * dilationH;
-              int xw2 = ow + patchW * dilationW;
-              int x[${s.length}];
-              x[0] = b;
-              x[1] = patchC;
-              x[2] = xh2;
-              x[3] = xw2;
-              if(xh2 >= 0 &&
-                  xh2 < XH &&
-                  xw2 >= 0 &&
-                  xw2 < XW) {
-                value[i] = _X(x);
-              }
-            }
-            ++p;
-          }
-          return value;
-        }
-        `;return{...e,output:{dims:l,type:o.type,textureType:4},shaderSource:f}},df=(i,e,o,t,r)=>{let n=km(r.cacheKey);return{...n,get:()=>Bm(i,n,e,o,t,r)}},yi=(i,e,o,t=4)=>[o[0],o[2],o[3],Math.ceil(i[1]*e[2]*e[3]/t)]});var Fm,Cm,hf,mf=O(()=>{"use strict";Z();ut();j();We();xi();Fm=(i,e)=>({name:"ConvDotProduct",inputNames:i?["Im2Col","K","B"]:["Im2Col","K"],inputTypes:i?[0,4,0]:[0,4],cacheKey:e.activationCacheKey}),Cm=(i,e,o,t,r)=>{let n=o[0].dims,s=o[1].dims,a=[s[0],Math.ceil(n[1]*s[2]*s[3]/4)],u=yi(n,s,t),[l,f]=i.calculateTextureWidthAndHeight(a,4),p=B.computeStrides(u),[d,y]=i.calculateTextureWidthAndHeight(u,4),w=t.length,v=o.length<3?"0.0":"_B(b)",S=Math.ceil(n[1]*s[2]*s[3]/4),{activationFunction:D,applyActivation:P}=fe(r),A=R(i.session.backend.glContext.version),G=`
-${D}
-float process(int indices[${w}]) {
-  int b[1];
-  b[0] = indices[1];
-  int im2col[4];
-  im2col[0] = indices[0];
-  im2col[1] = indices[2];
-  im2col[2] = indices[3];
-  int im2colOffset = im2col[0] * ${p[0]} + im2col[1] * ${p[1]} + im2col[2] * ${p[2]};
-  int kernelOffset = indices[1] * ${a[1]};
-  float value = ${v};
-  for (int i = 0; i < ${S}; ++i) {
-    vec2 im2colCoords = offsetToCoords(im2colOffset, ${d}, ${y});
-    vec2 kernelCoords = offsetToCoords(kernelOffset, ${l}, ${f});
-    value += dot(${A.texture2D}(Im2Col, im2colCoords), ${A.texture2D}(K, kernelCoords));
-    ++im2colOffset;
-    ++kernelOffset;
-  }
-  ${P}
-  return value;
-}`;return{...e,output:{dims:t,type:o[0].type,textureType:0},shaderSource:G}},hf=(i,e,o,t)=>{let r=Fm(e.length>2,t);return{...r,get:()=>Cm(i,r,e,o,t)}}});var fr,Ti,Nm,Rm,Gm,Mm,wi,Um,Ln=O(()=>{"use strict";wt();Z();af();pf();mf();We();xi();$n();fr=(i,e,o,t,r)=>{let n=i[0],s=i.slice(2),a=s.length,u=e[0],f=e.slice(2).map((w,v)=>w+(w-1)*(o[v]-1)),d=s.map((w,v)=>w+t[v]+t[v+a]).map((w,v)=>Math.floor((w-f[v]+r[v])/r[v]));return[n,u].concat(...d)},Ti=(i,e,o)=>(Um(e,o),Nm(i,e,o)),Nm=(i,e,o)=>{let t=Mm(o,e),r=i.session.pack,n=t.kernelShape[0]===1&&t.kernelShape[1]===1;return t.group>1?[i.run(of(i,e,t),e)]:n&&r?[Rm(i,e,t)]:r&&e[0].dims.length===4&&e[0].dims[0]===1&&!n?[cf(i,e,t)]:[Gm(i,e,t)]},Rm=(i,e,o)=>{let t=e[0].dims,r=e[1].dims,n=fr(t,r,o.dilations,o.pads,o.strides),s=i.reshapeUnpacked(e[0],[t[1],t[2]*t[3]]),a=i.reshapeUnpacked(e[1],[r[0],r[1]]),u=e.length>2?[a,s,e[2]]:[a,s],l=i.run(mi(u,o),u);return i.reshapeUnpacked(l,n)},Gm=(i,e,o)=>{let t=e[0].dims,r=e[1].dims,n=fr(t,r,o.dilations,o.pads,o.strides),s=i.run(df(i,e[0],e[1],n,o),[e[0]]),a=e.length===3?[s,e[1],e[2]]:[s,e[1]];return i.run(hf(i,e,n,o),a)},Mm=(i,e)=>{let o=i.kernelShape.slice();if(i.kernelShape.length===0)for(let n=2;n<e[1].dims.length;++n)o.push(e[1].dims[n]);let t=i.pads.slice();Ge.adjustPadsBasedOnAutoPad(e[0].dims,i.strides,i.dilations,o,t,i.autoPad);let r=Object.assign({},i);return Object.assign(r,{kernelShape:o,pads:t,cacheKey:i.cacheKey}),r},wi=i=>{let e=i.attributes,o=lr(e),t=e.getString("auto_pad","NOTSET"),r=e.getInts("dilations",[1,1]),n=e.getInt("group",1),s=e.getInts("kernel_shape",[]),a=e.getInts("pads",[0,0,0,0]),u=e.getInts("strides",[1,1]);return W({autoPad:t,dilations:r,group:n,kernelShape:s,pads:a,strides:u,...o})},Um=(i,e)=>{if(!i||i.length!==2&&i.length!==3)throw new Error("Conv requires 2 or 3 inputs");if(i[0].dims.length!==4||i[1].dims.length!==4)throw new Error("currently only support 2-dimensional conv");let o=i[0].dims[1],t=i[1].dims[1]*e.group;if(o!==t)throw new Error("FILTER_IN_CHANNEL should be equal to DATA_CHANNEL");if(i.length===3&&(i[2].dims.length!==1||i[1].dims[0]!==i[2].dims[0]))throw new Error("invalid bias");let r=i[0].dims.length-2;if(e.dilations.length!==r)throw new Error(`dilations should be ${r}D`);if(e.strides.length!==r)throw new Error(`strides should be ${r}D`);if(e.pads.length!==r*2)throw new Error(`pads should be ${r*2}D`);if(e.kernelShape.length!==0&&e.kernelShape.length!==i[1].dims.length-2)throw new Error("invalid kernel shape");if(i[0].type!=="float32"||i[1].type!=="float32")throw new Error("Conv input(X,W) should be float tensor");if(i.length===3&&i[2].type!=="float32")throw new Error("Conv input(bias) should be float tensor")}});var Vm,zm,Wm,bf,Hm,qm,jm,Xm,Km,Jm,gf,Ym,yf=O(()=>{"use strict";wt();ut();j();We();Vm=(i,e,o,t,r,n)=>(i-1)*e+o+(t-1)*r+1-n,zm=(i,e,o,t,r)=>{let n=Math.floor(i/2);e==="SAME_UPPER"?(o[t]=n,o[r]=i-n):e==="SAME_LOWER"&&(o[t]=i-n,o[r]=n)},Wm=(i,e,o,t,r,n,s,a)=>{let u=i.length-2,l=a.length===0;for(let f=0;f<u;++f){let p=l?i[f+2]*n[f]:a[f],d=Vm(i[f+2],n[f],r[f],e[f],o[f],p);zm(d,t,r,f,f+u),l&&a.push(n[f]*(i[f+2]-1)+s[f]+(e[f]-1)*o[f]+1-r[f]-r[f+u])}},bf=(i,e,o)=>(Ym(e,o),Hm(i,e,o)),Hm=(i,e,o)=>{let t=Jm(o,e);return[Km(i,e,t)]},qm=(i,e)=>({name:"ConvTranspose",inputNames:i?["X","W","B"]:["X","W"],inputTypes:i?[0,0,0]:[0,0],cacheHint:e}),jm=(i,e,o,t)=>{let n=e.length>2?"getB(output_channel)":"0.0",s=e[0].dims,a=e[1].dims,u=a[1],l=a[0]/t.group,f=[e[0].dims[0],e[1].dims[1]*t.group,...t.outputShape],p=R(i.session.backend.glContext.version),{activationFunction:d,applyActivation:y}=fe(t),w=`
-  const ivec2 strides = ivec2(${t.strides[0]}, ${t.strides[1]});
-  const ivec2 pads = ivec2(${t.pads[0]}, ${t.pads[1]});
-  ${d}
-  void main() {
-    ivec4 coords = getOutputCoords();
-    int batch = coords.x;
-    int output_channel = coords.y;
-
-    ivec2 loc = coords.zw + pads;
-
-    int group_id = output_channel / ${u};
-    int wOutChannel = output_channel - group_id * ${u};
-
-    float value = ${n};
-    for (int inChannelOffset = 0; inChannelOffset < ${l}; inChannelOffset++) {
-      int input_channel = group_id * ${l} + inChannelOffset;
-      for (int wWOff = 0; wWOff < ${a[2]}; wWOff++) {
-        for (int wHOff = 0; wHOff < ${a[3]}; wHOff++) {
-          ivec2 wOff = ivec2(wWOff * ${t.dilations[0]}, wHOff * ${t.dilations[1]});
-          ivec2 wLoc = loc - wOff;
-          ivec2 wLocIn = wLoc / strides;
-          if (
-            wLocIn * strides == wLoc &&
-            wLocIn.x >= 0 && wLocIn.x < ${s[2]} &&
-            wLocIn.y >= 0 && wLocIn.y < ${s[3]}
-          ) {
-            float xVal = getX(batch, input_channel, wLocIn.y, wLocIn.x);
-            float wVal = getW(input_channel, wOutChannel, wHOff, wWOff);
+          for (var wInChannel: u32 = 0u; wInChannel < uniforms.w_shape[2]; wInChannel++) {
+            let input_channel = in_channel_offset + wInChannel;
+            let xVal = ${I.get("batch","xHeight","xWidth","input_channel")};
+            let wVal = ${E.get("wHeight","wWidth","wInChannel","output_channel")};
             value += xVal * wVal;
           }
         }
       }
-    }
-    ${y}
-    ${p.output} = vec4(value, .0, .0, .0);
-  }
-`;return{...o,output:{dims:f,type:e[0].type,textureType:0},shaderSource:w,hasMain:!0}},Xm=(i,e,o)=>{let t=qm(e.length>2,o.cacheKey);return{...t,get:()=>jm(i,e,t,o)}},Km=(i,e,o)=>i.run(Xm(i,e,o),e),Jm=(i,e)=>{let o=i.kernelShape.slice();if(i.kernelShape.length===0)for(let a=2;a<e[1].dims.length;++a)o.push(e[1].dims[a]);let t=i.pads.slice(),r=i.outputShape.slice(),n=e[0].dims;Wm(n,o,i.dilations,i.autoPad,t,i.strides,i.outputPadding,r);let s=Object.assign({},i);return Object.assign(s,{kernelShape:o,pads:t,outputShape:r,cacheKey:i.cacheKey}),s},gf=i=>{let e=i.attributes,o=lr(e),t=e.getString("auto_pad","NOTSET"),r=e.getInts("dilations",[1,1]),n=e.getInt("group",1),s=e.getInts("kernel_shape",[]),a=e.getInts("output_padding",[0,0]),u=e.getInts("output_shape",[]),l=e.getInts("pads",[0,0,0,0]),f=e.getInts("strides",[1,1]);return W({autoPad:t,dilations:r,group:n,kernelShape:s,outputPadding:a,outputShape:u,pads:l,strides:f,...o})},Ym=(i,e)=>{if(!i||i.length!==2&&i.length!==3)throw new Error("Conv requires 2 or 3 inputs");if(i[0].dims.length!==4||i[1].dims.length!==4)throw new Error("currently only support 2-dimensional conv");let o=i[0].dims[1],t=i[1].dims[0];if(o!==t)throw new Error("FILTER_IN_CHANNEL should be equal to DATA_CHANNEL");let r=i[1].dims[1]*e.group;if(i.length===3&&(i[2].dims.length!==1||i[2].dims[0]!==r))throw new Error("invalid bias");let n=i[0].dims.length-2;if(e.dilations.length!==n)throw new Error(`dilations should be ${n}D`);if(e.strides.length!==n)throw new Error(`strides should be ${n}D`);if(e.pads.length!==n*2)throw new Error(`pads should be ${n*2}D`);if(e.outputPadding.length!==n)throw new Error(`output_padding should be ${n}D`);if(e.kernelShape.length!==0&&e.kernelShape.length!==i[1].dims.length-2)throw new Error("invalid kernel shape");if(e.outputShape.length!==0&&e.outputShape.length!==i[0].dims.length-2)throw new Error("invalid output shape");if(i[0].type!=="float32"||i[1].type!=="float32")throw new Error("ConvTranspose input(X,W) should be float tensor");if(i.length===3&&i[2].type!=="float32")throw new Error("ConvTranspose input(bias) should be float tensor")}});var xf,He,Tf,Zm,wf,Qm,tb,eb,Bn=O(()=>{"use strict";wt();Z();j();xf={name:"Transpose",inputNames:["A"],inputTypes:[0]},He=(i,e,o)=>(eb(e),[i.run({...xf,cacheHint:o.cacheKey,get:()=>Zm(i,e[0],o.perm)},e)]),Tf=i=>W({perm:i.attributes.getInts("perm",[])}),Zm=(i,e,o)=>{let t=e.dims;o=wf(t,o);let r=Qm(t,o),n=t.length,s=`
-      ${tb("perm",o,n)}
-      float process(int indices[${n}]) {
-        int a[${n}];
-        perm(a, indices);
-        return _A(a);
-      }`;return{...xf,output:{dims:r,type:e.type,textureType:0},shaderSource:s}},wf=(i,e)=>(e&&e.length!==i.length&&(e=[...i.keys()].reverse()),e),Qm=(i,e)=>(e=wf(i,e),B.sortBasedOnPerm(i,e)),tb=(i,e,o)=>{let t=[];t.push(`void ${i}(out int a[${o}], int src[${o}]) {`);for(let r=0;r<o;++r)t.push(`	a[${e[r]}]=src[${r}];`);return t.push("	}"),t.join(`
-`)},eb=i=>{if(!i||i.length!==1)throw new Error("Transpose requires 1 input.");if(i[0].type!=="float32"&&i[0].type!=="float64")throw new Error("input should be float tensor")}});var vf,If,rb,_f=O(()=>{"use strict";Bn();vf=(i,e,o)=>{rb(e);let t=o.blocksize,r=t*t,n=o.mode==="DCR"?[0,3,4,1,5,2]:[0,1,4,2,5,3],s=o.mode==="DCR"?[e[0].dims[0],t,t,e[0].dims[1]/r,e[0].dims[2],e[0].dims[3]]:[e[0].dims[0],e[0].dims[1]/r,t,t,e[0].dims[2],e[0].dims[3]],a=i.reshapeUnpacked(e[0],s),u={perm:n,cacheKey:`${n}`},[l]=He(i,[a],u),f=[e[0].dims[0],e[0].dims[1]/r,e[0].dims[2]*t,e[0].dims[3]*t];return[i.reshapeUnpacked(l,f)]},If=i=>{let e=i.attributes.getInt("blocksize");if(e<1)throw new Error(`blocksize must be >= 1, but got : ${e} for DepthToSpace`);let o=i.attributes.getString("mode","DCR");if(o!=="DCR"&&o!=="CRD")throw new Error(`unrecognized mode: ${o} for DepthToSpace`);return{mode:o,blocksize:e}},rb=i=>{if(i.length!==1)throw new Error(`DepthToSpace expect 1 inputs, but got ${i.length}`);if(i[0].type==="string"||i[0].dims.length!==4)throw new TypeError("DepthToSpace input should be a 4-D numeric tensor")}});var Of,Sf,nb,Af=O(()=>{"use strict";Z();Of=(i,e,o)=>{nb(e,o);let t=B.flattenShape(e[0].dims,o);return[i.reshapeUnpacked(e[0],t)]},Sf=i=>i.attributes.getInt("axis",1),nb=(i,e)=>{if(!i||i.length!==1)throw new Error("Flatten requires 1 input.");let o=i[0].dims.length;if(o===0)throw new Error("scalar tensor is not supported.");if(e<-o||e>o)throw new Error("Invalid axis");if(i[0].type==="string")throw new Error("string tensor is not supported.")}});var Ae,Rr=O(()=>{"use strict";Ae=["float32","float64","int32","int16","int8","uint16","uint32","uint8"]});var Pf,Ef,ob,ib,ab,sb,Df=O(()=>{"use strict";wt();Rr();Z();j();Pf=(i,e,o)=>(sb(e,o.axis),[i.run(ab(i,e,o),e)]),Ef=i=>W({axis:i.attributes.getInt("axis",0)}),ob={name:"Gather",inputNames:["A","B"],inputTypes:[0,0]},ib=(i,e,o,t)=>{let r=o[0].dims.slice(),n=o[1].dims.slice(),s=new Array(r.length+n.length-1);t=B.normalizeAxis(t,r.length);let a=[];for(let d=0;d<s.length;d++)d<t?(s[d]=r[d],a.push(`inputIdx[${d}] = outputIdx[${d}];`)):d<t+n.length?(s[d]=n[d-t],a.push(`indexDataIdx[${d-t}] = outputIdx[${d}];`)):(s[d]=r[d-n.length+1],a.push(`inputIdx[${d-n.length+1}] = outputIdx[${d}];`));let u=s.length||1,l=r.length,f=n.length||1,p=`
-      float process(int outputIdx[${u}]) {
-        int inputIdx[${l}];
-        int indexDataIdx[${f}];
-        indexDataIdx[0] = 0;
-        ${a.join(`
-        `)}
-        int idx = int(_B(indexDataIdx));
-        inputIdx[${t}] = idx < 0 ? idx + ${r[t]} : idx;
-        return _A(inputIdx);
-      }`;return{...e,output:{dims:s,type:o[0].type,textureType:0},shaderSource:p}},ab=(i,e,o)=>{let t={...ob,cacheHint:o.cacheKey};return{...t,get:()=>ib(i,t,e,o.axis)}},sb=(i,e)=>{if(!i||i.length!==2)throw new Error("Gather requires 2 inputs.");let o=i[0].dims.length;if(o<1)throw new Error("Invalid input shape.");if(e<-o||e>o-1)throw new Error("Invalid axis.");if(Ae.indexOf(i[0].type)===-1)throw new Error("Invaid input type.");if(i[1].type!=="int32"&&i[1].type!=="int16")throw new Error("Invaid input type.")}});var vi,Lf,$f,kf,ub,lb,fb,Bf=O(()=>{"use strict";wt();Z();j();vi=(i,e,o)=>(fb(e,o),[i.run(ub(e,o),e)]),Lf=(i,e)=>{let o=i.attributes.getInt("transA",0)!==0,t=i.attributes.getInt("transB",0)!==0,r=i.attributes.getFloat("alpha",1),n=i.attributes.getFloat("beta",1);return W({transA:o,transB:t,alpha:r,beta:n,isOptionalC:e})},$f=i=>Lf(i,!1),kf=i=>Lf(i,!0),ub=(i,e)=>{let o={name:"Gemm",inputNames:i.length===3?["A","B","C"]:["A","B"],inputTypes:i.length===3?[0,0,0]:[0,0],key:e.cacheKey};return{...o,get:()=>lb(o,i,e)}},lb=(i,e,o)=>{let t=e[0].dims.slice(),r=e[1].dims.slice(),[n,s]=In.getShapeOfGemmResult(t,o.transA,r,o.transB,e.length===3?e[2].dims:void 0),a=[n,s];if(!a)throw new Error("Can't use gemm on the given tensors");let u=t[t.length-1],l="";o.transA&&(u=t[0]),o.transA&&o.transB?l="value += _A_T(a) * _B_T(b);":o.transA&&!o.transB?l="value += _A_T(a) * _B(b);":!o.transA&&o.transB?l="value += _A(a) * _B_T(b);":!o.transA&&!o.transB&&(l="value += _A(a) * _B(b);");let f=a.length,p=e.length===3?`int c[${e[2].dims.length}];`:"",d=e.length===3?"bcastIndices_C(indices, c);":"",y=e.length===3?"value += beta * _C(c);":"",w=`
-      float process(int indices[${f}]) {
-          int a[${f}];
-          int b[${f}];
-          ${p}
+      `:`
+      for (var wInChannel: u32 = 0u; wInChannel < uniforms.w_shape[1]; wInChannel++) {
+        let input_channel = in_channel_offset + wInChannel;
+        for (var wHeight: u32 = 0u; wHeight < uniforms.w_shape[2]; wHeight++) {
+          let xHeight = xRCCorner.x + wHeight * uniforms.dilations[0];
 
-          copyVec(indices, a);
-          copyVec(indices, b);
-          ${d}
-
-          float value = 0.0;
-          for (int k=0; k<${u}; ++k) {
-              a[${f-1}] = k;
-              b[${f-2}] = k;
-              ${l}
+          if (xHeight < 0u || xHeight >= uniforms.x_shape[2]) {
+            continue;
           }
 
-          value = value * alpha;
-          ${y}
-          return value;
-      }`;return{...i,output:{dims:a,type:e[0].type,textureType:0},variables:[{name:"alpha",type:"float",data:o.alpha},{name:"beta",type:"float",data:o.beta}],shaderSource:w}},fb=(i,e)=>{if(!i)throw new Error("Input is missing");if(e.isOptionalC&&(i.length<2||i.length>3))throw new Error("Invaid input shape.");if(!e.isOptionalC&&i.length!==3)throw new Error("Gemm requires 3 inputs");if(i.length===3&&i[2].dims.length!==1&&i[2].dims.length!==2)throw new Error("Invalid input shape of C");if(i[0].type!=="float32"&&i[0].type!=="float64"||i[1].type!=="float32"&&i[1].type!=="float64"||i.length===3&&i[2].type!=="float32"&&i[2].type!=="float64")throw new Error("Invalid input type.");if(i[0].type!==i[1].type||i.length===3&&i[0].type!==i[2].type)throw new Error("Input types are mismatched")}});var Ff,Cf,cb,pb,db,hb,mb,Nf=O(()=>{"use strict";wt();j();Ff=(i,e,o)=>(mb(e),[i.run(db(i,e,o),e)]),Cf=i=>{let e=i.attributes.getFloat("scale"),o=i.attributes.getFloats("bias");return W({scale:e,bias:o})},cb={name:"ImageScaler",inputNames:["X"],inputTypes:[0]},pb=(i,e,o,t)=>{let r=o[0].dims.slice(),n=r.length,a=`
-      ${hb(t.bias.length)}
-      float process(int indices[${n}]) {
-        return _X(indices) * scale + getBias(bias, indices[1]);
-      }`;return{...e,output:{dims:r,type:o[0].type,textureType:0},variables:[{name:"bias",type:"float",arrayLength:t.bias.length,data:t.bias},{name:"scale",type:"float",data:t.scale}],shaderSource:a}},db=(i,e,o)=>{let t={...cb,cacheHint:o.cacheKey};return{...t,get:()=>pb(i,t,e,o)}},hb=i=>{let e=[`float getBias(float bias[${i}], int channel) {`];for(let o=0;o<i;++o)o===0?e.push(`	if (channel == ${o}) { return bias[${o}]; }`):o===i-1?e.push(`	else { return bias[${o}]; }`):e.push(`	else if (channel == ${o}) { return bias[${o}]; }`);return e.push("	}"),e.join(`
-`)},mb=i=>{if(!i||i.length!==1)throw new Error("ImageScaler requires 1 input.");if(i[0].dims.length!==4)throw new Error("Invalid input shape.");if(i[0].type!=="float32"&&i[0].type!=="float64")throw new Error("Invalid input type.")}});var Gf,Mf,Rf,bb,gb,yb,xb,Tb,wb,Uf=O(()=>{"use strict";ut();j();Gf=(i,e,o)=>{wb(e);let t=i.run(gb(e[0]),e);return[i.run(Tb(i,e[0],o,t.dims),[e[0],t,e[1],e[2]])]},Mf=i=>i.attributes.getFloat("epsilon",1e-5),Rf={name:"InstanceNormalization_MeanAndVariance",inputNames:["X"],inputTypes:[0]},bb=(i,e)=>{let o=e.dims.slice(),t=o[1],r=o[2]*o[3],n=[o[0],t],s=`
-      vec4 process(int[2] indices) {
-        vec4 v = vec4(0.0);
-        int a[4];
-        a[0] = indices[0];
-        a[1] = indices[1];
-        float temp = 0.0;
-        for(int a2=0; a2<${o[2]}; a2++) {
-          a[2] = a2;
-          for(int a3=0; a3<${o[3]}; a3++) {
-            a[3] = a3;
-            float x = _X(a);
-            temp += x;
-          }
-        }
-        float mean = temp / float(${r});
-        temp = 0.0;
-        for(int a2=0; a2<${o[2]}; a2++) {
-          a[2] = a2;
-          for(int a3=0; a3<${o[3]}; a3++) {
-            a[3] = a3;
-            float x = _X(a);
-            temp += (x - mean) * (x - mean);
-          }
-        }
-        v.r = mean;
-        v.g = temp / float(${r});
-
-        return v;
-      }`;return{...i,output:{dims:n,type:e.type,textureType:4},shaderSource:s}},gb=i=>({...Rf,get:()=>bb(Rf,i)}),yb={name:"InstanceNormalization_ComputeOutput",inputNames:["X","MeanAndVariance","Scale","B"],inputTypes:[0,4,0,0]},xb=(i,e,o,t,r)=>{let n=R(i.session.backend.glContext.version),[s,a]=i.calculateTextureWidthAndHeight(r,4),[u,l]=[s/4,a],f=`
-      vec4 get_MeanAndVariance(int[2] mv) {
-        int offset = indicesToOffset_MeanAndVariance(mv);
-        vec2 coords = offsetToCoords(offset, ${u}, ${l});
-        return ${n.texture2D}(MeanAndVariance, coords);
-      }
-
-      float process(int[4] indices) {
-        int mv[2];
-        mv[0] = indices[0];
-        mv[1] = indices[1];
-        vec4 mean_and_variance = get_MeanAndVariance(mv);
-        float mean = mean_and_variance.r;
-        float variance = mean_and_variance.g;
-
-        int sb[1];
-        sb[0] = indices[1];
-        float scale = _Scale(sb);
-        float b = _B(sb);
-
-        return scale * (_X(indices) - mean) / sqrt(variance + epsilon) + b;
-      }`;return{...e,output:{dims:o.dims,type:o.type,textureType:0},variables:[{name:"epsilon",type:"float",data:t}],shaderSource:f}},Tb=(i,e,o,t)=>{let r={...yb,cacheHint:`${o}`};return{...r,get:()=>xb(i,r,e,o,t)}},wb=i=>{if(!i||i.length!==3)throw new Error("InstanceNormalization requires 3 inputs.");let e=i[0],o=i[1],t=i[2];if(e.dims.length<3||o.dims.length!==1||t.dims.length!==1)throw new Error("Invalid input shape.");if(o.dims[0]!==e.dims[1]||t.dims[0]!==e.dims[1])throw new Error("Input shapes are mismatched.");if(e.type!=="float32"&&e.type!=="float64"||o.type!=="float32"&&o.type!=="float64"||t.type!=="float32"&&t.type!=="float64")throw new Error("Invalid input type.");if(i[0].dims.length!==4)throw new Error("Only support 4-D input shape.")}});function vb(i,e){let o=i[0].dims[1],t=i[0].dims.length,r=-Math.floor((e.size-1)/2),n=Math.ceil((e.size-1)/2),s=`float(${e.alpha}) / float(${e.size})`,a=`float(${e.bias})`,u=`float(${e.beta})`,l=`
-    float process(int indices[${t}]) {
-        int c = indices[1];
-        float x = _X(indices);
-        float square_sum = 0.0;
-
-        for (int i = ${r}; i <= ${n}; i++) {
-          int idx = c + i;
-          if (c >= 0 && c < ${o}) {
-            indices[1] = idx;
-            float j = _X(indices);
-            square_sum += j * j;
-          }
-        }
-        return x / pow(${a} + ${s} * square_sum, ${u});
-    }`;return{...Wf,cacheHint:e.cacheKey,output:{dims:i[0].dims,type:i[0].type,textureType:0},shaderSource:l}}function Ib(i,e){return{...Wf,cacheHint:e.cacheKey,get:()=>vb(i,e)}}var Vf,zf,Wf,_b,Hf=O(()=>{"use strict";wt();j();Vf=(i,e,o)=>(_b(e),[i.run(Ib(e,o),e)]),zf=i=>{let e=i.attributes.getFloat("alpha",1e-4),o=i.attributes.getFloat("beta",.75),t=i.attributes.getFloat("bias",1),r=i.attributes.getInt("size");return W({alpha:e,beta:o,bias:t,size:r})},Wf={name:"LRN",inputNames:["X"],inputTypes:[0]};_b=i=>{if(!i||i.length!==1)throw new Error("LRN requires 1 input.");if(i[0].dims.length!==4)throw new Error('currently only support LRN for input with "NCHW" format');if(i[0].type!=="float32")throw new Error("input should be float type")}});var Ob,Ii,qf,jf,Xf,Sb,Ab,Pb,Eb,Db,Lb,$b,kb,Kf=O(()=>{"use strict";wt();Z();ut();j();Ob={name:"Pad",inputNames:["A"],inputTypes:[0]},Ii=(i,e,o)=>(Pb(e),[i.run({...Ob,cacheHint:o.cacheKey,get:()=>Ab(i,e[0],o)},e)]),qf=i=>{let e=i.attributes.getString("mode","constant"),o=i.attributes.getFloat("value",0),t=i.attributes.getInts("pads");return W({mode:e,value:o,pads:t})},jf=(i,e,o)=>{Eb(e);let t=Sb(i,e,o);return Ii(i,[e[0]],t)},Xf=i=>i.attributes.getString("mode","constant"),Sb=(i,e,o)=>{if(!i.session.isInitializer(e[1].dataId)||e.length>=3&&!i.session.isInitializer(e[2].dataId))throw new Error("dynamic pad attributes are not allowed");let t=Array.from(e[1].integerData),r=e.length>=3?e[2].floatData[0]:0;return W({mode:o,pads:t,value:r})},Ab=(i,e,o)=>{let t=B.padShape(e.dims.slice(),o.pads),r=t.length,s=`
-      ${Db(i,e,o)}
-      float process(int[${r}] indices) {
-          return padA(indices);
-      }`;return{name:"Pad",inputNames:["A"],inputTypes:[0],output:{dims:t,type:e.type,textureType:0},shaderSource:s}},Pb=i=>{if(!i||i.length!==1)throw new Error("Pad requires 1 input");if(i[0].type!=="float32"&&i[0].type!=="float64")throw new Error("Invalid input type.")},Eb=i=>{if(!i||i.length!==2&&i.length!==3)throw new Error("Pad requires 2 or 3 inputs");if(i[1].type!=="int32")throw new Error("Invalid input type.");if(i.length>=3&&i[2].type==="string")throw new Error("Invalid input type.")},Db=(i,e,o)=>{let t=R(i.session.backend.glContext.version),[r,n]=i.calculateTextureWidthAndHeight(e.dims,0),s=B.computeStrides(e.dims);switch(o.mode){case"constant":return Lb(t,e.dims,s,r,n,o.pads,o.value);case"reflect":return $b(t,e.dims,s,r,n,o.pads);case"edge":return kb(t,e.dims,s,r,n,o.pads);default:throw new Error("Invalid mode")}},Lb=(i,e,o,t,r,n,s)=>{let a=e.length,u="";for(let l=a-1;l>=0;--l)u+=`
-        k = m[${l}] - ${n[l]};
-        if (k < 0)  return constant;
-        if (k >= ${e[l]}) return constant;
-        offset += k * ${o[l]};
-        `;return`
-      float padA(int m[${a}]) {
-        const float constant = float(${s});
-        int offset = 0;
-        int k = 0;
-        ${u}
-        vec2 coords = offsetToCoords(offset, ${t}, ${r});
-        float value = getColorAsFloat(${i.texture2D}(A, coords));
-        return value;
-      }
-      `},$b=(i,e,o,t,r,n)=>{let s=e.length,a="";for(let u=s-1;u>=0;--u)a+=`
-        k = m[${u}] - ${n[u]};
-        if (k < 0) { k = -k; }
-        {
-          const int _2n_1 = ${2*(e[u]-1)};
-          k = int( mod( float(k), float(_2n_1) ) ) ;
-          if(k >= ${e[u]}) { k = _2n_1 - k; }
-        }
-        offset += k * ${o[u]};
-        `;return`
-      float padA(int m[${s}]) {
-        int offset = 0;
-        int k = 0;
-        ${a}
-        vec2 coords = offsetToCoords(offset, ${t}, ${r});
-        float value = getColorAsFloat(${i.texture2D}(A, coords));
-        return value;
-      }
-      `},kb=(i,e,o,t,r,n)=>{let s=e.length,a="";for(let u=s-1;u>=0;--u)a+=`
-        k = m[${u}] - ${n[u]};
-        if (k < 0)  k = 0;
-        if (k >= ${e[u]}) k = ${e[u]-1};
-        offset += k * ${o[u]};
-      `;return`
-      float padA(int m[${s}]) {
-        int offset = 0;
-        int k = 0;
-        ${a}
-        vec2 coords = offsetToCoords(offset, ${t}, ${r});
-        float value = getColorAsFloat(${i.texture2D}(A, coords));
-        return value;
-      }
-      `}});var Yf,Zf,Qf,tc,ec,rc,nc,oc,ic,Bb,Jf,ac,Cn,sc,Fn,Fb,uc=O(()=>{"use strict";wt();Z();j();Yf=(i,e,o)=>{Cn(e);let t={name:"AveragePool",inputNames:["X"],inputTypes:[0],cacheHint:o.cacheKey};return[i.run({...t,get:()=>Qf(e,t,!1,o)},e)]},Zf=i=>{let e=i.attributes.getString("auto_pad","NOTSET"),o=i.attributes.getInt("ceil_mode",0),t=i.attributes.getInt("count_include_pad",0)!==0,r=i.attributes.getInts("kernel_shape"),n=i.attributes.getInts("strides",[]),s=i.attributes.getInts("pads",[]);if(o!==0)throw new Error("using ceil() in shape computation is not yet supported for AveragePool");return W({autoPad:e,ceilMode:o,countIncludePad:t,kernelShape:r,strides:n,pads:s})},Qf=(i,e,o,t)=>{let[r,n]=ic(i,t,o),s=B.size(r.kernelShape),a="value += _X(x);",u="";r.countIncludePad?u+=`value /= float(${s});`:u+=`value /= float(${s} - pad);`;let f=`
-        ${sc(i[0].dims,r,a,u,"0.0")}
-      `;return{...e,output:{dims:n,type:i[0].type,textureType:0},shaderSource:f}},tc=(i,e,o)=>{Cn(e);let t={name:"GlobalAveragePool",inputNames:["X"],inputTypes:[0],cacheHint:`${o.countIncludePad}`};return[i.run({...t,get:()=>Qf(e,t,!0,o)},e)]},ec=i=>{let e=i.attributes.getInt("count_include_pad",0)!==0;return W({autoPad:"",ceilMode:0,countIncludePad:e,kernelShape:[],strides:[],pads:[]})},rc=(i,e,o)=>{Cn(e);let t={name:"MaxPool",inputNames:["X"],inputTypes:[0],cacheHint:o.cacheKey};return[i.run({...t,get:()=>oc(e,t,!1,o)},e)]},nc=i=>{let e=i.attributes.getString("auto_pad","NOTSET"),o=i.attributes.getInt("ceil_mode",0),t=i.attributes.getInts("kernel_shape"),r=i.attributes.getInts("strides",[]),n=i.attributes.getInts("pads",[]),s=i.attributes.getInt("storage_order",0),a=i.attributes.getInts("dilations",[]);if(s!==0)throw new Error("column major storage order is not yet supported for MaxPool");if(o!==0)throw new Error("using ceil() in shape computation is not yet supported for MaxPool");return W({autoPad:e,ceilMode:o,countIncludePad:!1,kernelShape:t,strides:r,pads:n,storageOrder:s,dilations:a})},oc=(i,e,o,t)=>{let[r,n]=ic(i,t,o),s=`
-      value = max(_X(x), value);
-    `,a="",l=`
-      ${sc(i[0].dims,r,s,a,"-1e5")}
-    `;return{...e,output:{dims:n,type:i[0].type,textureType:0},shaderSource:l}},ic=(i,e,o)=>{let t=i[0].dims.slice(),r=Object.hasOwnProperty.call(e,"dilations"),n=e.kernelShape.slice(),s=e.strides.slice(),a=r?e.dilations.slice():[],u=e.pads.slice();Ge.adjustPoolAttributes(o,t,n,s,a,u);let l=Ge.computePoolOutputShape(o,t,s,a,n,u,e.autoPad),f=Object.assign({},e);return r?Object.assign(f,{kernelShape:n,strides:s,pads:u,dilations:a,cacheKey:e.cacheKey}):Object.assign(f,{kernelShape:n,strides:s,pads:u,cacheKey:e.cacheKey}),[f,l]},Bb={autoPad:"",ceilMode:0,countIncludePad:!1,kernelShape:[],strides:[],pads:[],storageOrder:0,dilations:[],cacheKey:""},Jf={name:"GlobalMaxPool",inputNames:["X"],inputTypes:[0]},ac=(i,e)=>(Cn(e),[i.run({...Jf,get:()=>oc(e,Jf,!0,Bb)},e)]),Cn=i=>{if(!i||i.length!==1)throw new Error("Pool ops requires 1 input.");if(i[0].type!=="float32"&&i[0].type!=="float64")throw new Error("Invalid input type.")},sc=(i,e,o,t,r)=>{let n=i.length;if(e.kernelShape.length<=2){let s=e.kernelShape[e.kernelShape.length-1],a=e.strides[e.strides.length-1],u=e.pads[e.pads.length/2-1],l=e.pads[e.pads.length-1],f=i[n-1],p="",d="",y="";if(u+l!==0?p=`
-          for (int i = 0; i < ${s}; i++) {
-            x[${n} - 1] = indices[${n} - 1] * ${a} - ${u} + i;
-            if (x[${n} - 1] < 0 || x[${n} - 1] >= ${f}) {
-              pad++;
+          for (var wWidth: u32 = 0u; wWidth < uniforms.w_shape[3]; wWidth++) {
+            let xWidth = xRCCorner.y + wWidth * uniforms.dilations[1];
+            if (xWidth < 0u || xWidth >= uniforms.x_shape[3]) {
               continue;
             }
-            ${o}
-          }`:p=`
-          for (int i = 0; i < ${s}; i++) {
-            x[${n} - 1] = indices[${n} - 1] * ${a} - ${u} + i;
-            ${o}
-          }`,e.kernelShape.length===2){let v=e.kernelShape[e.kernelShape.length-2],S=e.strides[e.strides.length-2],D=e.pads[e.pads.length/2-2],P=e.pads[e.pads.length-2],A=i[n-2];D+P!==0?d=`
-            for (int j = 0; j < ${v}; j++) {
-              x[${n} - 2] = indices[${n} - 2] * ${S} - ${D} + j;
-              if (x[${n} - 2] < 0 || x[${n} - 2] >= ${A}) {
-                pad+= ${s};
+
+            let xVal = ${I.get("batch","input_channel","xHeight","xWidth")};
+            let wVal = ${E.get("output_channel","wInChannel","wHeight","wWidth")};
+            value += xVal * wVal;
+          }
+        }
+      }
+      `;return`
+  ${S.registerUniforms(O).declareVariables(...A,x)}
+
+  ${S.mainStart()}
+    ${S.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+
+    let outputIndices = ${x.offsetToIndices("global_idx")};
+    let batch: u32 = outputIndices[0];
+    let output_channel: u32 = outputIndices[${d?3:1}];
+    let xRCCorner: vec2<u32> = vec2<u32>(outputIndices[${d?1:2}], outputIndices[${d?2:3}]) * uniforms.strides - uniforms.pads;
+    let group_id: u32 = output_channel * ${m} / uniforms.output_channels_per_group;
+    var in_channel_offset = group_id * uniforms.w_shape[${d?2:1}];
+
+    var value: ${x.type.value} = ${x.type.value}(0);
+    ${w}
+    ${i}
+    ${T}
+    ${x.setByOffset("global_idx","value")}
+  }`};return{name:"GroupedConv",shaderCache:{hint:`${e.cacheKey}_${m}`,inputDependencies:y},getRunData:()=>({outputs:[{dims:n?n(r):r,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(g/64)},programUniforms:b}),getShaderSource:_}},Nd=(t,e,r,n)=>{let o=t.length>2,i=fe(r[3]),a=fe(r[2]),u=k.size(r)/i/a,d=[t[0].dims[0],t[0].dims[1],t[0].dims[2],t[0].dims[3]/i],c=[t[1].dims[0],t[1].dims[1],t[1].dims[2],t[1].dims[3]/i],p=[r[0],r[1],r[2],r[3]/i],m=[{type:12,data:u},{type:6,data:[e.strides[0],e.strides[1]]},{type:6,data:[e.pads[0],e.pads[1]]}];Ye(e,m),m.push(...W(d,c,p));let g=(a-1)*e.strides[1]+c[1],b=y=>{let _=R("output",t[0].dataType,p.length,i),S=we(_.type.tensor),x=Ze(e,_.type.value,S),$=D("x",t[0].dataType,d.length,i),T=D("w",t[1].dataType,c.length,i),I=[$,T];o&&I.push(D("b",t[2].dataType,t[2].dims,i));let E=o?"value += b[output_channel];":"",A=[{name:"output_size",type:"u32"},{name:"strides",type:"i32",length:2},{name:"pads",type:"i32",length:2}];return Xe(e,A),`
+  ${y.registerUniforms(A).declareVariables(...I,_)}
+  ${y.mainStart()}
+    ${y.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+    let width0 = uniforms.output_shape[3];
+    let output_channel = global_idx % width0;
+    var index1 = global_idx / width0;
+    let width1 = uniforms.output_shape[2] / ${a}u;
+    let col = (index1 % width1) * ${a}u;
+    index1 = index1 / width1;
+    let row = index1 % uniforms.output_shape[1];
+    let batch = index1 / uniforms.output_shape[1];
+
+    let x_corner = vec2<i32>(i32(row), i32(col)) * uniforms.strides - uniforms.pads;
+
+    var x_vals: array<${$.type.value}, ${g}>;
+    var values: array<${_.type.value}, ${a}>;
+    let input_channel = output_channel;
+    // Use constant instead of uniform can give better performance for w's height/width.
+    for (var w_height: u32 = 0u; w_height < ${c[0]}; w_height++) {
+      let x_height = x_corner.x + i32(w_height);
+      if (x_height >= 0 && u32(x_height) < uniforms.x_shape[1]) {
+        for (var i = 0; i < ${g}; i++) {
+          let x_width = x_corner.y + i;
+          if (x_width >= 0 && u32(x_width) < uniforms.x_shape[2]) {
+            x_vals[i] = ${$.get("batch","u32(x_height)","u32(x_width)","input_channel")};
+          } else {
+            x_vals[i] = ${$.type.value}(0);
+          }
+        }
+        for (var w_width: u32 = 0u; w_width < ${c[1]}; w_width++) {
+          let w_val = ${T.get("w_height","w_width","0","output_channel")};
+          for (var i = 0u; i < ${a}u; i++) {
+            values[i] = fma(x_vals[i * u32(uniforms.strides[1]) + w_width], w_val, values[i]);
+          }
+        }
+      }
+    }
+
+    for (var i = 0u; i < ${a}u; i++) {
+      var value = values[i];
+      ${E}
+      ${x}
+      ${_.set("batch","row","col + i","output_channel","value")};
+    }
+  }`};return{name:"GroupedConv-Vectorize",shaderCache:{hint:`${e.cacheKey};${i};${a};${g};${c[0]};${c[1]}`,inputDependencies:o?["rank","rank","type"]:["rank","rank"]},getRunData:()=>({outputs:[{dims:n?n(r):r,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(u/64)},programUniforms:m}),getShaderSource:b}}});var ag,To,sg,Io,Co,Ld,ug,dg,Ao,Wd=V(()=>{"use strict";te();Dd();Rd();dn();Vd();St();un();pt();ag=(t,e,r,n,o,i)=>{let a=t[0],u=t.slice(i?1:2,i?3:4),d=u.length,c=e[0],m=e.slice(2).map((y,_)=>y+(y-1)*(r[_]-1)),b=u.map((y,_)=>y+n[_]+n[_+d]).map((y,_)=>Math.floor((y-m[_]+o[_])/o[_]));return b.splice(0,0,a),b.splice(i?3:1,0,c),b},To=[2,3,1,0],sg=(t,e)=>{if(!t||t.length!==2&&t.length!==3)throw new Error("Conv requires 2 or 3 inputs");if(t[0].dims.length>5)throw new Error("greater than 5D is not supported");if(t[0].dims.length!==t[1].dims.length)throw new Error("filter does not have same dimension as input");let r=t[0].dims[e.format==="NHWC"?t[0].dims.length-1:1],n=t[1].dims[1]*e.group;if(r!==n)throw new Error("FILTER_IN_CHANNEL should be equal to DATA_CHANNEL");if(t.length===3&&(t[2].dims.length!==1||t[1].dims[0]!==t[2].dims[0]))throw new Error("invalid bias");let o=t[0].dims.length-2;if(e.dilations.length!==o)throw new Error(`dilations should be ${o}D`);if(e.strides.length!==o)throw new Error(`strides should be ${o}D`);if(e.pads.length!==o*2)throw new Error(`pads should be ${o*2}D`);if(e.kernelShape.length!==0&&e.kernelShape.length!==t[1].dims.length-2)throw new Error("invalid kernel shape")},Io=(t,e)=>{let r=t.kernelShape.slice();r.length<e[1].dims.length-2&&r.push(...Array(e[1].dims.length-2-r.length).fill(0));for(let i=2;i<e[1].dims.length;++i)r[i-2]===0&&(r[i-2]=e[1].dims[i]);let n=t.pads.slice();zt.adjustPadsBasedOnAutoPad(e[0].dims,t.strides,t.dilations,r,n,t.format==="NHWC",t.autoPad);let o=Object.assign({},t);return Object.assign(o,{kernelShape:r,pads:n}),o},Co=t=>{let e=on(t),r=t.format,n=["NOTSET","VALID","SAME_UPPER","SAME_LOWER"][t.auto_pad],o=t.dilations,i=t.group,a=t.kernel_shape,u=t.pads,d=t.strides,c=t.w_is_const();return{autoPad:n,format:r,dilations:o,group:i,kernelShape:a,pads:u,strides:d,wIsConst:c,...e,cacheKey:`${t.format};${e.activation};`}},Ld=(t,e,r,n)=>{let o=r.format==="NHWC",i=ag(e[0].dims,e[1].dims,r.dilations,r.pads,r.strides,o);if(r.group!==1){let A=[e[0]];if(o){let w=t.kernelCustomData.wT??t.compute(ze(e[1],To),{inputs:[1],outputs:[r.wIsConst?-2:-1]})[0];r.wIsConst&&!t.kernelCustomData.wT&&(t.kernelCustomData.wT=w),A.push(w)}else A.push(e[1]);e.length===3&&A.push(e[2]),!t.adapterInfo.isArchitecture("ampere")&&o&&e[1].dims[0]===r.group&&e[1].dims[1]===1&&r.dilations[0]===1&&r.dilations[1]===1?t.compute(Nd(A,r,i,n),{inputs:A}):t.compute(Ud(A,r,i,n),{inputs:A});return}let a=e.length===3,u=e[0].dims[o?1:2],d=e[0].dims[o?2:3],c=e[0].dims[o?3:1],p=e[1].dims[2],m=e[1].dims[3],g=i[o?1:2],b=i[o?2:3],y=i[o?3:1],_=o&&p===u&&m===d&&r.pads[0]===0&&r.pads[1]===0;if(_||p===1&&m===1&&r.dilations[0]===1&&r.dilations[1]===1&&r.strides[0]===1&&r.strides[1]===1&&r.pads[0]===0&&r.pads[1]===0){let A=i[0],O,w,U,N=[];if(o){let X=t.kernelCustomData.wT??t.compute(ze(e[1],To),{inputs:[1],outputs:[r.wIsConst?-2:-1]})[0];if(r.wIsConst&&!t.kernelCustomData.wT&&(t.kernelCustomData.wT=X),_){let z=u*d*c;O=e[0].reshape([1,A,z]),w=X.reshape([1,z,y]),U=[1,A,y]}else O=e[0].reshape([A,u*d,c]),w=X.reshape([1,c,y]),U=[A,g*b,y];N.push(O),N.push(w)}else O=e[0].reshape([A,c,u*d]),w=e[1].reshape([1,y,c]),U=[A,y,g*b],N.push(w),N.push(O);a&&N.push(e[2]);let F=U[2],q=N[0].dims[N[0].dims.length-1];F<8&&q<8?t.compute(sn(N,r,i,U,o,n),{inputs:N}):t.compute(ur(N,r,i,U,o,n),{inputs:N});return}let S=!0,x=t.kernelCustomData.wT??t.compute(ze(e[1],To),{inputs:[1],outputs:[r.wIsConst?-2:-1]})[0];r.wIsConst&&!t.kernelCustomData.wT&&(t.kernelCustomData.wT=x);let $=[e[0],x];a&&$.push(e[2]);let T=o?g*b:y,I=o?y:g*b,E=p*m*c;t.compute(Pd($,r,i,T,I,E,a,S,n),{inputs:$})},ug=(t,e)=>{let r=e.format==="NHWC",n=[t.inputs[0].reshape(r?[t.inputs[0].dims[0],1,t.inputs[0].dims[1],t.inputs[0].dims[2]]:[t.inputs[0].dims[0],t.inputs[0].dims[1],1,t.inputs[0].dims[2]]),t.inputs[1].reshape([t.inputs[1].dims[0],t.inputs[1].dims[1],1,t.inputs[1].dims[2]])];t.inputs.length===3&&n.push(t.inputs[2]);let o=[0,e.pads[0],0,e.pads[1]],i=[1].concat(e.strides),a=[1].concat(e.dilations),u=[1].concat(e.kernelShape),d=Io({...e,pads:o,strides:i,dilations:a,kernelShape:u},n);Ld(t,n,d,c=>r?[c[0],c[2],c[3]]:[c[0],c[1],c[3]])},dg=(t,e,r)=>{let n=r.format==="NHWC"?"channelsLast":"channelsFirst",o=Io(r,e),i=r.autoPad==="NOTSET"?r.pads:r.autoPad,a=Bd(e[0].dims,e[1].dims,r.strides,r.dilations,i,!1,n);t.compute(Md(e,o,a.outShape,[a.filterDepth,a.filterHeight,a.filterWidth],[a.padInfo.front,a.padInfo.top,a.padInfo.left],n))},Ao=(t,e)=>{if(sg(t.inputs,e),t.inputs[0].dims.length===3)ug(t,e);else if(t.inputs[0].dims.length===5)dg(t,t.inputs,e);else{let r=Io(e,t.inputs);Ld(t,t.inputs,r)}}});var Gd,Hd=V(()=>{"use strict";ee();nt();te();oe();Gd=(t,e,r)=>{let n=t.length>2,o=e.outputShape,i=e.format==="NHWC",a=e.group,u=t[1].dims,d=u[2]/a,c=u[3],p=i?fe(d):1,m=i&&c===1&&d>=4,g=m?Math.floor(d/4)*4:Math.floor(d/p)*p,b=d-g,y=i?fe(c):1,_=i?c===1?p:y:1,S=k.size(o)/y,x=[Math.ceil(S/64),1,1];se("verbose",()=>`[conv2d_backprop_webgpu] dispatch = ${x}`);let $=["rank","rank"],T=[e.strides[0],e.strides[1]],I=[e.kernelShape[i?1:2],e.kernelShape[i?2:3]],E=[e.dilations[0],e.dilations[1]],A=[I[0]+(e.dilations[0]<=1?0:(e.kernelShape[i?1:2]-1)*(e.dilations[0]-1)),I[1]+(e.dilations[1]<=1?0:(e.kernelShape[i?2:3]-1)*(e.dilations[1]-1))],O=[A[0]-1-Math.floor((e.pads[0]+e.pads[2])/2),A[1]-1-Math.floor((e.pads[1]+e.pads[3])/2)],w=[{type:12,data:S},{type:12,data:T},{type:12,data:I},{type:12,data:E},{type:12,data:A},{type:6,data:O},{type:12,data:g},{type:12,data:d},{type:12,data:c},...W(t[0].dims,t[1].dims)];n&&(w.push(...W(t[2].dims)),$.push("rank")),w.push(...W(o));let U=N=>{let F=[{name:"output_size",type:"u32"},{name:"strides",type:"u32",length:T.length},{name:"filter_dims",type:"u32",length:I.length},{name:"dilations",type:"u32",length:I.length},{name:"effective_filter_dims",type:"u32",length:A.length},{name:"pads",type:"i32",length:O.length},{name:"input_channels_per_group_int",type:"u32"},{name:"input_channels_per_group",type:"u32"},{name:"output_channels_per_group",type:"u32"}],q=we(t[0].dataType),X=i?1:2,z=i?2:3,L=i?3:1,Z=D("W",t[1].dataType,t[1].dims.length,_),Y=D("Dy",t[0].dataType,t[0].dims.length,p),Q=[Y,Z];n&&Q.push(D("bias",t[2].dataType,[o[L]].length,y));let ne=R("result",t[0].dataType,o.length,y),ie=()=>{let ve="";if(m)p===4?ve+=`
+        let xValue = ${Y.getByOffset("x_offset")};
+        let wValue = ${Z.getByOffset("w_offset")};
+        dotProd = dotProd + dot(xValue, wValue);
+        x_offset += 1u;
+        w_offset += 1u;`:p===2?ve+=`
+          dotProd = dotProd + dot(vec4<${q}>(${Y.getByOffset("x_offset")}, ${Y.getByOffset("x_offset + 1u")}), vec4<${q}>(${Z.getByOffset("w_offset")}, ${Z.getByOffset("w_offset + 1u")}));
+          x_offset += 2u;
+          w_offset += 2u;`:p===1&&(ve+=`
+          dotProd = dotProd + dot(vec4<${q}>(${Y.getByOffset("x_offset")}, ${Y.getByOffset("x_offset + 1u")}, ${Y.getByOffset("x_offset + 2u")}, ${Y.getByOffset("x_offset + 3u")}), vec4<${q}>(${Z.getByOffset("w_offset")}, ${Z.getByOffset("w_offset + 1u")}, ${Z.getByOffset("w_offset + 2u")}, ${Z.getByOffset("w_offset + 3u")}));
+          x_offset += 4u;
+          w_offset += 4u;`);else if(ve+=`
+                  let xValue = ${i?Y.getByOffset(`${Y.indicesToOffset(`${Y.type.indices}(batch, idyR, idyC, inputChannel)`)} / ${p}`):Y.get("batch","inputChannel","idyR","idyC")};
+        `,p===1)ve+=`
+          let w_offset = ${Z.indicesToOffset(`${Z.type.indices}(u32(wRPerm), u32(wCPerm), inputChannel, wOutChannel)`)};
+          let wValue = ${Z.getByOffset(`w_offset / ${_}`)};
+          dotProd = dotProd + xValue * wValue;`;else for(let M=0;M<p;M++)ve+=`
+            let wValue${M} = ${Z.getByOffset(`${Z.indicesToOffset(`${Z.type.indices}(u32(wRPerm), u32(wCPerm), inputChannel + ${M}, wOutChannel)`)} / ${_}`)};
+            dotProd = dotProd + xValue[${M}] * wValue${M};`;return ve},ce=()=>{if(b===0)return"";if(!m)throw new Error(`packInputAs4 ${m} is not true.`);let ve="";if(p===1){ve+="dotProd = dotProd";for(let M=0;M<b;M++)ve+=`
+            + ${Y.getByOffset(`x_offset + ${M}`)} * ${Z.getByOffset(`w_offset + ${M}`)}`;ve+=";"}else if(p===2){if(b!==2)throw new Error(`Invalid inputChannelsRemainder ${b}.`);ve+=`
+          let xValue = ${Y.getByOffset("x_offset")};
+          let wValue = ${Z.getByOffset("w_offset")};
+          dotProd = dotProd + dot(xValue, wValue);`}return ve},Me=`
+            let outputIndices = ${ne.offsetToIndices(`global_idx * ${y}`)};
+            let batch = ${ne.indicesGet("outputIndices",0)};
+            let d1 = ${ne.indicesGet("outputIndices",L)};
+            let r = ${ne.indicesGet("outputIndices",X)};
+            let c = ${ne.indicesGet("outputIndices",z)};
+            let dyCorner = vec2<i32>(i32(r), i32(c)) - uniforms.pads;
+            let dyRCorner = dyCorner.x;
+            let dyCCorner = dyCorner.y;
+            let groupId = d1 / uniforms.output_channels_per_group;
+            let wOutChannel = d1 - groupId * uniforms.output_channels_per_group;
+            // Convolve dy(?, ?, d2) with w(:, :, d1, d2) to compute dx(xR, xC, d1).
+            // ? = to be determined. : = across all values in that axis.
+            var dotProd = ${ne.type.value}(0.0);
+            var wR: u32 = 0;
+            if (uniforms.dilations.x == 1) {
+              // Minimum wR >= 0 that satisfies (dyRCorner + wR) % (uniforms.strides.x) == 0
+              wR = u32(((dyRCorner + i32(uniforms.strides.x) - 1) / i32(uniforms.strides.x)) * i32(uniforms.strides.x) - dyRCorner);
+            }
+            for (; wR < uniforms.effective_filter_dims.x; wR = wR + 1) {
+              if (wR % uniforms.dilations.x != 0) {
                 continue;
               }
-          `:d=`
-            for (int j = 0; j < ${v}; j++) {
-              x[${n} - 2] = indices[${n} - 2] * ${S} - ${D} + j;
-            `,y=`
-          }
-        `}return`
-        float process(int indices[${n}]) {
-          int x[${n}];
-          copyVec(indices, x);
+              let dyR = (${q}(dyRCorner) + ${q}(wR)) / ${q}(uniforms.strides[0]);
+              let wRPerm = uniforms.filter_dims.x - 1 - wR / uniforms.dilations.x;
+              if (dyR < 0.0 || dyR >= ${q}(uniforms.Dy_shape[${X}]) || fract(dyR) > 0.0 ||
+                  wRPerm < 0) {
+                continue;
+              }
+              let idyR: u32 = u32(dyR);
+              var wC: u32 = 0;
+              if (uniforms.dilations.y == 1) {
+                // Minimum wC >= 0 that satisfies (dyCCorner + wC) % (uniforms.strides.y) == 0
+                wC = u32(((dyCCorner + i32(uniforms.strides.y) - 1) / i32(uniforms.strides.y)) * i32(uniforms.strides.y) - dyCCorner);
+              }
+              for (; wC < uniforms.effective_filter_dims.y; wC = wC + 1) {
+                if (wC % uniforms.dilations.y != 0) {
+                  continue;
+                }
+                let dyC = (${q}(dyCCorner) + ${q}(wC)) / ${q}(uniforms.strides.y);
+                let wCPerm = uniforms.filter_dims.y - 1 - wC / uniforms.dilations.y;
+                if (dyC < 0.0 || dyC >= ${q}(uniforms.Dy_shape[${z}]) ||
+                    fract(dyC) > 0.0 || wCPerm < 0) {
+                  continue;
+                }
+                let idyC: u32 = u32(dyC);
+                var inputChannel = groupId * uniforms.input_channels_per_group;
+                ${m?`
+                var x_offset = ${Y.indicesToOffset(`${Y.type.indices}(batch, idyR, idyC, inputChannel)`)} / ${p};
+                var w_offset = ${Z.indicesToOffset(`${Z.type.indices}(wRPerm, wCPerm, inputChannel, wOutChannel)`)} / ${_};
+                  `:""}
+                for (var d2: u32 = 0; d2 < uniforms.input_channels_per_group_int; d2 = d2 + ${m?4:p}) {
+                  ${ie()}
+                  inputChannel = inputChannel + ${m?4:p};
+                }
+                ${ce()}
+                wC = wC + uniforms.strides.y - 1;
+              }
+              wR = wR + uniforms.strides[0] - 1;
+            }
+            let value = dotProd${n?` + bias[d1 / ${y}]`:""};
+            ${ne.setByOffset("global_idx","value")};
+          `;return`
+    ${N.registerUniforms(F).declareVariables(...Q,ne)}
+      ${N.mainStart()}
+      ${N.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")};
+    ${Me}}`};return{name:"ConvTranspose2D",shaderCache:{hint:`${e.cacheKey};${p}${_}${y}${m}${b}`,inputDependencies:$},getRunData:()=>({dispatchGroup:{x:x[0],y:x[1],z:x[2]},outputs:[{dims:r?r(o):o,dataType:t[0].dataType}],programUniforms:w}),getShaderSource:U}}});var lg,cg,pg,Fd,qd,mg,Kd,fg,jd,Qd=V(()=>{"use strict";Hd();St();pt();lg=(t,e,r,n,o,i)=>(t-1)*e+r+(n-1)*o+1-i,cg=(t,e,r,n,o)=>{let i=Math.floor(t/2);e==="SAME_UPPER"?(r[n]=i,r[o]=t-i):e==="SAME_LOWER"&&(r[n]=t-i,r[o]=i)},pg=(t,e,r,n,o,i,a,u,d,c)=>{let p=t.length-2,m=c.length===0;d.length<p&&d.push(...Array(p-d.length).fill(0));let g=t[0],b=e[u?3:1]*o;for(let y=0,_=t.length-p-(u?1:0);y<p;++y,++_){let S=t[_],x=m?S*a[y]:c[y],$=lg(S,a[y],i[y],e[_],r[y],x);cg($,n,i,y,y+p),m&&c.push(a[y]*(S-1)+d[y]+(e[_]-1)*r[y]+1-i[y]-i[y+p])}c.splice(0,0,g),c.splice(u?3:1,0,b)},Fd=(t,e)=>{let r=t.kernelShape.slice();if(t.kernelShape.length===0||t.kernelShape.reduce((m,g)=>m*g,1)===0){r.length=0;for(let m=2;m<e[1].dims.length;++m)r.push(e[1].dims[m])}let n=t.format==="NHWC";r.splice(0,0,e[1].dims[0]),r.splice(n?3:1,0,e[1].dims[1]);let o=t.pads.slice(),i=t.outputShape.slice(),a=t.outputPadding.slice(),u=e[0].dims,d=t.dilations.slice();if(d.reduce((m,g)=>m+g,0)===0){let m=e[0].dims.length-2;d=new Array(m).fill(1)}let c=t.strides.slice();if(c.reduce((m,g)=>m+g,0)===0){let m=e[0].dims.length-2;c=new Array(m).fill(1)}pg(u,r,d,t.autoPad,t.group,o,c,n,a,i);let p=Object.assign({},t);return Object.assign(p,{kernelShape:r,pads:o,outputPadding:a,outputShape:i,dilations:d,strides:c}),p},qd=t=>{let e=on(t),r=t.format,n=["NOTSET","VALID","SAME_UPPER","SAME_LOWER"][typeof t.autoPad>"u"?0:t.autoPad],o=t.dilations,i=t.group??1,a=t.kernelShape,u=t.pads,d=t.strides,c=t.wIsConst(),p=t.outputPadding,m=t.outputShape;return{autoPad:n,format:r,dilations:o,group:i,kernelShape:a,outputPadding:p,outputShape:m,pads:u,strides:d,wIsConst:c,...e,cacheKey:`${t.format};${e.activation};`}},mg=(t,e)=>{if(!t||t.length!==2&&t.length!==3)throw new Error("Conv requires 2 or 3 inputs");if(t[0].dims.length!==4&&t[0].dims.length!==3)throw new Error("currently only support 2-dimensional conv");if(t[0].dims.length!==t[1].dims.length)throw new Error("filter does not have same dimension as input");let r=t[0].dims[e.format==="NHWC"?t[0].dims.length-1:1],n=t[1].dims[0];if(r!==n)throw new Error("FILTER_IN_CHANNEL should be equal to DATA_CHANNEL");let o=t[1].dims[1]*e.group;if(t.length===3&&(t[2].dims.length!==1||t[2].dims[0]!==o))throw new Error("invalid bias");let i=t[0].dims.length-2;if(e.dilations.reduce((p,m)=>p+m,0)>0&&e.dilations.length!==i)throw new Error(`dilations should be ${i}D`);if(e.strides.reduce((p,m)=>p+m,0)>0&&e.strides.length!==i)throw new Error(`strides should be ${i}D`);if(e.pads.reduce((p,m)=>p+m,0)>0&&e.pads.length!==i*2)throw new Error(`pads should be ${i*2}D`);if(e.outputPadding.length!==i&&e.outputPadding.length!==0)throw new Error(`output_padding should be ${i}D`);if(e.kernelShape.reduce((p,m)=>p+m,0)>0&&e.kernelShape.length!==0&&e.kernelShape.length!==t[1].dims.length-2)throw new Error("invalid kernel shape");if(e.outputShape.length!==0&&e.outputShape.length!==t[0].dims.length-2)throw new Error("invalid output shape")},Kd=(t,e,r,n)=>{let o=t.kernelCustomData.wT??t.compute(ze(e[1],[2,3,0,1]),{inputs:[1],outputs:[r.wIsConst?-2:-1]})[0];r.wIsConst&&!t.kernelCustomData.wT&&(t.kernelCustomData.wT=o);let i=[e[0],o];e.length===3&&i.push(e[2]),t.compute(Gd(i,r,n),{inputs:i})},fg=(t,e)=>{let r=e.format==="NHWC",n=[t.inputs[0].reshape(r?[t.inputs[0].dims[0],1,t.inputs[0].dims[1],t.inputs[0].dims[2]]:[t.inputs[0].dims[0],t.inputs[0].dims[1],1,t.inputs[0].dims[2]]),t.inputs[1].reshape([t.inputs[1].dims[0],t.inputs[1].dims[1],1,t.inputs[1].dims[2]])];t.inputs.length===3&&n.push(t.inputs[2]);let o=e.kernelShape;(o.length===0||o[0]===0)&&(o=[t.inputs[1].dims[2]]);let i=e.dilations;(i.length===0||i[0]===0)&&(i=[1]);let a=e.strides;(a.length===0||a[0]===0)&&(a=[1]);let u=e.pads;u.length===0&&(u=[0,0]),u=[0,u[0],0,u[1]],a=[1].concat(a),i=[1].concat(i),o=[1].concat(o);let d=e.outputPadding;d=[0].concat(d);let c=Fd({...e,pads:u,strides:a,dilations:i,kernelShape:o,outputPadding:d},n);Kd(t,n,c,p=>r?[p[0],p[2],p[3]]:[p[0],p[1],p[3]])},jd=(t,e)=>{if(mg(t.inputs,e),t.inputs[0].dims.length===3)fg(t,e);else{let r=Fd(e,t.inputs);Kd(t,t.inputs,r)}}});var hg,Zd,Yd,Xd=V(()=>{"use strict";ee();te();Ce();oe();hg=(t,e,r,n)=>{let o=k.size(e),i=e.length,a=D("input",t,i),u=R("output",t,i),d=r.dataType===6?r.getInt32Array()[0]:Number(r.getBigInt64Array()[0]),c=k.normalizeAxis(d,i),p=m=>{let g=` i32(${a.indicesGet("inputIndices","uniforms.axis")}) `,b=j("uniforms.input_shape","uniforms.axis",i),y=n.reverse?g+(n.exclusive?" + 1":""):"0",_=n.reverse?b:g+(n.exclusive?"":" + 1");return`
+                ${m.registerUniform("outputSize","u32").registerUniform("axis","u32").declareVariables(a,u)}
+                ${m.mainStart()}
+                  ${m.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+                  var inputIndices = ${u.offsetToIndices("global_idx")};
+                  var sum = ${u.type.value}(0);
+                  let first : i32 = ${y};
+                  let last : i32 = ${_};
+                  for (var i : i32 = first; i < last; i++) {
+                    ${a.indicesSet("inputIndices","uniforms.axis","u32(i)")};
+                    sum = sum + ${a.getByIndices("inputIndices")};
+                  }
+                  ${u.setByOffset("global_idx","sum")};
+                }`};return{name:"CumSum",shaderCache:{hint:n.cacheKey,inputDependencies:["rank"]},getRunData:()=>({outputs:[{dims:e,dataType:t}],dispatchGroup:{x:Math.ceil(o/64)},programUniforms:[{type:12,data:o},{type:12,data:c},...W(e,e)]}),getShaderSource:p}},Zd=(t,e)=>{let r=t.inputs[0].dims,n=t.inputs[0].dataType,o=t.inputs[1];t.compute(hg(n,r,o,e),{inputs:[0]})},Yd=t=>{let e=t.exclusive===1,r=t.reverse===1;return J({exclusive:e,reverse:r})}});var gg,yg,bg,Jd,el,tl=V(()=>{"use strict";ee();te();Ce();oe();gg=t=>{if(!t||t.length!==1)throw new Error("DepthToSpace requires 1 input.");if(t[0].dims.length!==4)throw new Error("DepthToSpace requires 4D input.")},yg=(t,e,r,n)=>{let o=[];o.push(`fn perm(i: ${n.type.indices}) -> ${r.type.indices} {
+    var a: ${r.type.indices};`);for(let i=0;i<e;++i)o.push(r.indicesSet("a",t[i],`i[${i}]`));return o.push("return a;}"),o.join(`
+`)},bg=(t,e)=>{let r,n,o,i,a,u,d=e.format==="NHWC",c=e.blocksize,p=e.mode==="DCR";d?([r,n,o,i]=t.dims,a=p?[r,n,o,c,c,i/c**2]:[r,n,o,i/c**2,c,c],u=p?[0,1,3,2,4,5]:[0,1,4,2,5,3]):([r,n,o,i]=[t.dims[0],t.dims[2],t.dims[3],t.dims[1]],a=p?[r,c,c,i/c**2,n,o]:[r,i/c**2,c,c,n,o],u=p?[0,3,4,1,5,2]:[0,1,4,2,5,3]);let m=t.reshape(a),g=m.dims.length,b=t.dataType,y=D("a",b,g),_=R("output",b,g),S=x=>`
+  ${x.registerUniform("output_size","u32").declareVariables(y,_)}
 
-          float value = ${r};
-          int pad = 0;
-          ${d}
-          ${p}
-          ${y}
-          ${t}
-          return value;
+  ${yg(u,g,y,_)}
+
+  ${x.mainStart()}
+    ${x.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+
+    let indices = ${_.offsetToIndices("global_idx")};
+    let aIndices = perm(indices);
+
+    ${_.setByOffset("global_idx",y.getByIndices("aIndices"))}
+  }`;return{name:"DepthToSpace",shaderCache:{hint:`${t.dims};${e.blocksize};${e.mode}`,inputDependencies:["rank"]},getRunData:x=>{let $=d?[r,n*c,o*c,i/c**2]:[r,i/c**2,n*c,o*c],T=k.size($),I=m.dims,E=k.sortBasedOnPerm(I,u);return{outputs:[{dims:$,dataType:x[0].dataType}],dispatchGroup:{x:Math.ceil(T/64)},programUniforms:[{type:12,data:T},...W(I,E)]}},getShaderSource:S}},Jd=(t,e)=>{gg(t.inputs),t.compute(bg(t.inputs[0],e))},el=t=>J({blocksize:t.blocksize,mode:t.mode,format:t.format})});var Tt,cn,Eo,nl,Rt,_g,wg,vg,ol,il,al,$g,xg,rl,Sg,sl,ul,dl=V(()=>{"use strict";ee();te();Ce();oe();Tt=256,cn=512,Eo=2*Math.PI,nl=t=>{let e=[],r=t;for(let n of[4,2,3,5])for(;r%n===0;)e.push(n),r/=n;return r===1?e:void 0},Rt=t=>{let e=t.toPrecision(9);return/[.eE]/.test(e)?e:`${e}.0`},_g=(t,e,r,n,o)=>{let i=r/t,a=cn-n,u=c=>`smem[${a}u + base + ${c*e}u]`,d=`  for (var t = local_idx; t < ${i}u; t += ${Tt}u) {
+`;d+=`    let twiddleIndex = t % ${e}u;
+    let angleUnit = f32(twiddleIndex);
+`,d+=`    var leg: array<vec2<f32>, 5>;
+`;for(let c=0;c<t;c++){let p=`${n}u + t + ${c*i}u`;if(c===0)d+=`    leg[0] = smem[${p}];
+`;else{let m=o*Eo*c/(t*e);d+=`    { let a = ${Rt(m)} * angleUnit; leg[${c}] = cmul(smem[${p}], vec2<f32>(cos(a), sin(a))); }
+`}}if(d+=`    let base = (t / ${e}u) * ${e*t}u + twiddleIndex;
+`,t===2)d+=`    ${u(0)} = leg[0] + leg[1];
+    ${u(1)} = leg[0] - leg[1];
+`;else if(t===4){let c=o<0?"vec2<f32>(oddDiff.y, -oddDiff.x)":"vec2<f32>(-oddDiff.y, oddDiff.x)";d+=`    let evenSum = leg[0] + leg[2]; let evenDiff = leg[0] - leg[2];
+`,d+=`    let oddSum = leg[1] + leg[3]; let oddDiff = leg[1] - leg[3];
+`,d+=`    let oddRot = ${c};
+`,d+=`    ${u(0)} = evenSum + oddSum;
+    ${u(1)} = evenDiff + oddRot;
+`,d+=`    ${u(2)} = evenSum - oddSum;
+    ${u(3)} = evenDiff - oddRot;
+`}else for(let c=0;c<t;c++){let p=["leg[0]"];for(let m=1;m<t;m++){let g=o*Eo*(m*c)/t,b=Rt(Math.cos(g)),y=Rt(Math.sin(g));p.push(`vec2<f32>(leg[${m}].x*${b} - leg[${m}].y*${y}, leg[${m}].x*${y} + leg[${m}].y*${b})`)}d+=`    ${u(c)} = ${p.join(" + ")};
+`}return`${d}  }
+  workgroupBarrier();
+`},wg=(t,e,r)=>{let n="",o=1,i=0;for(let a of t)n+=_g(a,o,e,i,r),o*=a,i=cn-i;return{code:n,resultOffset:i}},vg=(t,e,r,n,o)=>{let i=t.dims,a=i.length,u=i[a-1],d=i[e],c=r&&n?(d-1)*2:d;o!==void 0&&(c=o);let p=r&&n?1:2,m=n&&!r?Math.floor(c/2)+1:c,g=i.slice();g[e]=m,g[a-1]=p;let b=1;for(let _=e+1;_<a-1;_++)b*=i[_];let y=k.size(i)/u/d;return{dataType:t.dataType,outputDims:g,length:c,signalLength:d,inner:b,batch:y,inputComponents:u,outputComponents:p,outputLength:m,inverse:r,onesided:n}},ol=(t,e)=>[e,t.length,t.inputComponents,t.outputComponents,t.inverse,t.onesided].join(";"),il=t=>[{type:12,data:t.batch},{type:12,data:t.signalLength},{type:12,data:t.inner},{type:12,data:t.outputLength}],al=(t,e,r)=>t.registerUniform("batch","u32").registerUniform("signalLength","u32").registerUniform("inner","u32").registerUniform("outputLength","u32").declareVariables(e,r),$g=t=>{let{dataType:e,length:r,inputComponents:n,outputComponents:o,inverse:i,onesided:a}=t,u=Ae(e),d=i?1:-1,c=i?1/r:1,p=nl(r),m=g=>{let b=D("x",e,[1]),y=R("y",e,[1]),_=E=>{let A=`inBase + (${E}) * uniforms.inner * ${n}u`,O=`f32(${b.getByOffset(A)})`,w=n===2?`f32(${b.getByOffset(`${A} + 1u`)})`:"0.0";return`vec2<f32>(${O}, ${w})`},S;if(i&&a){let E=Math.floor(r/2)+1,A=r%2===0?`select(provided, provided - 1u, provided == ${E}u)`:"provided";S=`
+    let provided = min(uniforms.signalLength, ${E}u);
+    for (var i = local_idx; i < ${r}u; i += ${Tt}u) {
+      if (i < provided) { smem[i] = ${_("i")}; } else { smem[i] = vec2<f32>(0.0); }
+    }
+    workgroupBarrier();
+    for (var k = local_idx + 1u; k < ${A}; k += ${Tt}u) {
+      let h = smem[k];
+      smem[${r}u - k] = vec2<f32>(h.x, -h.y);
+    }
+    workgroupBarrier();`}else S=`
+    let loadCount = min(uniforms.signalLength, ${r}u);
+    for (var i = local_idx; i < ${r}u; i += ${Tt}u) {
+      if (i < loadCount) { smem[i] = ${_("i")}; } else { smem[i] = vec2<f32>(0.0); }
+    }
+    workgroupBarrier();`;let{code:x,resultOffset:$}=wg(p,r,d),T=c===1?`smem[${$}u + i]`:`smem[${$}u + i] * ${Rt(c)}`,I=o===2?y.setByOffset("off + 1u",`${u}(v.y)`):"";return`
+  ${al(g,b,y)}
+  var<workgroup> smem: array<vec2<f32>, ${2*cn}>;
+  fn cmul(a: vec2<f32>, b: vec2<f32>) -> vec2<f32> {
+    return vec2<f32>(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+  }
+  ${g.mainStart(Tt)}
+    let row = workgroup_index;
+    if (row >= uniforms.batch) { return; }
+    let outer = row / uniforms.inner;
+    let within = row % uniforms.inner;
+    let inBase = (outer * uniforms.signalLength * uniforms.inner + within) * ${n}u;
+    let outBase = (outer * uniforms.outputLength * uniforms.inner + within) * ${o}u;
+    ${S}
+${x}    for (var i = local_idx; i < uniforms.outputLength; i += ${Tt}u) {
+      let v = ${T};
+      let off = outBase + i * uniforms.inner * ${o}u;
+      ${y.setByOffset("off",`${u}(v.x)`)}
+      ${I}
+    }
+  }`};return{name:"DFT",shaderCache:{hint:ol(t,"fft"),inputDependencies:["type"]},getShaderSource:m,getRunData:()=>({outputs:[{dims:t.outputDims,dataType:e}],programUniforms:il(t),dispatchGroup:{x:t.batch}})}},xg=t=>{let{dataType:e,length:r,inputComponents:n,outputComponents:o,inverse:i,onesided:a}=t,u=Ae(e),d=i?1:-1,c=i?1/r:1,p=m=>{let g=D("x",e,[1]),b=R("y",e,[1]),y=T=>{let I=`inBase + (${T}) * uniforms.inner * ${n}u`,E=`f32(${g.getByOffset(I)})`,A=n===2?`f32(${g.getByOffset(`${I} + 1u`)})`:"0.0";return`vec2<f32>(${E}, ${A})`},_=i&&a?`fn spectrum(inBase: u32, k: u32) -> vec2<f32> {
+    let provided = min(uniforms.signalLength, ${Math.floor(r/2)+1}u);
+    if (k < provided) { return ${y("k")}; }
+    let m = ${r}u - k;
+    if (m < provided) {
+      let h = ${y("m")};
+      return vec2<f32>(h.x, -h.y);
+    }
+    return vec2<f32>(0.0, 0.0);
+  }`:`fn spectrum(inBase: u32, n: u32) -> vec2<f32> {
+    if (n < uniforms.signalLength) { return ${y("n")}; }
+    return vec2<f32>(0.0, 0.0);
+  }`,S=`
+      let angle = ${Rt(d*Eo)} * f32(knMod) / ${Rt(r)};
+      acc += cmul(spectrum(inBase, n), vec2<f32>(cos(angle), sin(angle)));
+      knMod += k;
+      if (knMod >= ${r}u) { knMod -= ${r}u; }`,x=o===2?b.setByOffset("off + 1u",`${u}(v.y)`):"",$=c===1?"acc":`acc * ${Rt(c)}`;return`
+  ${al(m,g,b)}
+  fn cmul(a: vec2<f32>, b: vec2<f32>) -> vec2<f32> {
+    return vec2<f32>(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+  }
+  ${_}
+  ${m.mainStart(Tt)}
+    let row = workgroup_index;
+    if (row >= uniforms.batch) { return; }
+    let outer = row / uniforms.inner;
+    let within = row % uniforms.inner;
+    let inBase = (outer * uniforms.signalLength * uniforms.inner + within) * ${n}u;
+    let outBase = (outer * uniforms.outputLength * uniforms.inner + within) * ${o}u;
+    for (var k = local_idx; k < uniforms.outputLength; k += ${Tt}u) {
+      var acc = vec2<f32>(0.0, 0.0);
+      var knMod = 0u;
+      for (var n = 0u; n < ${r}u; n++) {${S}
+      }
+      let v = ${$};
+      let off = outBase + k * uniforms.inner * ${o}u;
+      ${b.setByOffset("off",`${u}(v.x)`)}
+      ${x}
+    }
+  }`};return{name:"DFT",shaderCache:{hint:ol(t,"direct"),inputDependencies:["type"]},getShaderSource:p,getRunData:()=>({outputs:[{dims:t.outputDims,dataType:e}],programUniforms:il(t),dispatchGroup:{x:t.batch}})}},rl=t=>{if(!t||t.dataType===0)return;if(k.size(t.dims)!==1)throw new Error("DFT optional scalar inputs must have exactly 1 element.");if(t.dataType===6)return t.getInt32Array()[0];let e=Number(t.getBigInt64Array()[0]);if(!Number.isSafeInteger(e))throw new Error("DFT optional scalar inputs are out of JavaScript safe integer range.");return e},Sg=t=>{if(!t||t.length<1)throw new Error("DFT requires at least 1 input.");let e=t[0].dims;if(e.length<2)throw new Error("DFT input must have at least 2 dimensions.");let r=e[e.length-1];if(r!==1&&r!==2)throw new Error("DFT input's innermost dimension must be 1 (real) or 2 (complex).")},sl=(t,e)=>{Sg(t.inputs);let r=t.inputs[0],n=r.dims.length,o=e.inverse!==0,i=e.onesided!==0,a=rl(t.inputs[1]);if(a!==void 0&&a<=0)throw new Error("dft_length must be greater than zero.");let u=k.normalizeAxis(rl(t.inputs[2])??e.axis,n);if(u===n-1)throw new Error("DFT axis must refer to a signal dimension, not the innermost (real/imaginary) dimension.");if(o&&i&&r.dims[n-1]!==2)throw new Error("Inverse one-sided DFT (IRFFT) requires complex-valued input (innermost dimension 2).");let d=vg(r,u,o,i,a);if(d.length<=0)throw new Error(`Invalid DFT length: ${d.length}`);let p=d.length<=cn&&nl(d.length)!==void 0?$g(d):xg(d);t.compute(p,{inputs:[0]})},ul=t=>J({axis:t.axis??1,inverse:t.inverse??0,onesided:t.onesided??0})});var ko,pn,ll,Tg,Ig,Po,Do,cl,Cg,pl,ml,fl=V(()=>{"use strict";ee();te();Ce();oe();ko="[a-zA-Z]|\\.\\.\\.",pn="("+ko+")+",ll="^"+pn+"$",Tg="("+pn+",)*"+pn,Ig="^"+Tg+"$",Po=class{constructor(e=-1){this.symbolToIndices=new Map,this.inputIndex=e}addSymbol(e,r){let n=this.symbolToIndices.get(e);n===void 0?n=[r]:n.push(r),this.symbolToIndices.set(e,n)}},Do=class{constructor(e,r){this.equation=r;this.hasEllipsis=!1,this.symbolToInfo=new Map,this.lhs=new Array,this.outputDims=[];let[n,o]=r.includes("->")?r.split("->",2):[r,""];if(!n.match(RegExp(Ig)))throw new Error("Invalid LHS term");if(n.split(",").forEach((u,d)=>{let c=e[d].dims.slice();if(!u.match(RegExp(ll)))throw new Error("Invalid LHS term");let p=this.processTerm(u,!0,c,d);this.lhs.push(p)}),o==="")o+=[...this.symbolToInfo.entries()].filter(([u,d])=>d.count===1||u==="...").map(([u])=>u).join("");else if(!o.match(RegExp(pn)))throw new Error("Invalid RHS");o.match(RegExp(ko,"g"))?.forEach(u=>{if(u==="...")this.outputDims=this.outputDims.concat(this.ellipsisDims);else{let d=this.symbolToInfo.get(u);if(d===void 0)throw new Error("Invalid RHS symbol");this.outputDims.push(d.dimValue)}}),this.rhs=this.processTerm(o,!1,this.outputDims)}addSymbol(e,r,n){let o=this.symbolToInfo.get(e);if(o!==void 0){if(o.dimValue!==r&&o.count!==1)throw new Error("Dimension mismatch");o.count++,o.inputIndices.push(n)}else o={count:1,dimValue:r,inputIndices:[n]};this.symbolToInfo.set(e,o)}processTerm(e,r,n,o=-1){let i=n.length,a=!1,u=[],d=0;if(!e.match(RegExp(ll))&&!r&&e!=="")throw new Error("Invalid LHS term");let c=e.match(RegExp(ko,"g")),p=new Po(o);return c?.forEach((m,g)=>{if(m==="..."){if(a)throw new Error("Only one ellipsis is allowed per input term");a=!0;let b=i-c.length+1;if(b<0)throw new Error("Ellipsis out of bounds");if(u=n.slice(d,d+b),this.hasEllipsis){if(this.ellipsisDims.length!==u.length||this.ellipsisDims.toString()!==u.toString())throw new Error("Ellipsis dimensions mismatch")}else if(r)this.hasEllipsis=!0,this.ellipsisDims=u;else throw new Error("Ellipsis must be specified in the LHS");for(let y=0;y<u.length;y++){let _=String.fromCharCode(48+y);p.addSymbol(_,g+y),this.addSymbol(_,n[d++],o)}}else p.addSymbol(m,g+(this.hasEllipsis?this.ellipsisDims.length-1:0)),this.addSymbol(m,n[d++],o)}),p}},cl=t=>t+"_max",Cg=(t,e,r,n)=>{let i=t.map(p=>p.length).map((p,m)=>D(`input${m}`,e,p)),a=k.size(n),u=R("output",e,n.length),d=[...r.symbolToInfo.keys()].filter(p=>!r.rhs.symbolToIndices.has(p)),c=p=>{let m=[],g="var prod = 1.0;",b="var sum = 0.0;",y="sum += prod;",_=[],S=[],x=[],$=[],T=r.symbolToInfo.size===r.rhs.symbolToIndices.size;r.symbolToInfo.forEach((E,A)=>{if(r.rhs.symbolToIndices.has(A)){let O=r.rhs.symbolToIndices.get(A)?.[0];O!==void 0&&r.lhs.forEach((w,U)=>{if(E.inputIndices.includes(U)){let N=w.symbolToIndices.get(A);if(N===void 0)throw new Error("Invalid symbol error");N.forEach(F=>{m.push(`${i[U].indicesSet(`input${U}Indices`,F,u.indicesGet("outputIndices",O))}`)})}})}else r.lhs.forEach((O,w)=>{if(E.inputIndices.includes(w)){let U=O.symbolToIndices.get(A);if(U===void 0)throw new Error("Invalid symbol error");U.forEach(N=>{_.push(`${i[w].indicesSet(`input${w}Indices`,N,`${A}`)}`)}),$.push(`prod *= ${i[w].getByIndices(`input${w}Indices`)};`)}}),S.push(`for(var ${A}: u32 = 0; ${A} < uniforms.${cl(A)}; ${A}++) {`),x.push("}")});let I=T?[...m,`let sum = ${i.map((E,A)=>E.getByIndices(`input${A}Indices`)).join(" * ")};`]:[...m,b,...S,..._,g,...$,y,...x];return`
+            ${p.registerUniforms(d.map(E=>({name:`${cl(E)}`,type:"u32"}))).registerUniform("outputSize","u32").declareVariables(...i,u)}
+
+            ${p.mainStart()}
+            ${p.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+            var outputIndices = ${u.offsetToIndices("global_idx")};
+            ${i.map((E,A)=>`var input${A}Indices: ${i[A].type.indices};`).join(`
+`)}
+            ${I.join(`
+`)};
+            ${u.setByOffset("global_idx","sum")};
+          }`};return{name:"Einsum",shaderCache:{hint:r.equation,inputDependencies:t.map(()=>"rank")},getRunData:()=>{let p=d.filter(g=>r.symbolToInfo.has(g)).map(g=>({type:12,data:r.symbolToInfo.get(g)?.dimValue||0}));p.push({type:12,data:a});let m=t.map((g,b)=>[...W(g)]).reduce((g,b)=>g.concat(b),p);return m.push(...W(n)),{outputs:[{dims:n,dataType:e}],dispatchGroup:{x:Math.ceil(a/64)},programUniforms:m}},getShaderSource:c}},pl=(t,e)=>{let r=new Do(t.inputs,e.equation),n=r.outputDims,o=t.inputs.map((i,a)=>i.dims);t.compute(Cg(o,t.inputs[0].dataType,r,n))},ml=t=>{let e=t.equation.replace(/\s+/g,"");return J({equation:e})}});var Ag,hl,Eg,kg,gl,yl=V(()=>{"use strict";ee();te();oe();Ag=t=>{if(!t||t.length!==2)throw new Error("Expand requires 2 input.");let e=t[0].dims,r=Array.from(t[1].getBigInt64Array(),Number),n=r.length<e.length?0:r.length-e.length,o=e.length<r.length?0:e.length-r.length;for(;n<r.length&&o<e.length;++n,++o)if(r[n]!==e[o]&&r[n]!==1&&e[o]!==1)throw new Error("Expand requires shape to be broadcastable to input")},hl=(t,e)=>{let r=t.length-e.length,n=[];for(let o=0;o<r;++o)n.push(t[o]);for(let o=0;o<e.length;++o)n.push(e[o]===1?t[o+r]:e[o]);return n},Eg=(t,e)=>t.length>e.length?hl(t,e):hl(e,t),kg=t=>{let e=t[0].dims,r=Array.from(t[1].getBigInt64Array(),Number),n=Eg(e,r),o=t[0].dataType,i=o===9||k.size(e)===1,a=o===9||e.length>0&&e[e.length-1]%4===0?4:1,u=i||n.length>0&&n[n.length-1]%4===0?4:1,d=Math.ceil(k.size(n)/u),c=m=>{let g=D("input",o,e.length,a),b=R("output",o,n.length,u),y;if(o===9){let _=(S,x,$="")=>`
+          let outputIndices${x} = ${b.offsetToIndices(`outputOffset + ${x}u`)};
+          let offset${x} = ${g.broadcastedIndicesToOffset(`outputIndices${x}`,b)};
+          let index${x} = offset${x} / 4u;
+          let component${x} = offset${x} % 4u;
+          ${S}[${x}] = ${$}(${g.getByOffset(`index${x}`)}[component${x}]);
+        `;y=`
+        let outputOffset = global_idx * ${u};
+        var data = vec4<u32>(0);
+        ${_("data",0,"u32")}
+        ${_("data",1,"u32")}
+        ${_("data",2,"u32")}
+        ${_("data",3,"u32")}
+        ${b.setByOffset("global_idx","data")}
+      }`}else y=`
+        let outputIndices = ${b.offsetToIndices(`global_idx * ${u}`)};
+        let inputOffset = ${g.broadcastedIndicesToOffset("outputIndices",b)};
+        let data = ${b.type.value}(${g.getByOffset(`inputOffset / ${a}`)});
+        ${b.setByOffset("global_idx","data")}
+      }`;return`
+    ${m.registerUniform("vec_size","u32").declareVariables(g,b)}
+    ${m.mainStart()}
+    ${m.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.vec_size")}
+    ${y}`},p=[{type:12,data:d},...W(e,n)];return{name:"Expand",shaderCache:{hint:`${n.length};${a}${u}`,inputDependencies:["rank"]},getShaderSource:c,getRunData:()=>({outputs:[{dims:n,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(d/64)},programUniforms:p})}},gl=t=>{Ag(t.inputs),t.compute(kg(t.inputs),{inputs:[0]})}});var Pg,bl,_l=V(()=>{"use strict";ee();te();oe();nn();Pg=t=>{let e=t[0].dataType,r=k.size(t[0].dims),n=k.size(t[1].dims),o=n%4===0,i=a=>{let u=D("x",e,[1],4),d=D("bias",e,[1],4),c=R("y",e,[1],4),p=[{name:"output_vec_size",type:"u32"},{name:"bias_size",type:"u32"}],m=b=>`
+      let bias${b}_offset: u32 = (global_idx * 4 + ${b}) % uniforms.bias_size;
+      let bias${b} = ${d.getByOffset(`bias${b}_offset / 4`)}[bias${b}_offset % 4];`,g=o?`
+      let bias = ${d.getByOffset("global_idx % (uniforms.bias_size / 4)")};`:`${m(0)}${m(1)}${m(2)}${m(3)}
+      let bias = ${u.type.value}(bias0, bias1, bias2, bias3);`;return`${a.registerUniforms(p).declareVariables(u,d,c)}
+
+    ${vo(Ae(e))}
+
+    ${a.mainStart(Bt)}
+      ${a.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_vec_size")}
+
+      let x = ${u.getByOffset("global_idx")};
+      ${g}
+      let x_in = x + bias;
+      ${c.setByOffset("global_idx",$o("x_in"))}
+    }`};return{name:"FastGeluWithBias",shaderCache:{hint:`${o}`,inputDependencies:["type","type"]},getShaderSource:i,getRunData:a=>({outputs:[{dims:a[0].dims,dataType:a[0].dataType}],programUniforms:[{type:12,data:Math.ceil(r/4)},{type:12,data:n}],dispatchGroup:{x:Math.ceil(r/Bt/4)}})}},bl=t=>{t.inputs.length<2||k.size(t.inputs[1].dims)===0?ad(t):t.compute(Pg(t.inputs))}});var Dg,Og,wl,vl,$l=V(()=>{"use strict";ee();te();Ce();oe();Dg=t=>{if(!t||t.length!==2)throw new Error("Gather requires 2 inputs.")},Og=(t,e)=>{let r=t[0].dims,n=t[1].dims,o=r.length,i=k.normalizeAxis(e.axis,o),a=r.slice(0);a.splice(i,1,...n);let u=r[i],d=t[0].dataType===9?4:1,c=Math.ceil(k.size(a)/d),p=[{type:12,data:c},{type:6,data:u},{type:12,data:i},...W(t[0].dims,t[1].dims,a)],m=g=>{let b=D("data",t[0].dataType,t[0].dims.length,d),y=D("inputIndices",t[1].dataType,t[1].dims.length),_=R("output",t[0].dataType,a.length,d),S=$=>{let T=n.length,I=`var indicesIndices${$}  = ${y.type.indices}(0);`;for(let E=0;E<T;E++)I+=`${T>1?`indicesIndices${$}[${E}]`:`indicesIndices${$}`} = ${a.length>1?`outputIndices${$}[uniforms.axis + ${E}]`:`outputIndices${$}`};`;I+=`
+          var idx${$} = ${y.getByIndices(`indicesIndices${$}`)};
+          if (idx${$} < 0) {
+            idx${$} = idx${$} + uniforms.axisDimLimit;
+          }
+          var dataIndices${$} : ${b.type.indices};
+        `;for(let E=0,A=0;E<o;E++)E===i?(I+=`${o>1?`dataIndices${$}[${E}]`:`dataIndices${$}`} = u32(idx${$});`,A+=T):(I+=`${o>1?`dataIndices${$}[${E}]`:`dataIndices${$}`} = ${a.length>1?`outputIndices${$}[${A}]`:`outputIndices${$}`};`,A++);return I},x;if(t[0].dataType===9){let $=(T,I,E="")=>`
+          let outputIndices${I} = ${_.offsetToIndices(`outputOffset + ${I}u`)};
+          ${S(I)};
+          let offset${I} = ${b.indicesToOffset(`dataIndices${I}`)};
+          let index${I} = offset${I} / 4u;
+          let component${I} = offset${I} % 4u;
+          ${T}[${I}] = ${E}(${b.getByOffset(`index${I}`)}[component${I}]);
+        `;x=`
+        let outputOffset = global_idx * ${d};
+        var value = vec4<u32>(0);
+        ${$("value",0,"u32")}
+        ${$("value",1,"u32")}
+        ${$("value",2,"u32")}
+        ${$("value",3,"u32")}
+        ${_.setByOffset("global_idx","value")}
+      `}else x=`
+      let outputIndices = ${_.offsetToIndices("global_idx")};
+      ${S("")};
+      let value = ${b.getByIndices("dataIndices")};
+      ${_.setByOffset("global_idx","value")};
+      `;return`
+      ${g.registerUniform("outputSize","u32").registerUniform("axisDimLimit","i32").registerUniform("axis","u32").declareVariables(b,y,_)}
+      ${g.mainStart()}
+        ${g.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+        ${x}
+      }`};return{name:"Gather",shaderCache:{hint:e.cacheKey,inputDependencies:["rank","rank"]},getRunData:()=>({outputs:[{dims:a,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(c/64)},programUniforms:p}),getShaderSource:m}},wl=t=>J({axis:t.axis}),vl=(t,e)=>{let r=t.inputs;Dg(r),t.compute(Og(t.inputs,e))}});var zg,xl,Sl,Tl=V(()=>{"use strict";ee();te();oe();zg=(t,e,r,n,o,i,a,u,d)=>{let c=[{type:12,data:i},{type:12,data:n},{type:12,data:o},{type:12,data:r},{type:12,data:a},{type:12,data:u},{type:12,data:d}],p=[i];c.push(...W(e.dims,p));let m=g=>{let b=D("indices_data",e.dataType,e.dims.length),y=R("input_slice_offsets_data",12,1,1),_=[b,y],S=[{name:"output_size",type:"u32"},{name:"batch_dims",type:"u32"},{name:"input_dims",type:"u32",length:o.length},{name:"sizes_from_slice_dims_data",type:"u32",length:r.length},{name:"num_slices_per_batch",type:"u32"},{name:"input_batch_stride",type:"u32"},{name:"num_slice_dims",type:"u32"}];return`
+  ${g.registerUniforms(S).declareVariables(..._)}
+  ${g.mainStart()}
+    ${g.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+    let batch_idx = global_idx / uniforms.num_slices_per_batch;
+    let base_offset = batch_idx * uniforms.input_batch_stride;
+
+    let slice_indices_base_offset = global_idx * uniforms.num_slice_dims;
+    var relative_slice_offset = 0;
+    for (var dim_idx = 0u; dim_idx < uniforms.num_slice_dims; dim_idx ++) {
+      var index = i32(indices_data[dim_idx + slice_indices_base_offset].x);
+      let input_dim_idx = uniforms.batch_dims + dim_idx;
+      if (index < 0) {
+        ${o.length===1?"index += i32(uniforms.input_dims);":"index += i32(uniforms.input_dims[input_dim_idx]);"}
+      }
+      ${r.length===1?"relative_slice_offset += index * i32(uniforms.sizes_from_slice_dims_data);":"relative_slice_offset += index * i32(uniforms.sizes_from_slice_dims_data[dim_idx]);"}
+    }
+
+    input_slice_offsets_data[global_idx] =  base_offset + u32(relative_slice_offset);
+  }`};return t.compute({name:"computeSliceOffsets",shaderCache:{hint:`${o.length}_${r.length}`,inputDependencies:["rank"]},getRunData:()=>({outputs:[{dims:p,dataType:t.inputs[1].dataType}],dispatchGroup:{x:Math.ceil(i/64)},programUniforms:c}),getShaderSource:m},{inputs:[e],outputs:[-1]})[0]},xl=(t,e)=>{let r=t.inputs,n=r[0].dims,o=r[0].dataType,i=r[1].dims,a=i[i.length-1],u=k.sizeToDimension(i,i.length-1),d=k.sizeFromDimension(n,e.batchDims+a),c=k.sizeToDimension(n,e.batchDims),p=k.sizeFromDimension(n,e.batchDims),m=u/c,g=new Array(a),b=d;for(let I=0;I<a;++I)g[a-1-I]=b,b*=n[e.batchDims+a-1-I];let y=zg(t,r[1],g,e.batchDims,n,u,m,p,a),_=e.batchDims+a;if(_>n.length)throw new Error("last dimension of indices must not be larger than rank of input tensor");let S=i.slice(0,-1).concat(n.slice(_)),x=k.size(S),$=[{type:12,data:x},{type:12,data:d},...W(r[0].dims,y.dims,S)],T=I=>{let E=D("data",r[0].dataType,r[0].dims.length),A=D("slice_offsets",12,y.dims.length),O=R("output",r[0].dataType,S.length);return`
+          ${I.registerUniform("output_size","u32").registerUniform("slice_size","u32").declareVariables(E,A,O)}
+            ${I.mainStart()}
+            ${I.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+          let slice_offset = slice_offsets[global_idx / uniforms.slice_size];
+          output[global_idx] = data[u32(slice_offset) + global_idx % uniforms.slice_size];
+        }`};t.compute({name:"GatherND",shaderCache:{hint:e.cacheKey,inputDependencies:["rank","rank"]},getRunData:()=>({outputs:[{dims:S,dataType:o}],dispatchGroup:{x:Math.ceil(x/64)},programUniforms:$}),getShaderSource:T},{inputs:[r[0],y]})},Sl=t=>({batchDims:t.batch_dims,cacheKey:""})});var Bg,Mg,Il,Cl,Al=V(()=>{"use strict";ee();te();Ce();oe();Bg=(t,e)=>{if(t.length<3||t.length>4)throw new Error("GatherBlockQuantized requires 3 or 4 inputs.");let r=k.normalizeAxis(e.quantizeAxis,t[0].dims.length),n=e.blockSize,o=t[0],i=t[2],a=t.length===4?t[3]:void 0;if(i.dims.length!==o.dims.length||!o.dims.map((u,d)=>d===r?Math.ceil(u/n)===i.dims[d]:u===i.dims[d]).reduce((u,d)=>u&&d,!0))throw new Error("Scales must have the same rank as the input tensor and the dims should match except on gatherAxis.");if(a){if(a.dataType!==o.dataType)throw new Error("Zero point must have the same data type as the input tensor.");if(a.dims.length!==i.dims.length||!a.dims.map((u,d)=>u===i.dims[d]).reduce((u,d)=>u&&d,!0))throw new Error("Zero point must have the same rank as the input tensor and the dims should match except on quantizeAxis.")}},Mg=(t,e)=>{let r=t[0].dims,n=t[1].dims,o=r.length,i=k.normalizeAxis(e.gatherAxis,o),a=k.normalizeAxis(e.quantizeAxis,o),u=r.slice(0);u.splice(i,1,...n);let d=k.size(u),c=t[2].dataType,m=t[0].dataType===22,g=[{type:12,data:d},{type:12,data:a},{type:12,data:i},{type:12,data:e.blockSize},...W(...t.map((y,_)=>y.dims),u)],b=y=>{let _=D("data",t[0].dataType,t[0].dims.length),S=D("inputIndices",t[1].dataType,t[1].dims.length),x=D("scales",t[2].dataType,t[2].dims.length),$=t.length>3?D("zeroPoint",t[3].dataType,t[3].dims.length):void 0,T=R("output",c,u.length),I=[_,S,x];$&&I.push($);let E=[{name:"output_size",type:"u32"},{name:"quantize_axis",type:"u32"},{name:"gather_axis",type:"u32"},{name:"block_size",type:"u32"}];return`
+        ${y.registerUniforms(E).declareVariables(...I,T)}
+        ${y.mainStart()}
+        let output_indices = ${T.offsetToIndices("global_idx")};
+        var indices_indices = ${S.type.indices}(0);
+        ${n.length>1?`
+          for (var i: u32 = 0; i < ${n.length}; i++) {
+            let index = ${T.indicesGet("output_indices","uniforms.gather_axis + i")};
+            ${S.indicesSet("indices_indices","i","index")};
+          }`:`indices_indices = ${T.indicesGet("output_indices","uniforms.gather_axis")};`};
+        var data_indices = ${_.type.indices}(0);
+        for (var i: u32 = 0; i < uniforms.gather_axis; i++) {
+          let index = ${T.indicesGet("output_indices","i")};
+          ${_.indicesSet("data_indices","i","index")};
         }
-      `}else{let s=B.size(e.kernelShape),a=B.computeStrides(e.kernelShape),u=a.length,l=e.pads.length,f=Fb(u),p=Fn(i,"inputDims"),d=Fn(e.pads,"pads"),y=Fn(a,"kernelStrides"),w=Fn(e.strides,"strides"),v=e.pads.reduce((P,A)=>P+A),S="";return v?S=`
-            if (x[j] >= inputDims[j] || x[j] < 0) {
-              pad++;
-              isPad = true;
+        var index_from_indices = ${S.getByIndices("indices_indices")};
+        if (index_from_indices < 0) {
+          index_from_indices += ${r[i]};
+        }
+        ${_.indicesSet("data_indices","uniforms.gather_axis","u32(index_from_indices)")};
+        for (var i = uniforms.gather_axis + 1; i < ${u.length}; i++) {
+          let index = ${T.indicesGet("output_indices",`i + ${n.length} - 1`)};
+          ${_.indicesSet("data_indices","i","index")};
+        }
+        let data_offset = ${_.indicesToOffset("data_indices")};
+        let data_index = data_offset % 8;
+        // Convert 4-bit packed data to 8-bit packed data.
+        let packed_4bit_quantized_data = ${_.getByOffset("data_offset / 8")};
+        let packed_8bit_quantized_data = (packed_4bit_quantized_data >> (4 * (data_index % 2))) & 0x0f0f0f0f;
+        let quantized_data_vec = ${m?"unpack4xI8":"unpack4xU8"}(u32(packed_8bit_quantized_data));
+        let quantized_data = quantized_data_vec[data_index / 2];
+        var scale_indices = data_indices;
+        let quantize_axis_index = ${x.indicesGet("data_indices","uniforms.quantize_axis")} / uniforms.block_size;
+        ${x.indicesSet("scale_indices","uniforms.quantize_axis","quantize_axis_index")};
+        var scale = ${x.getByIndices("scale_indices")};
+        ${$?`
+              let zero_point_indices = scale_indices;
+              let zero_point_offset = ${$.indicesToOffset("zero_point_indices")};
+              let zero_point_index = zero_point_offset % 8;
+              let packed_4bit_zero_points = ${$.getByOffset("zero_point_offset / 8")};
+              let packed_8bit_zero_points = (packed_4bit_zero_points >> (4 * (zero_point_index % 2))) & 0x0f0f0f0f;
+              let zero_point_vec = ${m?"unpack4xI8":"unpack4xU8"}(u32(packed_8bit_zero_points));
+              let zero_point = zero_point_vec[zero_point_index / 2];`:"var zero_point = 0"};
+        let dequantized_data = ${Ae(c)}(quantized_data - zero_point) * scale;
+        ${T.setByOffset("global_idx","dequantized_data")};
+    }`};return{name:"GatherBlockQuantized",shaderCache:{hint:`${e.cacheKey};${t.filter((y,_)=>_!==1).map(y=>y.dims.join("_")).join(";")}`,inputDependencies:Array.from({length:t.length},(y,_)=>"rank")},getRunData:()=>({outputs:[{dims:u,dataType:c}],dispatchGroup:{x:Math.ceil(d/64)},programUniforms:g}),getShaderSource:b}},Il=(t,e)=>{let r=t.inputs;Bg(r,e),t.compute(Mg(t.inputs,e))},Cl=t=>J({blockSize:t.blockSize,gatherAxis:t.gatherAxis,quantizeAxis:t.quantizeAxis})});var Rg,Ug,El,kl,Pl=V(()=>{"use strict";ee();te();Ce();oe();Rg=t=>{if(!t||t.length!==2)throw new Error("GatherElements requires 2 inputs.");if(t[0].dims.length<1)throw new Error("GatherElements requires that the data input be rank >= 1.");if(t[0].dims.length!==t[1].dims.length)throw new Error(`GatherElements requires that the data input and
+                     indices input tensors be of same rank.`)},Ug=(t,e)=>{let r=t[0].dims,n=t[0].dataType,o=r.length,i=t[1].dims,a=t[1].dataType,u=k.normalizeAxis(e.axis,o),d=r[u],c=i.slice(0),p=k.size(c),m=D("input",n,o),g=D("indicesInput",a,i.length),b=R("output",n,c.length),y=[{type:12,data:p},{type:6,data:d},{type:12,data:u}];return y.push(...W(r,i,c)),{name:"GatherElements",shaderCache:{inputDependencies:["rank","rank"]},getRunData:()=>({outputs:[{dims:c,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(p/64)},programUniforms:y}),getShaderSource:x=>`
+      ${x.registerUniform("outputSize","u32").registerUniform("axisDimLimit","i32").registerUniform("axis","u32").declareVariables(m,g,b)}
+      ${x.mainStart()}
+      ${x.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+
+      let outputIndices = ${b.offsetToIndices("global_idx")};
+
+      var idx = ${g.getByOffset("global_idx")};
+      if (idx < 0) {
+        idx = idx + uniforms.axisDimLimit;
+      }
+      var inputIndices = ${m.type.indices}(outputIndices);
+      ${m.indicesSet("inputIndices","uniforms.axis","u32(idx)")};
+      let value = ${m.getByIndices("inputIndices")};
+
+      ${b.setByOffset("global_idx","value")};
+  }`}},El=t=>J({axis:t.axis}),kl=(t,e)=>{let r=t.inputs;Rg(r),t.compute(Ug(t.inputs,e))}});var Ng,Vg,Dl,Ol,zl=V(()=>{"use strict";ee();te();oe();Ng=t=>{if(!t)throw new Error("Input is missing");if(t.length<2||t.length>3)throw new Error("Invaid input number.");if(t.length===3&&t[2].dims.length>2)throw new Error("Invalid input shape of C");if(t[0].dataType!==t[1].dataType||t.length===3&&t[0].dataType!==t[2].dataType)throw new Error("Input types are mismatched")},Vg=(t,e)=>{let r=t[0].dims.slice(),n=t[1].dims.slice(),[o,i,a]=Hr.getShapeOfGemmResult(r,e.transA,n,e.transB,t.length===3?t[2].dims:void 0),u=[o,i];if(!u)throw new Error("Can't use gemm on the given tensors");let d=16,c=Math.ceil(i/d),p=Math.ceil(o/d),m=!0,g=k.size(u),b=[{type:12,data:m?c:g},{type:12,data:o},{type:12,data:i},{type:12,data:a},{type:1,data:e.alpha},{type:1,data:e.beta}],y=["type","type"];t.length===3&&(b.push(...W(t[2].dims)),y.push("rank")),b.push(...W(u));let _=x=>{let $="";e.transA&&e.transB?$="value += a[k * uniforms.M + m] * b[n * uniforms.K + k];":e.transA&&!e.transB?$="value += a[k * uniforms.M + m] * b[k * uniforms.N + n];":!e.transA&&e.transB?$="value += a[m * uniforms.K + k] * b[n * uniforms.K + k];":!e.transA&&!e.transB&&($="value += a[m * uniforms.K + k] * b[k * uniforms.N + n];");let T=e.alpha===1?"":"value *= uniforms.alpha;",I=D("a",t[0].dataType,t[0].dims),E=D("b",t[1].dataType,t[1].dims),A=I.type.value,O=null,w=[I,E];t.length===3&&(O=D("c",t[2].dataType,t[2].dims.length),w.push(O));let U=R("output",t[0].dataType,u.length);w.push(U);let N=[{name:"output_size",type:"u32"},{name:"M",type:"u32"},{name:"N",type:"u32"},{name:"K",type:"u32"},{name:"alpha",type:"f32"},{name:"beta",type:"f32"}];return`
+  ${x.registerUniforms(N).declareVariables(...w)}
+
+  ${x.mainStart()}
+    ${x.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+
+    let m = global_idx / uniforms.N;
+    let n = global_idx % uniforms.N;
+
+    var value = ${A}(0);
+    for (var k: u32 = 0u; k < uniforms.K; k++) {
+      ${$}
+    }
+
+    ${T}
+    ${O!=null?`let cOffset = ${O.broadcastedIndicesToOffset("vec2(m, n)",U)}; value += ${A}(uniforms.beta) * ${O.getByOffset("cOffset")};`:""}
+    output[global_idx] = value;
+  }`},S=x=>{let $=D("a",t[0].dataType,t[0].dims),T=D("b",t[1].dataType,t[1].dims),I=null,E=[$,T];t.length===3&&(I=D("c",t[2].dataType,t[2].dims.length),E.push(I));let A=R("output",t[0].dataType,u.length);E.push(A);let O=[{name:"num_tile_n",type:"u32"},{name:"M",type:"u32"},{name:"N",type:"u32"},{name:"K",type:"u32"},{name:"alpha",type:"f32"},{name:"beta",type:"f32"}],w="",U="";e.transA&&e.transB?(U=`
+      var col = tile_row_start + local_id.x;
+      var row = k_start + local_id.y;
+      if (col < uniforms.M && row < uniforms.K) {
+        tile_a[local_id.y][local_id.x] = a[row * uniforms.M + col];
+      } else {
+        tile_a[local_id.y][local_id.x] = ${$.type.value}(0);
+      }
+
+      col = k_start + local_id.x;
+      row = tile_col_start + local_id.y;
+      if (col < uniforms.K && row < uniforms.N) {
+        tile_b[local_id.y][local_id.x] = b[row * uniforms.K + col];
+      } else {
+        tile_b[local_id.y][local_id.x] = ${T.type.value}(0);
+      }
+      `,w="value += tile_a[k][local_id.y] * tile_b[local_id.x][k];"):e.transA&&!e.transB?(U=`
+      var col = tile_row_start + local_id.x;
+      var row = k_start + local_id.y;
+      if (col < uniforms.M && row < uniforms.K) {
+        tile_a[local_id.y][local_id.x] = a[row * uniforms.M + col];
+      } else {
+        tile_a[local_id.y][local_id.x] = ${$.type.value}(0);
+      }
+
+      col = tile_col_start + local_id.x;
+      row = k_start + local_id.y;
+      if (col < uniforms.N && row < uniforms.K) {
+        tile_b[local_id.y][local_id.x] = b[row * uniforms.N + col];
+      } else {
+        tile_b[local_id.y][local_id.x] = ${T.type.value}(0);
+      }
+      `,w="value += tile_a[k][local_id.y] * tile_b[k][local_id.x];"):!e.transA&&e.transB?(U=`
+      var col = k_start + local_id.x;
+      var row = tile_row_start + local_id.y;
+      if (col < uniforms.K && row < uniforms.M) {
+        tile_a[local_id.y][local_id.x] = a[row * uniforms.K + col];
+      } else {
+        tile_a[local_id.y][local_id.x] = ${$.type.value}(0);
+      }
+
+      col = k_start + local_id.x;
+      row = tile_col_start + local_id.y;
+      if (col < uniforms.K && row < uniforms.N) {
+        tile_b[local_id.y][local_id.x] = b[row * uniforms.K + col];
+      } else {
+        tile_b[local_id.y][local_id.x] = ${T.type.value}(0);
+      }
+      `,w="value += tile_a[local_id.y][k] * tile_b[local_id.x][k];"):!e.transA&&!e.transB&&(U=`
+      var col = k_start + local_id.x;
+      var row = tile_row_start + local_id.y;
+      if (col < uniforms.K && row < uniforms.M) {
+        tile_a[local_id.y][local_id.x] = a[row * uniforms.K + col];
+      } else {
+        tile_a[local_id.y][local_id.x] = ${$.type.value}(0);
+      }
+
+      col = tile_col_start + local_id.x;
+      row = k_start + local_id.y;
+      if (col < uniforms.N && row < uniforms.K) {
+        tile_b[local_id.y][local_id.x] = b[row * uniforms.N + col];
+      } else {
+        tile_b[local_id.y][local_id.x] = ${T.type.value}(0);
+      }
+      `,w="value += tile_a[local_id.y][k] * tile_b[k][local_id.x];");let N=e.alpha===1?"":"value *= uniforms.alpha;";return`
+  ${x.registerUniforms(O).declareVariables(...E)}
+  var<workgroup> tile_a: array<array<${$.type.storage}, ${d}>, ${d}>;
+  var<workgroup> tile_b: array<array<${T.type.storage}, ${d}>, ${d}>;
+  ${x.mainStart([d,d,1])}
+    let tile_col_start = (workgroup_index % uniforms.num_tile_n) * ${d};
+    let tile_row_start = (workgroup_index / uniforms.num_tile_n) * ${d};
+    let num_tiles = (uniforms.K - 1) / ${d} + 1;
+    var k_start = 0u;
+    var value = ${A.type.value}(0);
+    for (var t: u32 = 0u; t < num_tiles; t++) {
+      ${U}
+      k_start = k_start + ${d};
+      workgroupBarrier();
+
+      for (var k: u32 = 0u; k < ${d}; k++) {
+        ${w}
+      }
+      workgroupBarrier();
+    }
+
+    ${N}
+    let m = tile_row_start + local_id.y;
+    let n = tile_col_start + local_id.x;
+    ${I!=null?`let cOffset = ${I.broadcastedIndicesToOffset("vec2(m, n)",A)}; value += ${A.type.value}(uniforms.beta) * ${I.getByOffset("cOffset")};`:""}
+    if (m < uniforms.M && n < uniforms.N) {
+      output[m * uniforms.N + n] = value;
+    }
+  }`};return m?{name:"GemmShared",shaderCache:{hint:`${e.cacheKey}`,inputDependencies:y},getRunData:()=>({outputs:[{dims:u,dataType:t[0].dataType}],dispatchGroup:{x:c*p},programUniforms:b}),getShaderSource:S}:{name:"Gemm",shaderCache:{hint:`${e.cacheKey}`,inputDependencies:y},getRunData:()=>({outputs:[{dims:u,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(g/64)},programUniforms:b}),getShaderSource:_}},Dl=t=>{let e=t.transA,r=t.transB,n=t.alpha,o=t.beta;return{transA:e,transB:r,alpha:n,beta:o,cacheKey:`${t.transA};${t.transB};${t.alpha===1}`}},Ol=(t,e)=>{Ng(t.inputs),t.compute(Vg(t.inputs,e))}});var mt,It,qt,Kt,Lg,Wg,Gg,Hg,Fg,qg,Kg,jg,Bl,Ml,Rl=V(()=>{"use strict";ee();te();Ce();oe();[mt,It,qt,Kt]=[0,1,2,3],Lg=t=>{if(t[0].dims.length!==4)throw new Error("only 4-D tensor is supported.");if(t[0].dims.length!==t[1].dims.length)throw new Error("input dimensions must be equal to grid dimensions");if(t[0].dims.length-2!==t[1].dims[t[1].dims.length-1])throw new Error(`last dimension of grid must be equal to ${t[0].dims.length-2}`);if(t[0].dims[0]!==t[1].dims[0])throw new Error("grid batch size must match input batch size")},Wg=`
+  fn gs_get_cubic_coeffs(x: f32) -> vec4<f32> {
+    let cubic_alpha = -0.75f;
+    let x_abs = abs(x);
+    var coeffs: vec4<f32>;
+    coeffs[0] = (((cubic_alpha * (x_abs + 1) - 5 * cubic_alpha) * (x_abs + 1) + 8 * cubic_alpha) * (x_abs + 1) - 4 * cubic_alpha);
+    coeffs[1] = (((cubic_alpha + 2) * x_abs - (cubic_alpha + 3)) * x_abs * x_abs + 1);
+    coeffs[2] = (((cubic_alpha + 2) * (1 - x_abs) - (cubic_alpha + 3)) * (1 - x_abs) * (1 - x_abs) + 1);
+    coeffs[3] = (((cubic_alpha * (2 - x_abs) - 5 * cubic_alpha) * (2 - x_abs) + 8 * cubic_alpha) * (2 - x_abs) - 4 * cubic_alpha);
+    return coeffs;
+  }
+`,Gg=t=>`
+  fn gs_bicubic_interpolate(p: mat4x4<${t}>, x: f32, y: f32) -> ${t} {
+    var v: vec4<f32>;
+    var coeffs = gs_get_cubic_coeffs(x);
+    for (var i = 0; i < 4; i++) {
+      v[i] = coeffs[0] * p[i][0] + coeffs[1] * p[i][1] + coeffs[2] * p[i][2] + coeffs[3] * p[i][3];
+    }
+    coeffs = gs_get_cubic_coeffs(y);
+    let pixel = ${t}(coeffs[0] * v[0] + coeffs[1] * v[1] + coeffs[2] * v[2] + coeffs[3] * v[3]);
+    return pixel;
+  }
+`,Hg=t=>`
+  fn gs_denormalize(n: f32, length: i32) -> f32 {
+    ${t.alignCorners===0?`
+    // alignCorners: false => [-1, 1] to [-0.5, length - 0.5]
+    return ((n + 1.0) * f32(length) - 1.0) / 2.0;
+    `:`
+    // alignCorners: true => [-1, 1] to [0, length - 1]
+    return (n + 1.0) / 2.0 * (f32(length - 1));
+    `}
+  }
+`,Fg=t=>`
+  ${t.paddingMode==="reflection"?`
+      fn gs_reflect(x: i32, x_min: f32, x_max: f32) -> u32 {
+        var dx = 0.0;
+        var fx = f32(x);
+        let range = x_max - x_min;
+        if (fx < x_min) {
+          dx = x_min - fx;
+          let n = u32(dx / range);
+          let r = dx - f32(n) * range;
+          if (n % 2 == 0) {
+            fx = x_min + r;
+          } else {
+            fx = x_max - r;
+          }
+        } else if (fx > x_max) {
+          dx = fx - x_max;
+          let n = u32(dx / range);
+          let r = dx - f32(n) * range;
+          if (n % 2 == 0) {
+            fx = x_max - r;
+          } else {
+            fx = x_min + r;
+          }
+        }
+        return u32(fx);
+      }`:""}
+`,qg=(t,e,r)=>`
+  fn pixel_at_grid(r: i32, c: i32, H: i32, W: i32, batch: u32, channel: u32, border: vec4<f32>) -> ${e} {
+     var pixel = ${e}(0);
+     var indices = vec4<u32>(0);
+     indices[${mt}] = batch;
+     indices[${It}] = channel;`+(()=>{switch(r.paddingMode){case"zeros":return`
+          if (r >= 0 && r < H && c >=0 && c < W) {
+            indices[${qt}] = u32(r);
+            indices[${Kt}] = u32(c);
+          } else {
+            return ${e}(0);
+          }
+        `;case"border":return`
+          indices[${qt}] = u32(clamp(r, 0, H - 1));
+          indices[${Kt}] = u32(clamp(c, 0, W - 1));
+        `;case"reflection":return`
+          indices[${qt}] = gs_reflect(r, border[1], border[3]);
+          indices[${Kt}] = gs_reflect(c, border[0], border[2]);
+        `;default:throw new Error(`padding mode ${r.paddingMode} is not supported`)}})()+`
+    return ${t.getByIndices("indices")};
+  }
+`,Kg=(t,e,r)=>(()=>{switch(r.mode){case"nearest":return`
+          let result = pixel_at_grid(i32(round(y)), i32(round(x)), H_in, W_in, indices[${mt}], indices[${It}], border);
+        `;case"bilinear":return`
+          let x1 = i32(floor(x));
+          let y1 = i32(floor(y));
+          let x2 = x1 + 1;
+          let y2 = y1 + 1;
+
+          let p11 = pixel_at_grid(y1, x1, H_in, W_in, indices[${mt}], indices[${It}], border);
+          let p12 = pixel_at_grid(y1, x2, H_in, W_in, indices[${mt}], indices[${It}], border);
+          let p21 = pixel_at_grid(y2, x1, H_in, W_in, indices[${mt}], indices[${It}], border);
+          let p22 = pixel_at_grid(y2, x2, H_in, W_in, indices[${mt}], indices[${It}], border);
+
+          let dx2 = ${e}(f32(x2) - x);
+          let dx1 = ${e}(x - f32(x1));
+          let dy2 = ${e}(f32(y2) - y);
+          let dy1 = ${e}(y - f32(y1));
+          let result = dy2 * (dx2 * p11 + dx1 * p12) + dy1 * (dx2 * p21 + dx1 * p22);
+        `;case"bicubic":return`
+          let x0 = i32(floor(x)) - 1;
+          let y0 = i32(floor(y)) - 1;
+          var p: mat4x4<${e}>;
+          for (var h = 0; h < 4; h++) {
+            for (var w = 0; w < 4; w++) {
+              p[h][w] = pixel_at_grid(h + y0, w + x0, H_in, W_in, indices[${mt}], indices[${It}], border);
+            }
+          }
+
+          let dx = x - f32(x0 + 1);
+          let dy = y - f32(y0 + 1);
+          let result = gs_bicubic_interpolate(p, dx, dy);
+        `;default:throw new Error(`mode ${r.mode} is not supported`)}})()+`${t.setByOffset("global_idx","result")}`,jg=(t,e)=>{let r=D("x",t[0].dataType,t[0].dims.length),n=[t[1].dims[0],t[1].dims[1],t[1].dims[2]],o=D("grid",t[1].dataType,n.length,2),i=[t[0].dims[0],t[0].dims[1],t[1].dims[1],t[1].dims[2]];e.format==="NHWC"&&(i=[t[0].dims[0],t[1].dims[1],t[1].dims[2],t[0].dims[3]],[mt,It,qt,Kt]=[0,3,1,2]);let a=R("output",t[0].dataType,i.length),u=r.type.value,d=k.size(i),c=[{type:12,data:d},...W(t[0].dims,n,i)],p=m=>`
+  ${m.registerUniform("output_size","u32").declareVariables(r,o,a)}
+  ${Wg}
+  ${Gg(u)}
+  ${Hg(e)}
+  ${Fg(e)}
+  ${qg(r,u,e)}
+
+  ${m.mainStart()}
+    ${m.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+      let H_in = i32(uniforms.x_shape[${qt}]);
+      let W_in = i32(uniforms.x_shape[${Kt}]);
+
+      ${e.alignCorners===0?`
+      let x_min = -0.5;
+      let x_max = f32(W_in) - 0.5;
+      let y_min = -0.5;
+      let y_max = f32(H_in) - 0.5;
+      `:`
+      let x_min = 0.0;
+      let x_max = f32(W_in) - 1.0;
+      let y_min = 0.0;
+      let y_max = f32(H_in) - 1.0;
+      `};
+      let border = vec4<f32>(x_min, y_min, x_max, y_max);
+
+      let indices = ${a.offsetToIndices("global_idx")};
+      var grid_indices = vec3<u32>(indices[${mt}], indices[${qt}], indices[${Kt}]);
+      let nxy = ${o.getByIndices("grid_indices")};
+      var x = gs_denormalize(f32(nxy[0]), W_in);
+      var y = gs_denormalize(f32(nxy[1]), H_in);
+
+      ${Kg(a,u,e)}
+  }`;return{name:"GridSample",shaderCache:{hint:`${e.cacheKey}`,inputDependencies:["type","type"]},getRunData:m=>{let g=k.size(i);return{outputs:[{dims:i,dataType:m[0].dataType}],dispatchGroup:{x:Math.ceil(g/64)},programUniforms:c}},getShaderSource:p}},Bl=(t,e)=>{Lg(t.inputs),t.compute(jg(t.inputs,e))},Ml=t=>J({alignCorners:t.align_corners,mode:t.mode,paddingMode:t.padding_mode,format:t.format})});var Ue,Yg,Nl,Ul,Xg,dr,Vl,Oo=V(()=>{"use strict";ee();te();Ce();Zr();tn();oe();pt();Ue=(t,e)=>t.length>e&&t[e].dims.length>0?t[e]:void 0,Yg=(t,e)=>{let r=t[0],n=Ue(t,1),o=Ue(t,2),i=Ue(t,3),a=Ue(t,4),u=Ue(t,5),d=Ue(t,6),c=Ue(t,7);if(r.dims.length!==3&&r.dims.length!==5)throw new Error("Input query is expected to have 3 or 5 dimensions");let p=r.dims[0],m=r.dims[1],g=r.dims.length===3?r.dims[2]:e.numHeads*r.dims[4],b=m,y=0,_=0,S=Math.floor(g/e.numHeads);if(d&&c&&k.size(d.dims)&&k.size(c.dims)){if(d.dims.length!==4)throw new Error('Input "past_key" is expected to have 4 dimensions');if(d.dims[0]!==p||d.dims[1]!==e.numHeads||d.dims[3]!==S)throw new Error('Input "past_key" shape (batch_size, num_heads, past_sequence_length, head_size)');if(c.dims[0]!==p||c.dims[1]!==e.numHeads||c.dims[3]!==S)throw new Error('Input "past_value" shape (batch_size, num_heads, past_sequence_length, head_size)');if(d.dims[2]!==c.dims[2])throw new Error('Input "past_key" and "past_value" shall have same dim 2 (past_sequence_length)');if(c.dims.length!==4)throw new Error('Input "past_value" is expected to have 4 dimensions');y=d.dims[2],_=d.dims[2]}else if(d&&k.size(d.dims)||c&&k.size(c.dims))throw new Error('Input "past_key" and "past_value" shall be both present or both absent');let x;if(n&&k.size(n.dims)>0){if(r.dims.length!==3)throw new Error('Input "query" is expected to have 3 dimensions when key is given');if(n.dims.length<3||n.dims.length>5)throw new Error('Input "key" is expected to have 3, 4, or 5 dimensions');if(r.dims[0]!==n.dims[0])throw new Error('Input "query" and "key" shall have same dim 0 (batch size)');if(n.dims.length===3){if(n.dims[2]!==r.dims[2])throw new Error('Input "query" and "key" shall have same dim 2 (hidden_size)');x=2,b=n.dims[1]}else if(n.dims.length===5){if(n.dims[2]!==e.numHeads||n.dims[3]!==2||n.dims[4]!==S)throw new Error('Expect "key" shape (batch_size, kv_sequence_length, num_heads, 2, head_size) for packed kv');if(o)throw new Error('Expect "value" be none when "key" has packed kv format.');x=5,b=n.dims[1]}else{if(n.dims[1]!==e.numHeads||n.dims[3]!==S)throw new Error('Expect "key" shape (batch_size, num_heads, kv_sequence_length, head_size) for past_key');x=0,b=n.dims[2]}}else{if(r.dims.length!==5)throw new Error('Input "query" is expected to have 5 dimensions when key is empty');if(r.dims[2]!==e.numHeads||r.dims[3]!==3)throw new Error('Expect "query" shape (batch_size, kv_sequence_length, num_heads, 3, head_size) for packed kv');x=3}if(i&&k.size(i.dims)>0){if(i.dims.length!==1)throw new Error('Input "bias" is expected to have 1 dimension');if(n&&n.dims.length===5&&n.dims[3]===2)throw new Error("bias is not allowed for packed kv.")}let $=y+b,T=0;if(a&&k.size(a.dims)>0){T=8;let O=a.dims;throw O.length===1?O[0]===p?T=1:O[0]===3*p+2&&(T=3):O.length===2&&O[0]===p&&O[1]===$&&(T=5),T===8?new Error('Input "key_padding_mask" shape shall be (batch_size) or (batch_size, total_sequence_length)'):new Error("Mask not supported")}let I=!1,E=g;if(o&&k.size(o.dims)>0){if(o.dims.length!==3&&o.dims.length!==4)throw new Error('Input "value" is expected to have 3 or 4 dimensions');if(r.dims[0]!==o.dims[0])throw new Error('Input "query" and "value" shall have same dim 0 (batch_size)');if(o.dims.length===3){if(b!==o.dims[1])throw new Error('Input "key" and "value" shall have the same dim 1 (kv_sequence_length)');E=o.dims[2]}else{if(b!==o.dims[2])throw new Error('Input "key" and "value" shall have the same dim 2 (kv_sequence_length)');E=o.dims[1]*o.dims[3],I=!0}}let A=!1;if(a&&k.size(a.dims)>0)throw new Error("Key padding mask is not supported");if(u&&k.size(u.dims)>0){if(u.dims.length!==4)throw new Error('Input "attention_bias" is expected to have 4 dimensions');if(u.dims[0]!==p||u.dims[1]!==e.numHeads||u.dims[2]!==m||u.dims[3]!==$)throw new Error('Expect "attention_bias" shape (batch_size, num_heads, sequence_length, total_sequence_length)')}return{batchSize:p,sequenceLength:m,pastSequenceLength:y,kvSequenceLength:b,totalSequenceLength:$,maxSequenceLength:_,inputHiddenSize:0,hiddenSize:g,vHiddenSize:E,headSize:S,vHeadSize:Math.floor(E/e.numHeads),numHeads:e.numHeads,isUnidirectional:!1,pastPresentShareBuffer:!1,maskFilterValue:e.maskFilterValue,maskType:T,scale:e.scale,broadcastResPosBias:A,passPastInKv:I,qkvFormat:x}},Nl=t=>J({...t}),Ul=J({perm:[0,2,1,3]}),Xg=(t,e,r,n,o,i,a)=>{let u=[n,o,i],d=k.size(u),c=[{type:12,data:d},{type:12,data:a},{type:12,data:i}],p=m=>{let g=R("qkv_with_bias",e.dataType,u),b=D("qkv",e.dataType,u),y=D("bias",r.dataType,u),_=[{name:"output_size",type:"u32"},{name:"bias_offset",type:"u32"},{name:"hidden_size",type:"u32"}];return`
+  ${m.registerUniforms(_).declareVariables(b,y,g)}
+  ${m.mainStart()}
+    ${m.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+    let bias_offset_idx = (global_idx % uniforms.hidden_size) + uniforms.bias_offset;
+
+    qkv_with_bias[global_idx] = qkv[global_idx] + bias[bias_offset_idx];
+  }`};return t.compute({name:"MultiHeadAttentionAddBias",shaderCache:{inputDependencies:["type","type"]},getRunData:()=>({outputs:[{dims:u,dataType:e.dataType,gpuDataType:0}],dispatchGroup:{x:Math.ceil(d/64)},programUniforms:c}),getShaderSource:p},{inputs:[e,r],outputs:[-1]})[0]},dr=(t,e,r,n,o,i,a,u)=>{let d=i;if(a&&k.size(a.dims)>0){if(n===1)throw new Error("AddBiasReshape is not implemented. Please export your model with packed QKV or KV");return d=Xg(t,i,a,e,n,r*o,u),d=d.reshape([e,n,r,o]),r===1||n===1?d:t.compute(ze(d,Ul.perm),{inputs:[d],outputs:[-1]})[0]}else return i.dims.length===3&&(d=i.reshape([e,n,r,o])),r===1||n===1?d:t.compute(ze(d,Ul.perm),{inputs:[d],outputs:[-1]})[0]},Vl=(t,e)=>{let r=Yg(t.inputs,e),n=t.inputs[0],o=Ue(t.inputs,1),i=Ue(t.inputs,2),a=Ue(t.inputs,3),u=Ue(t.inputs,4),d=Ue(t.inputs,5),c=Ue(t.inputs,6),p=Ue(t.inputs,7);if(n.dims.length===5)throw new Error("Packed QKV is not implemented");if(o?.dims.length===5)throw new Error("Packed KV is not implemented");let m=o&&i&&o.dims.length===4&&i.dims.length===4,g=dr(t,r.batchSize,r.numHeads,r.sequenceLength,r.headSize,n,a,0);if(m)return Ft(t,g,o,i,u,void 0,c,p,d,r);if(!o||!i)throw new Error("key and value must be provided");let b=dr(t,r.batchSize,r.numHeads,r.kvSequenceLength,r.headSize,o,a,r.hiddenSize),y=dr(t,r.batchSize,r.numHeads,r.kvSequenceLength,r.vHeadSize,i,a,2*r.hiddenSize);Ft(t,g,b,y,u,void 0,c,p,d,r)}});var Jg,ey,ty,ry,zo,Ll,Wl,Bo=V(()=>{"use strict";ee();te();Ce();oe();Jg=t=>{if(!t||t.length<1)throw new Error("too few inputs")},ey=(t,e)=>{let r=[],n=e.numOutputs;return t[1].dims[0]>0&&(t[1].getBigInt64Array().forEach(o=>r.push(Number(o))),n=r.length),J({numOutputs:n,axis:e.axis,splitSizes:r})},ty=t=>`
+fn calculateOutputIndex(index: u32) -> u32 {
+    for (var i: u32 = 0u; i < ${t}u; i += 1u ) {
+    if (index < ${j("uniforms.size_in_split_axis","i",t)}) {
+        return i;
+    }
+    }
+    return ${t}u;
+}`,ry=t=>{let e=t.length,r=[];for(let n=0;n<e;++n){let o=t[n].setByIndices("indices","input[global_idx]");e===1?r.push(o):n===0?r.push(`if (output_number == ${n}u) { ${o} }`):n===e-1?r.push(`else { ${o} }`):r.push(`else if (output_number == ${n}) { ${o} }`)}return`
+      fn writeBufferData(output_number: u32, indices: ${t[0].type.indices}, global_idx: u32) {
+        ${r.join(`
+`)}
+      }`},zo=(t,e)=>{let r=t[0].dims,n=k.size(r),o=t[0].dataType,i=k.normalizeAxis(e.axis,r.length),a=new Array(e.numOutputs),u=D("input",o,r.length),d=new Array(e.numOutputs),c=[],p=[],m=0,g=[{type:12,data:n}];for(let y=0;y<e.numOutputs;y++){m+=e.splitSizes[y],d[y]=m;let _=r.slice();_[i]=e.splitSizes[y],p.push(_),a[y]=R(`output${y}`,o,_.length),c.push({dims:p[y],dataType:t[0].dataType})}g.push({type:12,data:d},...W(r,...p));let b=y=>`
+  ${y.registerUniform("input_size","u32").registerUniform("size_in_split_axis","u32",d.length).declareVariables(u,...a)}
+  ${ty(d.length)}
+  ${ry(a)}
+
+  ${y.mainStart()}
+    ${y.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.input_size")}
+
+    var indices = ${u.offsetToIndices("global_idx")};
+    var index = ${u.indicesGet("indices",i)};
+    let output_number = calculateOutputIndex(index);
+    if (output_number != 0) {
+      index -= ${j("uniforms.size_in_split_axis","output_number - 1u",d.length)};
+      ${u.indicesSet("indices",i,"index")};
+    }
+    writeBufferData(output_number, indices, global_idx);
+  }`;return{name:"Split",shaderCache:{hint:e.cacheKey,inputDependencies:["rank"]},getShaderSource:b,getRunData:()=>({outputs:c,dispatchGroup:{x:Math.ceil(n/64)},programUniforms:g})}},Ll=(t,e)=>{Jg(t.inputs);let r=t.inputs.length===1?e:ey(t.inputs,e);t.compute(zo(t.inputs,r),{inputs:[0]})},Wl=t=>{let e=t.axis,r=t.splitSizes,n=t.numOutputs<0?r.length:t.numOutputs;if(n!==r.length)throw new Error("numOutputs and splitSizes length must be equal");return J({axis:e,numOutputs:n,splitSizes:r})}});var ny,mn,Gl,Mo=V(()=>{"use strict";ee();te();Ce();oe();ny=(t,e)=>{let[r,n,o,i]=t,{numHeads:a,rotaryEmbeddingDim:u}=e;if(r.dims.length!==3&&r.dims.length!==4)throw new Error(`Input 'x' is expected to have 3 or 4 dimensions, got ${r.dims.length}`);if(!k.areEqual(n.dims,[])&&!k.areEqual(n.dims,[1])&&n.dims.length!==2)throw new Error(`Input 'position_ids' is expected to have 0, 1, or 2 dimensions, got ${n.dims.length}`);if(o.dims.length!==2)throw new Error(`Input 'cos_cache' is expected to have 2 dimensions, got ${o.dims.length}`);if(i.dims.length!==2)throw new Error(`Input 'sin_cache' is expected to have 2 dimensions, got ${i.dims.length}`);if(!k.areEqual(o.dims,i.dims))throw new Error("Inputs 'cos_cache' and 'sin_cache' are expected to have the same shape");if(u>0&&a===0)throw new Error("num_heads must be provided if rotary_embedding_dim is specified");let d=r.dims[0],c=r.dims[r.dims.length-2],p=o.dims[0],m=k.sizeFromDimension(r.dims,1)/c,g=u===0?o.dims[1]*2:m/a;if(u>g)throw new Error("rotary_embedding_dim must be less than or equal to head_size");if(n.dims.length===2){if(d!==n.dims[0])throw new Error(`Input 'position_ids' dimension 0 should be of size batch_size, got ${n.dims[0]}`);if(c!==n.dims[1])throw new Error(`Input 'position_ids' dimension 1 should be of size sequence_length, got ${n.dims[1]}`)}if(c>p)throw new Error("Updating cos_cache and sin_cache in RotaryEmbedding is not currently supported");if(g/2!==o.dims[1]&&u/2!==o.dims[1])throw new Error(`Input 'cos_cache' dimension 1 should be same as head_size / 2 or rotary_embedding_dim / 2, got ${o.dims[1]}`)},mn=(t,e)=>{let{interleaved:r,numHeads:n,rotaryEmbeddingDim:o,scale:i}=e,a=t[0].dims[0],u=k.sizeFromDimension(t[0].dims,1),d=t[0].dims[t[0].dims.length-2],c=u/d,p=t[2].dims[1],m=o===0?p*2:c/n,g=new Array(a,d,c/m,m-p),b=k.computeStrides(g),y=[{type:1,data:i},{type:12,data:g},{type:12,data:b},...t[0].dims.length===3?new Array({type:12,data:[u,c,m,1]}):[],...t[0].dims.length===4?new Array({type:12,data:[u,m,d*m,1]}):[],...W(t[0].dims,t[1].dims,t[2].dims,t[3].dims,t[0].dims)],_=S=>{let x=D("input",t[0].dataType,t[0].dims.length),$=D("position_ids",t[1].dataType,t[1].dims.length),T=D("cos_cache",t[2].dataType,t[2].dims.length),I=D("sin_cache",t[3].dataType,t[3].dims.length),E=R("output",t[0].dataType,t[0].dims.length);return S.registerUniforms([{name:"scale",type:"f32"},{name:"global_shape",type:"u32",length:g.length},{name:"global_strides",type:"u32",length:b.length},{name:"input_output_strides",type:"u32",length:b.length}]),`
+        ${S.declareVariables(x,$,T,I,E)}
+
+        ${S.mainStart(Bt)}
+          let half_rotary_emb_dim = uniforms.${T.name}_shape[1];
+          let bsnh = global_idx / uniforms.global_strides % uniforms.global_shape;
+          let size = uniforms.global_shape[0] * uniforms.global_strides[0];
+          ${S.guardAgainstOutOfBoundsWorkgroupSizes("size")}
+
+          if (bsnh[3] < half_rotary_emb_dim) {
+            let position_ids_idx =
+                ${$.broadcastedIndicesToOffset("bsnh.xy",R("",$.type.tensor,2))};
+            let position_id =
+                u32(${$.getByOffset("position_ids_idx")}) + select(0, bsnh[1], position_ids_idx == 0);
+            let i = dot(bsnh, uniforms.input_output_strides) + select(0, bsnh[3], ${r});
+            let j = i + select(half_rotary_emb_dim, 1, ${r});
+            let re = ${x.getByOffset("i")} * ${T.get("position_id","bsnh[3]")} -
+                ${x.getByOffset("j")} * ${I.get("position_id","bsnh[3]")};
+            ${E.setByOffset("i","re")}
+            let im = ${x.getByOffset("i")} * ${I.get("position_id","bsnh[3]")} +
+                ${x.getByOffset("j")} * ${T.get("position_id","bsnh[3]")};
+            ${E.setByOffset("j","im")}
+          } else {
+            let k = dot(bsnh, uniforms.input_output_strides) + half_rotary_emb_dim;
+            ${E.setByOffset("k",x.getByOffset("k"))}
+          }
+        }`};return{name:"RotaryEmbedding",shaderCache:{hint:J({interleaved:r}).cacheKey,inputDependencies:["rank","rank","rank","rank"]},getShaderSource:_,getRunData:()=>({outputs:[{dims:t[0].dims,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(k.size(g)/Bt)},programUniforms:y})}},Gl=(t,e)=>{ny(t.inputs,e),t.compute(mn(t.inputs,e))}});var oy,iy,Hl,ay,Fl,ql=V(()=>{"use strict";Ce();ee();tn();Oo();Bo();pt();Mo();oe();oy=(t,e)=>{if(e.doRotary&&t.length<=7)throw new Error("cos_cache and sin_cache inputs are required if do_rotary is specified");let r=t[0],n=t[1],o=t[2],i=t[3],a=t[4];if(e.doRotary!==0&&t.length<=7)throw new Error("cos_cast and sin_cache are expected if do_rotary attribute is non-zero");if(e.localWindowSize!==-1)throw new Error("Local attention is not supported");if(e.softcap!==0)throw new Error("Softcap is not supported");if(e.rotaryInterleaved!==0)throw new Error("Rotary interleaved is not supported");if(e.smoothSoftmax)throw new Error("Smooth softmax is not supported");if(r.dims.length!==3&&r.dims.length!==5)throw new Error("Input query is expected to have 3 or 5 dimensions");let u=!1,d=r.dims[0],c=r.dims[1],p=r.dims.length===3?u?r.dims[2]/3:r.dims[2]:e.numHeads*r.dims[4],m=c,g=0,b=!n||n.dims.length===0,y=Math.floor(b?p/(e.numHeads+2*e.kvNumHeads):p/e.numHeads);b&&(p=y*e.numHeads);let _=i&&i.dims.length!==0,S=a&&a.dims.length!==0;if(_&&i.dims.length===4&&i.dims[0]===d&&i.dims[1]!==e.kvNumHeads&&i.dims[2]===e.kvNumHeads&&i.dims[3]===y)throw new Error("BSNH pastKey/pastValue is not supported");if(_&&S){if(i.dims.length!==4)throw new Error('Input "past_key" is expected to have 4 dimensions');if(a.dims.length!==4)throw new Error('Input "past_value" is expected to have 4 dimensions');g=i.dims[2]}else if(_||S)throw new Error('Input "past_key" and "past_value" shall be both present or both absent');let $=1;if(n&&n.dims.length>0){if(r.dims.length!==3)throw new Error('Input "query" is expected to have 3 dimensions when key is given');if(n.dims.length<3||n.dims.length>5)throw new Error('Input "key" is expected to have 3, 4, or 5 dimensions');if(r.dims[0]!==n.dims[0])throw new Error('Input "query" and "key" shall have same dim 0 (batch size)');if(n.dims.length===3){if(r.dims[2]%n.dims[2]!==0)throw new Error('Dimension 2 of "query" should be a multiple of "key"');m=n.dims[1]}else if(n.dims.length===5){if(n.dims[2]!==e.numHeads||n.dims[3]!==2||n.dims[4]!==y)throw new Error('Expect "key" shape (batch_size, kv_sequence_length, num_heads, 2, head_size) for packed kv');if(o)throw new Error('Expect "value" be none when "key" has packed kv format.');m=n.dims[1]}else{if(n.dims[1]!==e.numHeads||n.dims[3]!==y)throw new Error('Expect "key" shape (batch_size, num_heads, kv_sequence_length, head_size) for past_key');m=n.dims[2]}}else{if(r.dims.length!==3&&r.dims.length!==5)throw new Error('Input "query" is expected to have 3 or 5 dimensions when key is empty');if(r.dims.length===5&&(r.dims[2]!==e.numHeads||r.dims[3]!==3))throw new Error('Expect "query" shape (batch_size, kv_sequence_length, num_heads, 3, head_size) for packed kv');$=3}let T=0,I=!1,E=e.kvNumHeads?y*e.kvNumHeads:p;if(o&&o.dims.length>0){if(o.dims.length!==3&&o.dims.length!==4)throw new Error('Input "value" is expected to have 3 or 4 dimensions');if(r.dims[0]!==o.dims[0])throw new Error('Input "query" and "value" shall have same dim 0 (batch_size)');if(o.dims.length===3){if(m!==o.dims[1])throw new Error('Input "key" and "value" shall have the same dim 1 (kv_sequence_length)');E=o.dims[2]}else{if(m!==o.dims[2])throw new Error('Input "past_key" and "past_value" shall have the same dim 2 (kv_sequence_length)');E=o.dims[1]*o.dims[3],I=!0}}let A=t.length>4?t[5]:void 0;if(A){if(A.dims.length===0)throw new Error("seqlens_k must be at least 1D, got scalar.");let N=A.dims.reduce((F,q)=>F*q,1);if(N!==d)throw new Error(`seqlens_k must have batch_size (${d}) elements, got ${N}.`);for(let F=0;F<A.dims.length;F++)if(A.dims[F]!==1&&A.dims[F]!==d)throw new Error(`seqlens_k has unexpected shape. Each dimension must be 1 or batch_size (${d}), got dims[${F}] = ${A.dims[F]}.`)}return{batchSize:d,sequenceLength:c,pastSequenceLength:g,kvSequenceLength:m,totalSequenceLength:-1,maxSequenceLength:-1,inputHiddenSize:0,hiddenSize:p,vHiddenSize:E,headSize:y,vHeadSize:Math.floor(E/e.kvNumHeads),numHeads:e.numHeads,kvNumHeads:e.kvNumHeads,nReps:e.numHeads/e.kvNumHeads,pastPresentShareBuffer:!1,maskType:T,scale:e.scale,broadcastResPosBias:!1,passPastInKv:I,qkvFormat:$}},iy=J({perm:[0,2,1,3]}),Hl=(t,e,r)=>{let n=e,o=r.kvNumHeads;return e.dims.length===3&&r.kvSequenceLength!==0&&(n=e.reshape([r.batchSize,r.kvSequenceLength,o,r.headSize]),n=t.compute(ze(n,iy.perm),{inputs:[n],outputs:[-1]})[0]),n},ay=(t,e,r,n)=>{let o=7,i=["type","type"],a=[t*e],u=t*e,d=[{type:12,data:u},{type:12,data:e},{type:12,data:t}],c=p=>{let m=D("seq_lens",r.dataType,r.dims),g=D("total_seq_lens",n.dataType,n.dims),b=R("pos_ids",o,a),y=[{name:"output_size",type:"u32"},{name:"sequence_length",type:"u32"},{name:"batch_size",type:"u32"}];return`
+  ${p.registerUniforms(y).declareVariables(m,g,b)}
+  ${p.mainStart()}
+    ${p.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+    let total_sequence_length = u32(${g.getByOffset("0")});
+    let is_subsequent_prompt = uniforms.sequence_length > 1 && uniforms.sequence_length != total_sequence_length;
+    let is_first_prompt = !is_subsequent_prompt && uniforms.sequence_length == total_sequence_length;
+    let batch_idx = global_idx / uniforms.sequence_length;
+    let sequence_idx = i32(global_idx % uniforms.sequence_length);
+    var pos_id: i32 = 0;
+    let seqlen = ${m.getByOffset("batch_idx")};
+    let total_seqlen = seqlen + 1;
+    if (is_first_prompt) {
+      if (sequence_idx < total_seqlen) {
+        pos_id = sequence_idx;
+      } else {
+        pos_id = 1;
+      }
+      ${b.setByOffset("global_idx","pos_id")}
+    } else if (is_subsequent_prompt) {
+      let past_seqlen = total_seqlen - i32(uniforms.sequence_length);
+      if (past_seqlen + sequence_idx < total_seqlen) {
+        pos_id = past_seqlen + sequence_idx;
+      } else {
+        pos_id = 1;
+      }
+      ${b.setByOffset("global_idx","pos_id")}
+    } else if (global_idx < uniforms.batch_size) {
+      ${b.setByOffset("global_idx","seqlen")}
+    };
+  }
+  `};return{name:"GeneratePositionIds",shaderCache:{hint:`${t};${e}`,inputDependencies:i},getRunData:()=>({outputs:[{dims:a,dataType:o}],dispatchGroup:{x:Math.ceil(u/64)},programUniforms:d}),getShaderSource:c}},Fl=(t,e)=>{if(t.inputs.length>14&&t.inputs[14]||t.inputs.length>15&&t.inputs[15])throw new Error("GroupQueryAttention (JSEP): q_norm_weight / k_norm_weight inputs are not supported. The per-head Q/K RMS normalization prologue is implemented only on the CUDA and native WebGPU EPs.");let r=oy(t.inputs,e);if(t.inputs[0].dims.length===5)throw new Error("Packed QKV is not implemented");if(t.inputs[1]?.dims.length===5)throw new Error("Packed KV is not implemented");let n=t.inputs[0],o=t.inputs[1]&&t.inputs[1].dims.length>0?t.inputs[1]:void 0,i=t.inputs[2]&&t.inputs[2].dims.length>0?t.inputs[2]:void 0,a=t.inputs[3]&&t.inputs[3].dims.length!==0?t.inputs[3]:void 0,u=t.inputs[4]&&t.inputs[4].dims.length!==0?t.inputs[4]:void 0,d=t.inputs.length>4?t.inputs[5]:void 0,c=t.inputs.length>5?t.inputs[6]:void 0,p=r.kvNumHeads?r.kvNumHeads:r.numHeads,m=J({axis:2,numOutputs:3,splitSizes:[r.numHeads*r.headSize,p*r.headSize,p*r.headSize]}),[g,b,y]=!o&&!i?t.compute(zo([n],m),{inputs:[n],outputs:[-1,-1,-1]}):[n,o,i],_,S;if(e.doRotary){let I=t.compute(ay(r.batchSize,r.sequenceLength,d,c),{inputs:[d,c],outputs:[-1]})[0],E=t.inputs[7],A=t.inputs[8],O=J({interleaved:e.rotaryInterleaved!==0,numHeads:r.numHeads,rotaryEmbeddingDim:0,scale:e.scale}),w=[g,I,E,A],U=[-1];_=t.compute(mn(w,O),{inputs:w,outputs:U})[0],w.splice(0,1,b);let N=J({interleaved:e.rotaryInterleaved!==0,numHeads:r.kvNumHeads,rotaryEmbeddingDim:0,scale:e.scale});S=t.compute(mn(w,N),{inputs:w,outputs:U})[0]}let x=dr(t,r.batchSize,r.numHeads,r.sequenceLength,r.headSize,e.doRotary?_:g,void 0,0),$=Hl(t,e.doRotary?S:b,r),T=Hl(t,y,r);Ft(t,x,$,T,void 0,void 0,a,u,void 0,r,d,c)}});var Kl,sy,uy,jl,Ql=V(()=>{"use strict";ee();te();pt();oe();Kl=(t,e,r,n,o,i,a,u)=>{let d=fe(i),c=d===1?"f32":`vec${d}f`,p=d===1?"vec2f":`mat2x${d}f`,m=o*a,g=64;m===1&&(g=256);let b=[o,a,i/d],y=[o,a,2],_=["rank","type","type"],S=[];S.push(...W(b,y));let x=$=>{let T=D("x",e.dataType,3,d),I=D("scale",r.dataType,r.dims),E=D("bias",n.dataType,n.dims),A=R("output",1,3,2),O=[T,I,E,A];return`
+  var<workgroup> workgroup_shared : array<${p}, ${g}>;
+  const workgroup_size = ${g}u;
+  ${$.declareVariables(...O)}
+  ${$.mainStart(g)}
+    let batch = workgroup_index / uniforms.x_shape[1];
+    let channel = workgroup_index % uniforms.x_shape[1];
+    let hight = uniforms.x_shape[2];
+    // initialize workgroup memory
+    var sum = ${c}(0);
+    var squared_sum = ${c}(0);
+    for (var h = local_idx; h < hight; h += workgroup_size) {
+      let value = ${c}(${T.get("batch","channel","h")});
+      sum += value;
+      squared_sum += value * value;
+    }
+    workgroup_shared[local_idx] = ${p}(sum, squared_sum);
+    workgroupBarrier();
+
+    for (var currSize = workgroup_size >> 1;  currSize > 0; currSize = currSize >> 1) {
+      if (local_idx < currSize) {
+        workgroup_shared[local_idx] = workgroup_shared[local_idx] + workgroup_shared[local_idx + currSize];
+      }
+      workgroupBarrier();
+    }
+    if (local_idx == 0) {
+      let sum_final = ${Qe("workgroup_shared[0][0]",d)} / f32(hight * ${d});
+      let squared_sum_final = ${Qe("workgroup_shared[0][1]",d)} / f32(hight * ${d});
+
+      let inv_std_dev = inverseSqrt(squared_sum_final - sum_final * sum_final + f32(${u}));
+      let channel_scale = inv_std_dev * f32(scale[channel]);
+      let channel_shift = f32(bias[channel]) - sum_final * channel_scale;
+      output[workgroup_index] = vec2f(channel_scale, channel_shift);
+    }
+  }`};return t.compute({name:"InstanceNormComputeChannelScaleShift",shaderCache:{hint:`${d};${u};${g}`,inputDependencies:_},getRunData:()=>({outputs:[{dims:y,dataType:1}],dispatchGroup:{x:m},programUniforms:S}),getShaderSource:x},{inputs:[e,r,n],outputs:[-1]})[0]},sy=(t,e,r)=>{let n=e[0].dims,o=n,i=2,a=n[0],u=n[1],d=k.sizeFromDimension(n,i),c=fe(d),p=k.size(o)/c,m=Kl(t,e[0],e[1],e[2],a,d,u,r.epsilon),g=[a,u,d/c],b=[a,u],y=["type","none"],_=S=>{let x=D("x",e[0].dataType,g.length,c),$=D("scale_shift",1,b.length,2),T=R("output",e[0].dataType,g.length,c),I=[x,$,T];return`
+  ${S.registerUniform("output_size","u32").declareVariables(...I)}
+  ${S.mainStart()}
+  ${S.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+      let outputIndices = ${T.offsetToIndices("global_idx")};
+      let batch = outputIndices[0];
+      let channel = outputIndices[1];
+      let scale_shift = ${$.getByIndices("vec2<u32>(batch, channel)")};
+      let value = ${x.getByOffset("global_idx")} * ${T.type.value}(scale_shift.x) + ${T.type.value}(scale_shift.y);
+      ${T.setByOffset("global_idx","value")};
+  }`};t.compute({name:"InstanceNormalization",shaderCache:{hint:`${c}`,inputDependencies:y},getRunData:()=>({outputs:[{dims:o,dataType:e[0].dataType}],dispatchGroup:{x:Math.ceil(p/64)},programUniforms:[{type:12,data:p},...W(g,b,g)]}),getShaderSource:_},{inputs:[e[0],m]})},uy=(t,e,r)=>{let n=e[0].dims,o=n,i=n[0],a=n[n.length-1],u=k.sizeFromDimension(n,1)/a,d=fe(a),c=k.size(o)/d,p=[{type:12,data:u},{type:12,data:Math.floor(a/d)}],m=["type","type"],g=!1,b=[0,n.length-1];for(let x=0;x<n.length-2;x++)g=g||n[x+1]!==1,b.push(x+1);g=g&&n[n.length-1]!==1;let y=g?t.compute(ze(t.inputs[0],b),{inputs:[t.inputs[0]],outputs:[-1]})[0]:t.inputs[0].reshape(Array.from({length:n.length},(x,$)=>n[b[$]])),_=Kl(t,y,e[1],e[2],i,u,a,r.epsilon),S=x=>{let $=we(e[0].dataType),T=d===1?"vec2f":`mat${d}x2f`,I=O=>{let w=O===0?"x":"y",U=d===1?"f32":`vec${d}f`;switch(d){case 1:return`${$}(${U}(scale.${w}))`;case 2:return`vec2<${$}>(${U}(scale[0].${w}, scale[1].${w}))`;case 4:return`vec4<${$}>(${U}(scale[0].${w}, scale[1].${w}, scale[2].${w}, scale[3].${w}))`;default:throw new Error(`Not supported compoents ${d}`)}},E=D("input",e[0].dataType,e[0].dims,d),A=R("output",e[0].dataType,o,d);return`
+  @group(0) @binding(0) var<storage, read> input : array<${E.type.storage}>;
+  @group(0) @binding(1) var<storage, read> scale_input : array<${T}>;
+  @group(0) @binding(2) var<storage, read_write> output : array<${A.type.storage}>;
+  struct Uniforms {H: u32, C : u32};
+  @group(0) @binding(3) var<uniform> uniforms: Uniforms;
+
+  ${x.mainStart()}
+    let current_image_number = global_idx / (uniforms.C * uniforms.H);
+    let current_channel_number = global_idx % uniforms.C;
+
+    let scale_offset = current_image_number * uniforms.C + current_channel_number;
+    let scale = scale_input[scale_offset];
+    output[global_idx] = fma(input[global_idx], ${I(0)}, ${I(1)});
+  }`};t.compute({name:"InstanceNormalizationNHWC",shaderCache:{hint:`${d}`,inputDependencies:m},getRunData:()=>({outputs:[{dims:o,dataType:e[0].dataType}],dispatchGroup:{x:Math.ceil(c/64)},programUniforms:p}),getShaderSource:S},{inputs:[e[0],_]})},jl=(t,e)=>{e.format==="NHWC"?uy(t,t.inputs,e):sy(t,t.inputs,e)}});var dy,ly,Zl,Yl=V(()=>{"use strict";ee();te();oe();dy=t=>{if(!t||t.length<2)throw new Error("layerNorm requires at least 2 inputs.")},ly=(t,e,r)=>{let n=e.simplified,o=t[0].dims,i=t[1],a=!n&&t[2],u=o,d=k.normalizeAxis(e.axis,o.length),c=k.sizeToDimension(o,d),p=k.sizeFromDimension(o,d),m=k.size(i.dims),g=a?k.size(a.dims):0;if(m!==p||a&&g!==p)throw new Error(`Size of X.shape()[axis:] == ${p}.
+       Size of scale and bias (if provided) must match this.
+       Got scale size of ${m} and bias size of ${g}`);let b=[];for(let E=0;E<o.length;++E)E<d?b.push(o[E]):b.push(1);let y=fe(p),_=["type","type"],S=[{type:12,data:c},{type:1,data:p},{type:12,data:Math.floor(p/y)},{type:1,data:e.epsilon}];a&&_.push("type");let x=r>1,$=r>2,T=E=>{let A=we(t[0].dataType),O=[D("x",t[0].dataType,t[0].dims,y),D("scale",i.dataType,i.dims,y)];a&&O.push(D("bias",a.dataType,a.dims,y)),O.push(R("output",t[0].dataType,u,y)),x&&O.push(R("mean_data_output",1,b)),$&&O.push(R("inv_std_output",1,b));let w=[{name:"norm_count",type:"u32"},{name:"norm_size",type:"f32"},{name:"norm_size_vectorized",type:"u32"},{name:"epsilon",type:"f32"}];return`
+  ${E.registerUniforms(w).declareVariables(...O)}
+  ${E.mainStart()}
+    ${E.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.norm_count")}
+    let offset = global_idx * uniforms.norm_size_vectorized;
+    var mean_vector = ${yo("f32",y)};
+    var mean_square_vector = ${yo("f32",y)};
+
+    for (var h: u32 = 0u; h < uniforms.norm_size_vectorized; h++) {
+      let value = ${Mt(A,y,"x[h + offset]")};
+      mean_vector += value;
+      mean_square_vector += value * value;
+    }
+    let mean = ${Qe("mean_vector",y)} / uniforms.norm_size;
+    let inv_std_dev = inverseSqrt(${Qe("mean_square_vector",y)} / uniforms.norm_size ${n?"":"- mean * mean"} + uniforms.epsilon);
+
+    for (var j: u32 = 0; j < uniforms.norm_size_vectorized; j++) {
+      let f32input = ${Mt(A,y,"x[j + offset]")};
+      let f32scale = ${Mt(A,y,"scale[j]")};
+      output[j + offset] = ${O[0].type.value}((f32input ${n?"":"- mean"}) * inv_std_dev * f32scale
+        ${a?`+ ${Mt(A,y,"bias[j]")}`:""}
+      );
+    }
+
+    ${x?"mean_data_output[global_idx] = mean":""};
+    ${$?"inv_std_output[global_idx] = inv_std_dev":""};
+  }`},I=[{dims:u,dataType:t[0].dataType}];return x&&I.push({dims:b,dataType:1}),$&&I.push({dims:b,dataType:1}),{name:"LayerNormalization",shaderCache:{hint:`${y};${r};${n}`,inputDependencies:_},getRunData:()=>({outputs:I,dispatchGroup:{x:Math.ceil(c/64)},programUniforms:S}),getShaderSource:T}},Zl=(t,e)=>{dy(t.inputs),t.compute(ly(t.inputs,e,t.outputCount))}});var cy,Xl,Jl=V(()=>{"use strict";te();un();dn();cy=t=>{if(!t||t.length!==2)throw new Error("MatMul requires 2 inputs.");if(t[0].dims[t[0].dims.length-1]!==t[1].dims[t[1].dims.length-2])throw new Error("shared dimension does not match.")},Xl=t=>{cy(t.inputs);let e=ot.calcShape(t.inputs[0].dims,t.inputs[1].dims,!0);if(!e)throw new Error("Can't use matmul on the given tensors");let r=e[e.length-1],n=t.inputs[0].dims[t.inputs[0].dims.length-1];if(r<8&&n<8)t.compute(sn(t.inputs,{activation:""},e));else{let o=e[e.length-2],i=k.size(t.inputs[0].dims.slice(0,-2)),a=k.size(t.inputs[1].dims.slice(0,-2));if(i!==1&&o===1&&a===1){let u=t.inputs[0].reshape([1,i,n]),d=t.inputs[1].reshape([1,n,r]),c=[1,i,r],p=[u,d];t.compute(ur(p,{activation:""},e,c),{inputs:p})}else t.compute(ur(t.inputs,{activation:""},e))}}});var py,my,fy,ec,tc,rc=V(()=>{"use strict";ee();te();Ce();oe();py=(t,e)=>{if(t.length<3||t.length>4)throw new Error("MatMulNBits requires 3 or 4 inputs");let r=t[0],n=r.dims.length;if(r.dims[n-1]!==e.k)throw new Error("The last dim of input shape does not match the k value");let o=Math.floor((e.k+e.blockSize-1)/e.blockSize),i=e.blockSize/8*e.bits,a=t[1];if(!k.areEqual(a.dims,[e.n,o,i]))throw new Error("The second inputs must be 3D tensor with shape N X nBlocksPerCol X blobSize");let d=t[2].dims;if(k.size(d)!==e.n*o)throw new Error("scales input size error.");if(t.length===4){let p=t[3].dims,m=e.n*(e.bits===8?o:Math.floor((o*e.bits+7)/8));if(k.size(p)!==m)throw new Error("zeroPoints input size error.")}},my=(t,e)=>{let r=t[0].dims,n=r.length,o=r[n-2],i=e.k,a=e.n,u=r.slice(0,n-2),d=k.size(u),p=t[1].dims[2]/4,m=t[0].dataType,g=fe(e.k),b=fe(p),y=fe(a),_=u.concat([o,a]),S=o>1&&a/y%2===0?2:1,x=k.size(_)/y/S,$=64,T=[],I=[d,o,i/g],E=k.convertShape(t[1].dims).slice();E.splice(-1,1,p/b),T.push(...W(I)),T.push(...W(E)),T.push(...W(t[2].dims)),t.length===4&&T.push(...W(k.convertShape(t[3].dims)));let A=[d,o,a/y];T.push(...W(A));let O=w=>{let U=I.length,N=D("a",t[0].dataType,U,g),F=D("b",12,E.length,b),q=D("scales",t[2].dataType,t[2].dims.length),X=[N,F,q],z=t.length===4?D("zero_points",12,t[3].dims.length):void 0;z&&X.push(z);let L=A.length,Z=R("output",t[0].dataType,L,y),Y=we(t[0].dataType),Q=(()=>{switch(g){case 1:return`array<${Y}, 8>`;case 2:return`mat4x2<${Y}>`;case 4:return`mat2x4<${Y}>`;default:throw new Error(`${g}-component is not supported.`)}})(),ne=Math.floor(32/e.bits),ie=Math.floor(ne/8),ce=()=>{let M="";for(let G=0;G<ie;G++){let ye=G*e.bits*4,ke=ye+e.bits;M+=`
+          // reuse a data (pass ${G})
+            var input_offset${G>0?G:""} = ${G===0?N.indicesToOffset(`${N.type.indices}(batch, row, word_offset)`):"input_offset"};
+            var a_data${G>0?G:""}: ${Q};
+            for (var j${G>0?G:""}: u32 = 0; j${G>0?G:""} < ${8/g}; j${G>0?G:""}++) {
+              a_data${G>0?G:""}[j${G>0?G:""}] = ${N.getByOffset(`input_offset${G>0?G:""}`)};
+              input_offset${G>0?G:""}++;
+            }
+          `;for(let $e=0;$e<y*S;$e++)M+=`
+            b_value = ${b===1?`b${$e}_data`:`b${$e}_data[i]`};
+            ${e.bits===2?`{
+              let half_word = b_value >> ${G*16}u;
+              let byte_lo = half_word & 0xFFu;
+              let byte_hi = (half_word >> 8u) & 0xFFu;
+              let spread_word = (byte_lo & 0xFu) | ((byte_lo >> 4u) << 8u) | ((byte_hi & 0xFu) << 16u) | ((byte_hi >> 4u) << 24u);
+              b_value_lower = unpack4xU8(spread_word & b_mask);
+              b_value_upper = unpack4xU8((spread_word >> 2u) & b_mask);
+            }`:`b_value_lower = unpack4xU8((b_value >> ${ye}u) & b_mask);
+            b_value_upper = unpack4xU8((b_value >> ${ke}u) & b_mask);`}
+            b_quantized_values = ${Q}(${Array.from({length:4},(De,ge)=>`${Y}(b_value_lower[${ge}]), ${Y}(b_value_upper[${ge}])`).join(", ")});
+            b_dequantized_values = ${g===1?`${Q}(${Array.from({length:8},(De,ge)=>`(b_quantized_values[${ge}] - ${z?`zero_point${$e}`:"zero_point"}) * scale${$e}`).join(", ")});`:`(b_quantized_values - ${Q}(${Array(8).fill(`${z?`zero_point${$e}`:"zero_point"}`).join(",")})) * scale${$e};`};
+            workgroup_shared[local_id.x * ${S} + ${Math.floor($e/y)}]${y>1?`[${$e%y}]`:""} += ${Array.from({length:8/g},(De,ge)=>`${g===1?`a_data${G>0?G:""}[${ge}] * b_dequantized_values[${ge}]`:`dot(a_data${G>0?G:""}[${ge}], b_dequantized_values[${ge}])`}`).join(" + ")};
+          `}return M},Me=()=>{let M=`
+            var col_index = col * ${y};
+            ${z?`
+            let zero_point_values_per_byte: u32 = ${Math.floor(8/e.bits)}u;
+            let zero_point_bytes_per_col = (nBlocksPerCol + zero_point_values_per_byte - 1u) / zero_point_values_per_byte;
+            var zero_point_byte_count: u32;
+            var zero_point_word_index: u32;
+            var zero_point_byte_offset: u32;
+            let zero_point_sub_offset: u32 = block % zero_point_values_per_byte;
+            var zero_point_bits_offset: u32;
+            var zero_point_word: u32;`:`
+            // The default zero point is ${Math.pow(2,e.bits-1)} for unsigned ${e.bits}-bit quantization.
+            let zero_point = ${Y}(${Math.pow(2,e.bits-1).toFixed(1)});`}
+            `;for(let G=0;G<y*S;G++)M+=`
+            let scale${G} = ${q.getByOffset("col_index * nBlocksPerCol + block")};
+            ${z?`
+            zero_point_byte_count = col_index * zero_point_bytes_per_col + (block / zero_point_values_per_byte);
+            zero_point_word_index = zero_point_byte_count >> 0x2u;
+            zero_point_byte_offset = zero_point_byte_count & 0x3u;
+            zero_point_bits_offset = (zero_point_byte_offset << 3) + (zero_point_sub_offset * ${e.bits}u);
+            zero_point_word = ${z.getByOffset("zero_point_word_index")} >> zero_point_bits_offset;
+            let zero_point${G} = ${Y}((zero_point_word) & ${e.bits===2?"0x3u":"0xFu"});`:""}
+            col_index += 1;`;return M},ve=()=>{let M=`col_index = col * ${y};`;for(let G=0;G<y*S;G++)M+=`
+            let b${G}_data = ${F.getByIndices(`${F.type.indices}(col_index, block, word)`)};
+            col_index += 1;`;return M+=`
+            var b_value: u32;
+            let b_mask: u32 = ${e.bits===2?"0x03030303u":"0x0F0F0F0Fu"};
+            var b_value_lower: vec4<u32>;
+            var b_value_upper: vec4<u32>;
+            var b_quantized_values: ${Q};
+            var b_dequantized_values: ${Q};`,M};return`
+        var<workgroup> workgroup_shared: array<${Z.type.value}, ${S*$}>;
+        ${w.declareVariables(...X,Z)}
+        ${w.mainStart([$,1,1])}
+          let output_indices = ${Z.offsetToIndices(`(global_idx / ${$}) * ${S}`)};
+          let col = output_indices[2];
+          let row = output_indices[1];
+          let batch = output_indices[0];
+          let nBlocksPerCol = uniforms.b_shape[1];
+
+          for (var block = local_id.x; block < nBlocksPerCol; block += ${$}) {
+            //process one block
+            var word_offset: u32 = block * ${e.blockSize/g};
+            ${Me()}
+            for (var word: u32 = 0; word < ${p}; word += ${b}) {
+              ${ve()}
+              for (var i: u32 = 0; i < ${b}; i++) {
+                ${ce()}
+                word_offset += ${ne/g};
+              }
+            }
+          }
+          workgroupBarrier();
+
+          if (local_id.x < ${S}) {
+            var output_value: ${Z.type.value} = ${Z.type.value}(0);
+            var workgroup_shared_offset: u32 = local_id.x;
+            for (var b: u32 = 0u; b < ${$}u; b++) {
+              output_value += workgroup_shared[workgroup_shared_offset];
+              workgroup_shared_offset += ${S};
+            }
+            ${Z.setByIndices(`${Z.type.indices}(batch, row, col + local_id.x)`,"output_value")};
+          }
+        }`};return{name:"MatMulNBits",shaderCache:{hint:`${e.blockSize};${e.bits};${g};${b};${y};${S};${$}`,inputDependencies:Array(t.length).fill("rank")},getRunData:()=>({outputs:[{dims:_,dataType:m}],dispatchGroup:{x},programUniforms:T}),getShaderSource:O}},fy=(t,e)=>{let r=t[0].dims,n=r.length,o=r[n-2],i=e.k,a=e.n,u=r.slice(0,n-2),d=k.size(u),p=t[1].dims[2]/4,m=t[0].dataType,g=fe(e.k),b=fe(p),y=u.concat([o,a]),_=128,S=a%8===0?8:a%4===0?4:1,x=_/S,$=Math.floor(32/e.bits),T=x*b*$,I=T/g,E=T/e.blockSize,A=k.size(y)/S,O=[],w=[d,o,i/g],U=k.convertShape(t[1].dims).slice();U.splice(-1,1,p/b),O.push(...W(w)),O.push(...W(U)),O.push(...W(t[2].dims)),t.length===4&&O.push(...W(k.convertShape(t[3].dims)));let N=[d,o,a];O.push(...W(N));let F=q=>{let X=w.length,z=D("a",t[0].dataType,X,g),L=D("b",12,U.length,b),Z=D("scales",t[2].dataType,t[2].dims.length),Y=[z,L,Z],Q=t.length===4?D("zero_points",12,t[3].dims.length):void 0;Q&&Y.push(Q);let ne=N.length,ie=R("output",t[0].dataType,ne),ce=we(t[0].dataType),Me=()=>{switch(g){case 1:return`
+          let a_data0 = vec4<${ce}>(sub_a[word_offset], sub_a[word_offset + 1], sub_a[word_offset + 2], sub_a[word_offset + 3]);
+          let a_data1 = vec4<${ce}>(sub_a[word_offset + 4], sub_a[word_offset + 5], sub_a[word_offset + 6], sub_a[word_offset + 7]);`;case 2:return`
+          let a_data0 = vec4<${ce}>(sub_a[word_offset], sub_a[word_offset + 1]);
+          let a_data1 = vec4<${ce}>(sub_a[word_offset + 2], sub_a[word_offset + 3]);`;case 4:return`
+          let a_data0 = sub_a[word_offset];
+          let a_data1 = sub_a[word_offset + 1];`;default:throw new Error(`${g}-component is not supported.`)}};return`
+        var<workgroup> sub_a: array<${z.type.value}, ${I}>;
+        var<workgroup> inter_results: array<array<${ie.type.value}, ${x}>, ${S}>;
+        ${q.declareVariables(...Y,ie)}
+        ${q.mainStart([x,S,1])}
+          let output_indices = ${ie.offsetToIndices(`workgroup_index * ${S}`)};
+          let col = output_indices[2];
+          let row = output_indices[1];
+          let batch = output_indices[0];
+          let n_blocks_per_col = uniforms.b_shape[1];
+          let num_tiles =  (n_blocks_per_col - 1) / ${E} + 1;
+
+          // Loop over shared dimension.
+          for (var tile: u32 = 0; tile < num_tiles; tile += 1) {
+            let a_col_start = tile * ${I};
+            // load one tile A data into shared memory.
+            for (var a_offset = local_idx; a_offset < ${I}; a_offset += ${_})
+            {
+              let a_col = a_col_start + a_offset;
+              if (a_col < uniforms.a_shape[2])
+              {
+                sub_a[a_offset] = ${z.getByIndices(`${z.type.indices}(batch, row, a_col)`)};
+              } else {
+                sub_a[a_offset] = ${z.type.value}(0);
+              }
+            }
+            workgroupBarrier();
+
+            // each thread process one block
+            let b_row = col + local_id.y;
+            let block = tile * ${E} + local_id.x;
+            ${Q?`
+            let zero_point_values_per_byte: u32 = ${Math.floor(8/e.bits)}u;
+            let zero_point_bytes_per_col = (n_blocks_per_col + zero_point_values_per_byte - 1u) / zero_point_values_per_byte;
+            let zero_point_byte_count = b_row * zero_point_bytes_per_col + (block / zero_point_values_per_byte);
+            let zero_point_word_index = zero_point_byte_count >> 0x2u;
+            let zero_point_byte_offset = zero_point_byte_count & 0x3u;
+            let zero_point_sub_offset: u32 = block % zero_point_values_per_byte;
+            let zero_point_bits_offset = (zero_point_byte_offset << 3) + (zero_point_sub_offset * ${e.bits}u);
+            let zero_point_word = ${Q.getByOffset("zero_point_word_index")} >> zero_point_bits_offset;
+            let zero_point = ${ce}((zero_point_word) & ${e.bits===2?"0x3u":"0xFu"});`:`
+            // The default zero point is ${Math.pow(2,e.bits-1)} for unsigned ${e.bits}-bit quantization.
+            let zero_point = ${ce}(${Math.pow(2,e.bits-1).toFixed(1)});`}
+            let scale = ${Z.getByOffset("b_row * n_blocks_per_col + block")};
+            let b_data = ${L.getByIndices(`${L.type.indices}(b_row, block, 0)`)};
+            var word_offset = local_id.x * ${e.blockSize/g};
+            for (var i: u32 = 0; i < ${b}; i++) {
+              let b_value = ${b===1?"b_data":"b_data[i]"};
+              ${(()=>{let ve=Math.floor($/8),M="";for(let G=0;G<ve;G++){let ye=G*e.bits*4,ke=ye+e.bits;M+=`
+              ${Me()}
+              {${e.bits===2?`
+                let half_word = b_value >> ${G*16}u;
+                let byte_lo = half_word & 0xFFu;
+                let byte_hi = (half_word >> 8u) & 0xFFu;
+                let spread_word = (byte_lo & 0xFu) | ((byte_lo >> 4u) << 8u) | ((byte_hi & 0xFu) << 16u) | ((byte_hi >> 4u) << 24u);
+                let b_value_lower = unpack4xU8(spread_word & 0x03030303u);
+                let b_value_upper = unpack4xU8((spread_word >> 2u) & 0x03030303u);`:`
+                let b_value_lower = unpack4xU8((b_value >> ${ye}u) & 0x0F0F0F0Fu);
+                let b_value_upper = unpack4xU8((b_value >> ${ke}u) & 0x0F0F0F0Fu);`}
+                let b_quantized_values = mat2x4<${ce}>(${Array.from({length:4},($e,De)=>`${ce}(b_value_lower[${De}]), ${ce}(b_value_upper[${De}])`).join(", ")});
+                let b_dequantized_values = (b_quantized_values - mat2x4<${ce}>(${Array(8).fill("zero_point").join(",")})) * scale;
+                inter_results[local_id.y][local_id.x] += ${Array.from({length:2},($e,De)=>`${`dot(a_data${De}, b_dequantized_values[${De}])`}`).join(" + ")};
+              }
+              word_offset += ${8/g};`}return M})()}
+            }
+            workgroupBarrier();
+          }
+
+          if (local_idx < ${S}) {
+            var output_value: ${ie.type.value} = ${ie.type.value}(0);
+            for (var b = 0u; b < ${x}; b++) {
+              output_value += inter_results[local_idx][b];
+            }
+            if (col + local_idx < uniforms.output_shape[2])
+            {
+              ${ie.setByIndices(`${ie.type.indices}(batch, row, col + local_idx)`,"output_value")}
+            }
+          }
+        }`};return{name:"BlockwiseMatMulNBits32",shaderCache:{hint:`${e.blockSize};${g};${b};${x};${S}`,inputDependencies:Array(t.length).fill("rank")},getRunData:()=>({outputs:[{dims:y,dataType:m}],dispatchGroup:{x:A},programUniforms:O}),getShaderSource:F}},ec=(t,e)=>{py(t.inputs,e),e.blockSize===32&&t.adapterInfo.isVendor("intel")&&t.adapterInfo.isArchitecture("gen-12lp")?t.compute(fy(t.inputs,e)):t.compute(my(t.inputs,e))},tc=t=>J(t)});var hy,gy,yy,by,_y,wy,vy,$y,nc,oc=V(()=>{"use strict";ee();te();oe();hy=t=>{if(!t||t.length<1)throw new Error("Too few inputs");if(t[0].dataType!==1&&t[0].dataType!==10)throw new Error("Input type must be float or float16.");if(t.length>=2){let e=t[0].dims.length*2===t[1].dims[0];if(t.length===4&&(e=t[3].dims[0]*2===t[1].dims[0]),!e)throw new Error("The pads should be a 1D tensor of shape [2 * input_rank] or [2 * num_axes].")}},gy=(t,e,r)=>{let n="";for(let o=e-1;o>=0;--o)n+=`
+            k = i32(${t.indicesGet("indices",o)}) - ${j("uniforms.pads",o,r)};
+            if (k < 0) {
               break;
             }
-          }
-          if (!isPad) {
-            ${o}
-          }`:S=`
-          }
-          ${o}
-        `,`
-        ${f}
-        float process(int indices[${n}]) {
-          int x[${n}];
-          copyVec(indices, x);
-          int offset[${u}];
-          int pads[${l}];
-          int inputDims[${n}];
-          int kernelStrides[${u}];
-          int strides[${u}];
-          ${d}
-          ${p}
-          ${w}
-          ${y}
-
-          float value = ${r};
-          int pad = 0;
-          bool isPad = false;
-          for (int i = 0; i < ${s}; i++) {
-            offsetToIndices(i, kernelStrides, offset);
-            isPad = false;
-            for (int j = ${n} - ${u}; j < ${n}; j++) {
-              x[j] = indices[j] * strides[j - ${n} + ${u}]
-                + offset[j - ${n} + ${u}] - pads[j - 2];
-              ${S}
-          }
-          ${t}
-
-          return value;
-        }
-      `}},Fn=(i,e)=>{let o="";for(let t=0;t<i.length;t++)o+=`
-      ${e}[${t}] = ${i[t]};
-    `;return o},Fb=i=>`
-  void offsetToIndices(int offset, int[${i}] strides, out int[${i}] indices) {
-    if (${i} == 0) {
-      return;
-    }
-    for (int i = 0; i < ${i} - 1; ++i) {
-      indices[i] = offset / strides[i];
-      offset -= indices[i] * strides[i];
-    }
-    indices[${i} - 1] = offset;
-  }`});var qe,Pe,Cb,Nb,lc,fc,cc,pc,dc,hc,mc,bc=O(()=>{"use strict";wt();Rr();Z();j();qe=(i,e,o,t,r)=>{Nb(e);let n={name:t,inputNames:["A"],inputTypes:[0]};return[i.run({...n,cacheHint:o.cacheKey,get:()=>Cb(i,e,o,t,r,n)},e)]},Pe=i=>{let e=i.attributes.getInts("axes",[]),o=i.attributes.getInt("keepdims",1)===1;return W({axes:e,keepDims:o})},Cb=(i,e,o,t,r,n)=>{let s=[],a=e[0].dims.length||1,u=[],l=B.normalizeAxes(o.axes,e[0].dims.length),f=r(e,l),p=f[1];for(let w=0;w<e[0].dims.length;w++)l.indexOf(w)>=0||l.length===0?(o.keepDims&&s.push(1),p=`
-          for(int j${w} = 0; j${w} < ${e[0].dims[w]}; j${w}++) {
-            inputIdx[${w}] = j${w};
-            ${p}
-          }`):(u.push(`inputIdx[${w}] = outputIdx[${s.length}];`),s.push(e[0].dims[w]));let y=`
-      float process(int outputIdx[${s.length||1}]) {
-        float value;                 // final result
-        int inputIdx[${a}];      // addressing input data
-        ${u.join(`
-`)}
-        ${f[0]}       // init ops for reduce max/min
-        ${p}
-        ${f[2]}       // final computation for reduce mean
-        return value;
-      }`;return{...n,output:{dims:s,type:e[0].type,textureType:0},shaderSource:y}},Nb=i=>{if(!i||i.length!==1)throw new Error("Reduce op requires 1 input.");if(Ae.indexOf(i[0].type)===-1)throw new Error("Invalid input type.")},lc=(i,e,o)=>qe(i,e,o,"ReduceSum",()=>["value = 0.0;","value += _A(inputIdx);",""]),fc=(i,e,o)=>qe(i,e,o,"ReduceMean",(r,n)=>{let s=1;for(let a=0;a<r[0].dims.length;a++)(n.indexOf(a)>=0||n.length===0)&&(s*=r[0].dims[a]);return["value = 0.0;","value += _A(inputIdx);",`value /= ${s}.;`]}),cc=(i,e,o)=>qe(i,e,o,"ReduceMax",(r,n)=>{let s=[];for(let a=0;a<r[0].dims.length;a++)(n.indexOf(a)>=0||n.length===0)&&s.push(`inputIdx[${a}] = 0;`);return[`${s.join(`
-`)}
-value = _A(inputIdx);`,"value = max(value, _A(inputIdx));",""]}),pc=(i,e,o)=>qe(i,e,o,"ReduceMin",(r,n)=>{let s=[];for(let a=0;a<r[0].dims.length;a++)(n.indexOf(a)>=0||n.length===0)&&s.push(`inputIdx[${a}] = 0;`);return[`${s.join(`
-`)}
-value = _A(inputIdx);`,"value = min(value, _A(inputIdx));",""]}),dc=(i,e,o)=>qe(i,e,o,"ReduceProd",()=>["value = 1.0;","value *= _A(inputIdx);",""]),hc=(i,e,o)=>qe(i,e,o,"ReduceLogSum",()=>["value = 0.0;","value += _A(inputIdx);","value = log(value);"]),mc=(i,e,o)=>qe(i,e,o,"ReduceLogSumSquare",()=>["float t; value = 0.0;","t = _A(inputIdx); value += t * t;",""])});var gc,yc=O(()=>{"use strict";Z();gc=(i,e)=>{let o=B.calculateReshapedDims(e[0].dims,e[1].integerData);return i.session.pack?[i.reshapePacked(e[0],o)]:[i.reshapeUnpacked(e[0],o)]}});var xc,_i,Tc,wc,Gr,Rb,Oi,Nn,Si=O(()=>{"use strict";wt();ut();j();xc={name:"Upsample",inputNames:["X"],inputTypes:[0]},_i=(i,e,o)=>(Oi(e,o),[i.run({...xc,cacheHint:o.cacheKey,get:()=>Rb(i,e,o)},e)]),Tc=i=>Gr(i,7),wc=i=>Gr(i,9),Gr=(i,e)=>{let o=e>=10,t=i.attributes.getString("mode","nearest");if(t!=="nearest"&&t!=="linear"&&(e<11||t!=="cubic"))throw new Error(`unrecognized mode: ${t}`);let r=[];e<9&&(r=i.attributes.getFloats("scales"),Nn(r,t,o));let n=i.attributes.getFloat("extrapolation_value",0),s=e>10?i.attributes.getString("coordinate_transformation_mode","half_pixel"):"asymmetric";if(["asymmetric","pytorch_half_pixel","tf_half_pixel_for_nn","align_corners","tf_crop_and_resize","half_pixel"].indexOf(s)===-1)throw new Error(`coordinate_transform_mode '${s}' is not supported`);let a=s==="tf_crop_and_resize",u=a,l=t==="nearest"&&e>=11?i.attributes.getString("nearest_mode","round_prefer_floor"):"";if(["round_prefer_floor","round_prefer_ceil","floor","ceil",""].indexOf(l)===-1)throw new Error(`nearest_mode '${l}' is not supported`);let f=i.attributes.getFloat("cubic_coeff_a",-.75),p=i.attributes.getInt("exclude_outside",0)!==0;if(p&&t!=="cubic")throw new Error("exclude_outside can be set to 1 only when mode is CUBIC.");let d=e<11?!0:t==="nearest"&&s==="asymmetric"&&l==="floor",y=0,w=0,v=0;return e>10?i.inputs.length>2?(y=1,w=2,v=3):(w=1,v=2):e===9&&(w=1),W({opset:e,isResize:o,mode:t,scales:r,extrapolationValue:n,coordinateTransformMode:s,useExtrapolation:u,needRoiInput:a,nearestMode:l,cubicCoefficientA:f,excludeOutside:p,useNearest2xOptimization:d,roiInputIdx:y,scalesInputIdx:w,sizesInputIdx:v})},Rb=(i,e,o)=>{let t=R(i.session.backend.glContext.version),[r,n]=i.calculateTextureWidthAndHeight(e[0].dims,0),s=e[0].dims.map((v,S)=>Math.floor(v*o.scales[S])),[a,u]=i.calculateTextureWidthAndHeight(s,0),l=s.length,f=new Array(l),p=new Array(l),d=`
-      int output_pitches[${l}];
-      int input_pitches[${l}];
-      `;for(let v=l-1;v>=0;v--)f[v]=v===l-1?1:f[v+1]*s[v+1],p[v]=v===l-1?1:p[v+1]*e[0].dims[v+1],d+=`
-        output_pitches[${v}] = ${f[v]};
-        input_pitches[${v}] = ${p[v]};
-        `;let y=`
-      float getInputFloat(int index) {
-        vec2 coords = offsetToCoords(index, ${r}, ${n});
-        float value = getColorAsFloat(${t.texture2D}(X, coords));
-        return value;
-      }
-      `,w=o.mode==="nearest"?`
-    ${y}
-    float process(int indices[${l}]) {
-      int input_index = 0;
-      int output_index = coordsToOffset(TexCoords, ${a}, ${u});
-
-      ${d}
-
-      int d, m;
-      for (int dim = 0; dim < ${l}; ++dim) {
-        d = output_index / output_pitches[dim];
-        m = output_index - d * output_pitches[dim];
-        output_index = m;
-
-        if (scales[dim] != 1 && d > 0) {
-          int d2 = d / scales[dim];
-          m = d - d2 * scales[dim];
-          d = d2;
-        }
-        input_index += input_pitches[dim] * d;
-      }
-
-      return getInputFloat(input_index);
-    }`:l===4?`
-    ${y}
-    float process(int indices[4]) {
-      int input_index = 0;
-      int output_index = coordsToOffset(TexCoords, ${a}, ${u});
-
-      ${d}
-
-      int m;
-      int index_of_dim0, index_of_dim1, index_of_dim2, index_of_dim3;
-      index_of_dim0 = output_index / output_pitches[0];
-      m = output_index - index_of_dim0 * output_pitches[0];
-      index_of_dim1 = m / output_pitches[1];
-      m = m - index_of_dim1 * output_pitches[1];
-      index_of_dim2 = m / output_pitches[2];
-      m = m - index_of_dim2 * output_pitches[2];
-      index_of_dim3 = m;
-
-      int index_of_input_dim2, index_of_input_dim3, x_offset, y_offset;
-      index_of_input_dim2 = index_of_dim2 / scales[2];
-      y_offset = index_of_dim2 - index_of_input_dim2 * scales[2];
-      index_of_input_dim3 = index_of_dim3 / scales[3];
-      x_offset = index_of_dim3 - index_of_input_dim3 * scales[3];
-
-      input_index = index_of_dim0 * input_pitches[0] +
-            index_of_dim1 * input_pitches[1] +
-            index_of_input_dim2 * input_pitches[2] +
-            index_of_input_dim3;
-
-      float x00 = getInputFloat(input_index);
-      float x10, x01, x11;
-
-      bool end_of_dim2 = false;
-      if (index_of_input_dim2 == (${e[0].dims[2]} - 1)) {
-        // It's the end in dimension 2
-        x01 = x00;
-        end_of_dim2 = true;
-      } else {
-        x01 = getInputFloat(input_index + input_pitches[2]);
-      }
-
-      if (index_of_input_dim3 == (input_pitches[2] - 1)) {
-        // It's the end in dimension 3
-        x10 = x00;
-        x11 = x01;
-      }
-      else {
-        x10 = getInputFloat(input_index + 1);
-        x11 = end_of_dim2 ? x10 : getInputFloat(input_index + input_pitches[2] + 1);
-      }
-
-      float y0 = x00 + float(y_offset) * (x01 - x00) / float(scales[2]);
-      float y1 = x10 + float(y_offset) * (x11 - x10) / float(scales[2]);
-      return y0 + float(x_offset) * (y1 - y0) / float(scales[3]);
-    }`:`
-    ${y}
-    float process(int indices[2]) {
-      int input_index = 0;
-      int output_index = coordsToOffset(TexCoords, ${a}, ${u});
-
-      ${d}
-
-      int m;
-      int index_of_dim0, index_of_dim1;
-      index_of_dim0 = output_index / output_pitches[0];
-      m = output_index - index_of_dim0 * output_pitches[0];
-      index_of_dim1 = m;
-
-      int index_of_input_dim0, index_of_input_dim1, x_offset, y_offset;
-      index_of_input_dim0 = index_of_dim0 / scales[0];
-      y_offset = index_of_dim0 - index_of_input_dim0 * scales[0];
-      index_of_input_dim1 = index_of_dim1 / scales[1];
-      x_offset = index_of_dim1 - index_of_input_dim1 * scales[1];
-
-      input_index = index_of_input_dim0 * input_pitches[0] + index_of_input_dim1;
-
-      float x00 = getInputFloat(input_index);
-      float x10, x01, x11;
-
-      bool end_of_dim0 = false;
-      if (index_of_input_dim0 == (${e[0].dims[0]} - 1)) {
-        // It's the end in dimension 0
-        x01 = x00;
-        end_of_dim0 = true;
-      } else {
-        x01 = getInputFloat(input_index + input_pitches[0]);
-      }
-
-      if (index_of_input_dim1 == (input_pitches[0] - 1)) {
-        // It's the end in dimension 1
-        x10 = x00;
-        x11 = x01;
-      }
-      else {
-        x10 = getInputFloat(input_index + 1);
-        x11 = end_of_dim0 ? x10 : getInputFloat(input_index + input_pitches[0] + 1);
-      }
-
-      float y0 = x00 + float(y_offset) * (x01 - x00) / float(scales[0]);
-      float y1 = x10 + float(y_offset) * (x11 - x10) / float(scales[0]);
-      return y0 + float(x_offset) * (y1 - y0) / float(scales[1]);
-    }`;return{...xc,output:{dims:s,type:e[0].type,textureType:0},shaderSource:w,variables:[{name:"scales",type:"int",arrayLength:o.scales.length,data:o.scales.map(v=>Math.ceil(v))}]}},Oi=(i,e)=>{if(!i||e.opset<9&&i.length!==1||e.opset>=9&&e.opset<11&&i.length!==2||e.opset>=11&&i.length<2)throw new Error("invalid inputs.");if(e.scales.length>0&&i[0].dims.length!==e.scales.length)throw new Error("Invalid input shape.");if(i[0].type==="string")throw new Error("Invalid input tensor types.")},Nn=(i,e,o)=>{if(o){for(let t of i)if(t<=0)throw new Error("Scale value should be greater than 0.")}else for(let t of i)if(t<1)throw new Error("Scale value should be greater than or equal to 1.");if((e==="linear"||e==="cubic")&&i.length!==2&&(i.length!==4||i[0]!==1||i[1]!==1))throw new Error(`'Linear' mode and 'Cubic' mode only support 2-D inputs ('Bilinear', 'Bicubic')         or 4-D inputs with the corresponding outermost 2 scale values being 1         in the ${o?"Resize":"Upsample"} opeartor.`)}});var Ai,Pi,vc,Ic,Gb,Mb,Ub,Vb,_c=O(()=>{"use strict";ut();j();ue();ze();Si();Ai={name:"Resize",inputNames:["A"],inputTypes:[2]},Pi=(i,e,o)=>(Oi(e,o),[i.run({...Ai,cacheHint:o.cacheKey,get:()=>Gb(i,e,o)},e)]),vc=i=>Gr(i,10),Ic=i=>Gr(i,11),Gb=(i,e,o)=>{let t=R(i.session.backend.glContext.version),[r,n]=Mb(e,o);if(r.every(A=>A===1)&&o.coordinateTransformMode!=="tf_crop_and_resize")return{...Ai,output:{dims:n,type:e[0].type,textureType:2},hasMain:!0,shaderSource:`void main() {
-                    vec4 v = ${t.texture2D}(X, TexCoords);
-                    ${t.output} = v;
-                }`};let a=n.length;if(a<2)throw new Error(`output dimension should be at least 2, but got ${a}`);let u=n[a-2],l=n[a-1],f=e[0].dims;if(a!==f.length)throw new Error(`output dimension should match input ${f.length}, but got ${a}`);let p=f[a-2],d=f[a-1],y=r[a-2],w=r[a-1],v="";if(o.mode!=="linear")throw new Error(`resize (packed) does not support mode: '${o.mode}'`);switch(o.coordinateTransformMode){case"asymmetric":v=`
-                    vec4 getSourceFracIndex(ivec4 coords) {
-                        return vec4(coords) / scaleWHWH;
-                    }
-                `;break;case"half_pixel":v=`
-                    vec4 getSourceFracIndex(ivec4 coords) {
-                        return (vec4(coords) + 0.5) / scaleWHWH - 0.5;
-                    }
-                `;break;case"pytorch_half_pixel":v=`
-                    vec4 getSourceFracIndex(ivec4 coords) {
-                        vec4 fcoords = vec4(coords);
-                        return vec4(
-                            ${l}.0 > 1.0 ? (fcoords.x + 0.5) / scaleWHWH.x - 0.5 : 0.0,
-                            ${u}.0 > 1.0 ? (fcoords.y + 0.5) / scaleWHWH.y - 0.5 : 0.0,
-                            ${l}.0 > 1.0 ? (fcoords.z + 0.5) / scaleWHWH.z - 0.5 : 0.0,
-                            ${u}.0 > 1.0 ? (fcoords.w + 0.5) / scaleWHWH.w - 0.5 : 0.0
-                          );
-                    }
-                `;break;case"align_corners":v=`
-                    vec4 getSourceFracIndex(ivec4 coords) {
-                        vec4 resized = vec4(${l}.0 - 1.0, ${u}.0 - 1.0, ${l}.0 - 1.0,
-                            ${u}.0 - 1.0);
-                        vec4 original = vec4(${d}.0 - 1.0, ${p}.0 - 1.0, ${d}.0 - 1.0,
-                            ${p}.0 - 1.0);
-                        vec4 new_scale = original / resized;
-                        return vec4(coords) * new_scale;
-                    }
-                `;break;default:throw new Error(`resize (packed) does not support coordinateTransformMode:                                 '${o.coordinateTransformMode}'`)}let S=$t(a),D=le(),P=`
-            const vec2 inputWH = vec2(${p}.0, ${d}.0);
-            const vec4 scaleWHWH = vec4(float(${y}), float(${w}), float(${y}), float(${w}));
-            ${D}
-            ${v}
-            float getAValue(int x10, int r, int c, int d) {
-                return getChannel(getA(x10, r, c, d), vec2(c, d));
+            if (k >= i32(${j("uniforms.x_shape",o,e)})) {
+              break;
             }
-            void main() {
-                ${S} rc = getOutputCoords();
-
-                int batch = rc[0];
-                int depth = rc[1];
-
-                // retrieve the 4 coordinates that is used in the 4 packed output values.
-                ivec4 coords = ivec4(rc.wz, rc.w + 1, rc.z + 1);
-
-                // calculate the source index in fraction
-                vec4 sourceFrac = getSourceFracIndex(coords);
-
-                // get the lower and upper bound of the 4 values that will be packed into one texel.
-                ivec4 x00 = ivec4(max(sourceFrac.xy, vec2(0.0)), min(inputWH - 1.0, ceil(sourceFrac.xy)));
-                ivec4 x01 = ivec4(max(sourceFrac.xw, vec2(0.0)), min(inputWH - 1.0, ceil(sourceFrac.xw)));
-                ivec4 x10 = ivec4(max(sourceFrac.zy, vec2(0.0)), min(inputWH - 1.0, ceil(sourceFrac.zy)));
-                ivec4 x11 = ivec4(max(sourceFrac.zw, vec2(0.0)), min(inputWH - 1.0, ceil(sourceFrac.zw)));
-
-                bool hasNextRow = rc.w < ${u-1};
-                bool hasNextCol = rc.z < ${l-1};
-
-                // pack x00, x01, x10, x11's top-left corner into one vec4 structure
-                vec4 topLeft = vec4(
-                    getAValue(batch, depth, x00.x, x00.y),
-                    hasNextCol ? getAValue(batch, depth, x01.x, x01.y) : 0.0,
-                    hasNextRow ? getAValue(batch, depth, x10.x, x10.y) : 0.0,
-                    (hasNextRow && hasNextCol) ? getAValue(batch, depth, x11.x, x11.y) : 0.0);
-
-                // pack x00, x01, x10, x11's top-right corner into one vec4 structure
-                vec4 topRight = vec4(
-                    getAValue(batch, depth, x00.x, x00.w),
-                    hasNextCol ? getAValue(batch, depth, x01.x, x01.w) : 0.0,
-                    hasNextRow ? getAValue(batch, depth, x10.x, x10.w) : 0.0,
-                    (hasNextRow && hasNextCol) ? getAValue(batch, depth, x11.x, x11.w) : 0.0);
-
-                // pack x00, x01, x10, x11's bottom-left corner into one vec4 structure
-                vec4 bottomLeft = vec4(
-                    getAValue(batch, depth, x00.z, x00.y),
-                    hasNextCol ? getAValue(batch, depth, x01.z, x01.y) : 0.0,
-                    hasNextRow ? getAValue(batch, depth, x10.z, x10.y) : 0.0,
-                    (hasNextRow && hasNextCol) ? getAValue(batch, depth, x11.z, x11.y) : 0.0);
-
-                // pack x00, x01, x10, x11's bottom-right corner into one vec4 structure
-                vec4 bottomRight = vec4(
-                    getAValue(batch, depth, x00.z, x00.w),
-                    hasNextCol ? getAValue(batch, depth, x01.z, x01.w) : 0.0,
-                    hasNextRow ? getAValue(batch, depth, x10.z, x10.w) : 0.0,
-                    (hasNextRow && hasNextCol) ? getAValue(batch, depth, x11.z, x11.w) : 0.0);
-
-                // calculate the interpolation fraction on u and v direction
-                vec4 frac = vec4(sourceFrac) - floor(sourceFrac);
-                vec4 clampFrac = clamp(frac, vec4(0.0), vec4(1.0));
-
-                vec4 top = mix(topLeft, topRight, clampFrac.ywyw);
-                vec4 bottom = mix(bottomLeft, bottomRight, clampFrac.ywyw);
-                vec4 newValue = mix(top, bottom, clampFrac.xxzz);
-
-                ${t.output} = vec4(newValue);
-            }
-        `;return{...Ai,output:{dims:n,type:e[0].type,textureType:2},hasMain:!0,shaderSource:P}},Mb=(i,e)=>{let t=i[0].dims,r=e.scales,n;if(r.length===0){let a=i[e.scalesInputIdx];if(a&&a.size!==0){if(i[e.sizesInputIdx])throw new Error("Only one of scales or sizes must be provided as input.");r=Ub(a,e.mode,e.isResize)}else{let u=i[e.sizesInputIdx];if(!u||u.size===0)throw new Error("Either scales or sizes MUST be provided as input.");n=Array.from(u.integerData),r=Vb(n,t,e.mode,e.isResize)}}else if(i[e.sizesInputIdx])throw new Error("Only one of scales or sizes must be provided as input.");let s=n||t.map((a,u)=>Math.floor(a*r[u]));return[r,s]},Ub=(i,e,o)=>{let t=Array.from(i.floatData);return Nn(t,e,o),t},Vb=(i,e,o,t)=>{let r=e.length,n=new Array(r);for(let s=0,a=r;s<a;s++)if(e[s]===0){if(i[s]!==0)throw new Error("Input dim is zero but required output dim is non-zero.");n[s]=1}else n[s]=i[s]/e[s];return Nn(n,o,t),n}});var Oc,zb,Sc=O(()=>{"use strict";Ve();Oc=(i,e)=>(zb(e),[new bt([e[0].dims.length],"int32",void 0,void 0,new Int32Array(e[0].dims))]),zb=i=>{if(!i||i.length!==1)throw new Error("Shape requires 1 input.")}});var Ei,Ac,Pc,Ec,Wb,Dc,Hb,qb,Lc=O(()=>{"use strict";wt();Rr();Z();j();Ei={name:"Slice",inputNames:["A"],inputTypes:[0]},Ac=(i,e,o)=>(Wb(e),[i.run({...Ei,cacheHint:o.cacheKey,get:()=>Ec(i,e[0],o)},e)]),Pc=i=>{let e=i.attributes.getInts("starts"),o=i.attributes.getInts("ends"),t=i.attributes.getInts("axes",[]);return W({starts:e,ends:o,axes:t})},Ec=(i,e,o)=>{let t=o.axes.length===0?e.dims.slice(0).map((p,d)=>d):o.axes,r=B.normalizeAxes(t,e.dims.length),n=o.starts.map((p,d)=>p>e.dims[r[d]]-1?e.dims[r[d]]:B.normalizeAxis(p,e.dims[r[d]])),s=o.ends.map((p,d)=>p>e.dims[r[d]]-1?e.dims[r[d]]:B.normalizeAxis(p,e.dims[r[d]])),a=e.dims.slice(),u=[];for(let p=0;p<r.length;p++)a[r[p]]=s[p]-n[p],n[p]>0&&u.push(`outputIdx[${r[p]}] += ${n[p]};`);let f=`
-      float process(int outputIdx[${a.length}]) {
-        ${u.join(`
-      `)}
-        return _A(outputIdx);
-      }`;return{...Ei,output:{dims:a,type:e.type,textureType:0},shaderSource:f}},Wb=i=>{if(!i||i.length!==1)throw new Error("Slice requires 1 input.");if(Ae.indexOf(i[0].type)===-1)throw new Error("Invalid input type.")},Dc=(i,e)=>{qb(e);let o=Hb(i,e);return[i.run({...Ei,cacheHint:o.cacheKey,get:()=>Ec(i,e[0],o)},[e[0]])]},Hb=(i,e)=>{if(!i.session.isInitializer(e[1].dataId)||!i.session.isInitializer(e[2].dataId)||e.length>=4&&!i.session.isInitializer(e[3].dataId)||e.length>=5&&!i.session.isInitializer(e[4].dataId))throw new Error("dynamic slice attributes are not allowed");if(e.length>=5&&e[4].integerData.some(s=>s!==1))throw new Error("currently non-1 steps is not supported for Slice");let o=Array.from(e[1].integerData),t=Array.from(e[2].integerData),r=e.length>=4?Array.from(e[3].integerData):[],n=`${r};${o};${t}`;return{starts:o,ends:t,axes:r,cacheKey:n}},qb=i=>{if(!i||i.length<3||i.length>5)throw new Error("Invalid input number.");if(i[1].type!=="int32"||i[1].dims.length!==1)throw new Error("Invalid input type.");if(i[2].type!=="int32"||i[2].dims.length!==1)throw new Error("Invalid input type.");if(i.length>=4&&(i[3].type!=="int32"||i[3].dims.length!==1))throw new Error("Invalid input type.");if(i.length>=5&&(i[4].type!=="int32"||i[4].dims.length!==1))throw new Error("Invalid input type.")}});var $c,kc,Bc,Fc,Cc,Nc,Rc,Gc,jb,Xb,Kb,Mc,Uc=O(()=>{"use strict";wt();Z();ut();j();Bn();$c={name:"SoftmaxComputeMax",inputNames:["A"],inputTypes:[0]},kc={name:"SoftmaxComputeScale",inputNames:["A","Max"],inputTypes:[0,0]},Bc={name:"SoftMax",inputNames:["A","Max","Norm"],inputTypes:[0,0,0]},Fc=(i,e,o)=>{Mc(e);let t=e[0].dims.slice(),r=B.normalizeAxis(o.axis,t.length),n=B.sizeToDimension(t,r),s=B.sizeFromDimension(t,r);return Gc(i,e,o,n,s)},Cc=i=>W({axis:i.attributes.getInt("axis",1)}),Nc=i=>W({axis:i.attributes.getInt("axis",-1)}),Rc=(i,e,o)=>{Mc(e);let t=e[0].dims.slice(),r=B.normalizeAxis(o.axis,t.length),n=t.length,s=r!==n-1,a=[],u=[],l=[],f;s&&(u=Array.from({length:n}).map((w,v)=>v),u[r]=n-1,u[n-1]=r,u.map(w=>a.push(t[w])),f=W({perm:u}),l=He(i,e,f));let p=s?B.sizeToDimension(a,n-1):B.sizeToDimension(t,n-1),d=s?B.sizeFromDimension(a,n-1):B.sizeFromDimension(t,n-1),y=Gc(i,s?l:e,o,p,d);return s?He(i,y,f):y},Gc=(i,e,o,t,r)=>{let n=jb(i,e[0],t,r,[t]),s=i.run({...$c,cacheHint:o.cacheKey,get:()=>n},e),a=Xb(i,e[0],t,r,n.output.dims,[t]),u=i.run({...kc,cacheHint:o.cacheKey,get:()=>a},[e[0],s]),l=Kb(i,e[0],t,r,n.output.dims,a.output.dims);return[i.run({...Bc,cacheHint:o.cacheKey,get:()=>l},[e[0],s,u])]},jb=(i,e,o,t,r)=>{let[n,s]=i.calculateTextureWidthAndHeight(e.dims,0),a=r.length;if(o<1||t<1)throw new Error("Logical row count N and feature count D must be greater than or equal to 1");if(r.length!==1)throw new Error("Dimensionality of the output should be 1");if(r[0]!==o)throw new Error("Shape of the output should be equal to logical row count");let u=R(i.session.backend.glContext.version),l=`
-      float process(int[${a}] indices) {
-        int logical_row_start_offset = indices[0] * ${t};
-
-        float max = getColorAsFloat(${u.texture2D}(A, offsetToCoords(logical_row_start_offset, ${n},
-        ${s} )));
-        for(int i=1; i<${t}; ++i)
-        {
-          float current = getColorAsFloat(${u.texture2D}(A, offsetToCoords(logical_row_start_offset + i,
-            ${n}, ${s})));
-          if(current > max)
-          max = current;
-        }
-
-        return max;
-      }`;return{...$c,output:{dims:r,type:e.type,textureType:0},shaderSource:l}},Xb=(i,e,o,t,r,n)=>{let[s,a]=i.calculateTextureWidthAndHeight(e.dims,0),u=n.length;if(o<1||t<1)throw new Error("Logical row count N and feature count D must be greater than or equal to 1");if(n.length!==1)throw new Error("Dimensionality of the output should be 1");if(n[0]!==o)throw new Error("Shape of the output should be equal to logical row count");if(r.length!==1)throw new Error("Dimensionality of the intermediate results should be 1");if(r[0]!==o)throw new Error("Shape of the intermediate results should be equal to logical row count");let l=R(i.session.backend.glContext.version),f=`
-      float process(int[${u}] indices) {
-        int logical_row_start_offset = indices[0] * ${t};
-
-        float norm_factor = 0.0;
-        float max = _Max(indices);
-        for(int i=0; i<${t}; ++i)
-        {
-          norm_factor += exp(getColorAsFloat(${l.texture2D}(A, offsetToCoords(logical_row_start_offset + i,
-            ${s}, ${a}))) - max);
-        }
-
-        return norm_factor;
-      }`;return{...kc,output:{dims:n,type:e.type,textureType:0},shaderSource:f}},Kb=(i,e,o,t,r,n)=>{let[s,a]=i.calculateTextureWidthAndHeight(e.dims,0),u=e.dims.length;if(o<1||t<1)throw new Error("Logical row count N and feature count D must be greater than or equal to 1");if(r.length!==1||n.length!==1)throw new Error("Dimensionality of the intermediate results should be 1");if(r[0]!==o||n[0]!==o)throw new Error("Shape of the intermediate results should be equal to logical row count");let l=`
-      float process(int[${u}] indices) {
-
-      // get offset of current logical tensor index from the 2-D texture coordinates (TexCoords)
-      int offset = coordsToOffset(TexCoords, ${s}, ${a});
-
-      //determine the logical row for this index
-      int logical_row_index[1];
-      logical_row_index[0] = offset / ${t};
-
-      float norm_factor = _Norm(logical_row_index);
-
-      // avoid possible division by 0
-      // if norm_facor is 0, all elements are zero
-      // if so, return 0
-      if(norm_factor == 0.0)
-        return 0.0;
-
-      return exp(_A(indices) - _Max(logical_row_index)) / norm_factor;
-    }`;return{...Bc,output:{dims:e.dims,type:e.type,textureType:0},shaderSource:l}},Mc=i=>{if(!i||i.length!==1)throw new Error("Softmax requires 1 input.");if(i[0].type!=="float32"&&i[0].type!=="float64")throw new Error("Invalid input type")}});var Vc,zc,Wc,Jb,Yb,Zb,Hc=O(()=>{"use strict";wt();Z();j();Vc={name:"Split",inputNames:["A"],inputTypes:[0]},zc=(i,e,o)=>{Zb(e);let t=B.normalizeAxis(o.axis,e[0].dims.length),r=Jb(i,e,t,o),n=[];for(let s=0;s<r;++s)n.push(i.run({...Vc,cacheHint:`${o.cacheKey};${s}`,get:()=>Yb(i,e[0],o,t,s)},e));return n},Wc=i=>{let e=i.attributes.getInt("axis",0),o=i.attributes.getInts("split",[]),t=i.outputs.length;return W({axis:e,split:o,numOutputs:t})},Jb=(i,e,o,t)=>{let[,r]=$r.splitShape(e[0].dims,o,t.split,t.numOutputs);return r.length},Yb=(i,e,o,t,r)=>{let[n,s]=$r.splitShape(e.dims,t,o.split,o.numOutputs),a=s[r],u=n[r],f=`
-      float process(int indices[${u.length}]) {
-        indices[${t}] += ${a};
-        return _A(indices);
-      }
-    `;return{...Vc,cacheHint:`${o.cacheKey}:${r}`,output:{dims:u,type:e.type,textureType:0},shaderSource:f}},Zb=i=>{if(!i||i.length!==1)throw new Error("Split requires one input.");if(i[0].type!=="int8"&&i[0].type!=="uint8"&&i[0].type!=="int16"&&i[0].type!=="uint16"&&i[0].type!=="int32"&&i[0].type!=="uint32"&&i[0].type!=="float32"&&i[0].type!=="float64"&&i[0].type!=="bool")throw new Error("Invalid input type.")}});var Di,qc,jc,Qb,tg,Xc=O(()=>{"use strict";Z();Di=(i,e,o)=>{Qb(e);let t=B.squeezeShape(e[0].dims,o);return[i.reshapeUnpacked(e[0],t)]},qc=(i,e)=>(tg(e),Di(i,[e[0]],Array.from(e[1].integerData))),jc=i=>i.attributes.getInts("axes"),Qb=i=>{if(!i||i.length!==1)throw new Error("Squeeze requires 1 input.");if(i[0].type==="string")throw new Error("invalid input tensor types.")},tg=i=>{if(!i||i.length!==2)throw new Error("Squeeze requires 2 inputs.");if(i[1].type!=="int32")throw new Error("Invalid input type.")}});var Kc,eg,rg,Jc=O(()=>{"use strict";ut();j();Kc=(i,e)=>{rg(e);let o={name:"Sum",inputNames:e.map((r,n)=>`X${n}`),inputTypes:new Array(e.length).fill(0)};return[i.run({...o,get:()=>eg(i,e,o)},e)]},eg=(i,e,o)=>{let t=R(i.session.backend.glContext.version),r=e[0].dims.slice(),s=`
-      void main() {
-        vec4 result = ${e.map((a,u)=>`${t.texture2D}(X${u},TexCoords)`).join(" + ")};
-        ${t.output} = result;
-      }
-    `;return{...o,output:{dims:r,type:e[0].type,textureType:0},hasMain:!0,shaderSource:s}},rg=i=>{if(!i||i.length===0)throw new Error("Sum requires inputs.");let e=i[0].dims.length;for(let o=1;o<i.length;o++){if(e!==i[o].dims.length)throw new Error("Input shapes are mismatched.");for(let t=0;t<e;t++)if(i[0].dims[t]!==i[o].dims[t])throw new Error("Input shapes are not matched.")}if(i[0].type!=="float32"&&i[0].type!=="float64")throw new Error("Invalid input type.");for(let o=1;o<i.length;o++)if(i[0].type!==i[o].type)throw new Error("Input types are not matched.")}});var Yc,ng,og,Zc=O(()=>{"use strict";Rr();j();Yc=(i,e)=>{og(e);let o={name:"Tile",inputNames:["A"],inputTypes:[0]};return[i.run({...o,get:()=>ng(i,e,o)},e)]},ng=(i,e,o)=>{let t=e[0].dims.slice(),r=new Array(t.length),n=[];for(let u=0;u<t.length;u++)r[u]=t[u]*e[1].numberData[u],n.push(`inputIdx[${u}] = int(mod(float(outputIdx[${u}]), ${t[u]}.));`);let s=r.length,a=`
-      float process(int outputIdx[${s}]) {
-        int inputIdx[${s}];
-        ${n.join(`
-`)}
-        return _A(inputIdx);
-      }
-    `;return{...o,output:{dims:r,type:e[0].type,textureType:0},shaderSource:a}},og=i=>{if(!i||i.length!==2)throw new Error("Tile requires 2 input.");if(i[1].dims.length!==1)throw new Error("The second input shape must 1 dimension.");if(i[1].dims[0]!==i[0].dims.length)throw new Error("Invalid input shape.");if(Ae.indexOf(i[0].type)===-1)throw new Error("Invalid input type.");if(i[1].type!=="int32"&&i[1].type!=="int16")throw new Error("Invalid repeat type.")}});var Li,Qc,tp,ig,ag,ep=O(()=>{"use strict";Z();Li=(i,e,o)=>{ig(e);let t=B.unsqueezeShape(e[0].dims,o);return[i.reshapeUnpacked(e[0],t)]},Qc=(i,e)=>(ag(e),Li(i,[e[0]],Array.from(e[1].integerData))),tp=i=>i.attributes.getInts("axes"),ig=i=>{if(!i||i.length!==1)throw new Error("Unsqueeze requires 1 input.");if(i[0].type==="string")throw new Error("invalid input tensor types.")},ag=i=>{if(!i||i.length!==2)throw new Error("Unsqueeze requires 2 inputs.");if(i[1].type!=="int32")throw new Error("Invalid input type.")}});var rp,np=O(()=>{"use strict";pl();Ol();Pl();Bl();Ln();yf();_f();Af();Df();Bf();Nf();Uf();Hf();$n();Kf();uc();bc();yc();_c();Sc();Lc();Uc();Hc();Xc();Jc();Zc();Bn();hi();ep();Si();rp=[["Abs","","6+",Fl],["Acos","","7+",Cl],["Add","","7+",dl],["And","","7+",hl],["Asin","","7+",Nl],["Atan","","7+",Rl],["AveragePool","","7+",Yf,Zf],["BatchNormalization","","7+",fl,cl],["Cast","","6+",Sl,Al],["Ceil","","6+",Ul],["Clip","","6-10",pi,Gl],["Clip","","11+",Ml],["Concat","","4+",Ll,kl],["Conv","","1+",Ti,wi],["ConvTranspose","","1+",bf,gf],["Cos","","7+",Vl],["Div","","7+",ml],["Dropout","","7+",di],["DepthToSpace","","1+",vf,If],["Equal","","7+",bl],["Elu","","6+",zl,Wl],["Exp","","6+",Hl],["Flatten","","1+",Of,Sf],["Floor","","6+",ql],["FusedConv","com.microsoft","1+",Ti,wi],["Gather","","1+",Pf,Ef],["Gemm","","7-10",vi,$f],["Gemm","","11+",vi,kf],["GlobalAveragePool","","1+",tc,ec],["GlobalMaxPool","","1+",ac],["Greater","","7+",gl],["Identity","","1+",di],["ImageScaler","","1+",Ff,Cf],["InstanceNormalization","","6+",Gf,Mf],["LeakyRelu","","6+",jl,Xl],["Less","","7+",yl],["LRN","","1+",Vf,zf],["Log","","6+",Kl],["MatMul","","1+",lf,ff],["MaxPool","","1+",rc,nc],["Mul","","7+",xl],["Neg","","6+",Jl],["Not","","1+",Yl],["Or","","7+",Tl],["Pad","","2-10",Ii,qf],["Pad","","11+",jf,Xf],["Pow","","7+",wl],["PRelu","","7+",vl],["ReduceLogSum","","1+",hc,Pe],["ReduceMax","","1+",cc,Pe],["ReduceMean","","1+",fc,Pe],["ReduceMin","","1+",pc,Pe],["ReduceProd","","1+",dc,Pe],["ReduceSum","","1-12",lc,Pe],["ReduceSumSquare","","1+",mc,Pe],["Relu","","6+",Zl],["Reshape","","5+",gc],["Resize","","10",Pi,vc],["Resize","","11+",Pi,Ic],["Shape","","1+",Oc],["Sigmoid","","6+",Ql],["Sin","","7+",tf],["Slice","","10+",Dc],["Slice","","1-9",Ac,Pc],["Softmax","","1-12",Fc,Cc],["Softmax","","13+",Rc,Nc],["Split","","2-12",zc,Wc],["Sqrt","","6+",ef],["Squeeze","","1-12",Di,jc],["Squeeze","","13+",qc],["Sub","","7+",Il],["Sum","","6+",Kc],["Tan","","7+",rf],["Tanh","","6+",nf],["Tile","","6+",Yc],["Transpose","","1+",He,Tf],["Upsample","","7-8",_i,Tc],["Upsample","","9",_i,wc],["Unsqueeze","","1-12",Li,tp],["Unsqueeze","","13+",Qc],["Xor","","7+",_l]]});function ip(i){let e={},o;for(;(o=op.exec(i))!==null;){let t=o[3].split(",").map(r=>{let n=r.trim().split(" ");return n&&n.length===2?{type:n[0],name:n[1]}:null}).filter(r=>r!==null);e[o[2]]={params:t,body:o[4]}}for(let t in e){let r=sg.replace("__FUNC__",t),n=new RegExp(r,"gm");for(;(o=n.exec(i))!==null;){let s=o[1],a=o[2],u=o[3].split(","),l=s?`${s} ${a};`:"",f=e[t].body,p="";e[t].params.forEach((y,w)=>{y&&(p+=`${y.type} ${y.name} = ${u[w]};
-`)}),f=`${p}
- ${f}`,f=f.replace("return",`${a} = `);let d=`
-      ${l}
-      {
-        ${f}
-      }
-      `;i=i.replace(o[0],d)}}return i=i.replace(op,""),i}var op,sg,ap=O(()=>{"use strict";op=/@inline[\s\n\r]+(\w+)[\s\n\r]+([0-9a-zA-Z_]+)\s*\(([^)]*)\)\s*{(([^}]|[\n\r])*)}/gm,sg="(\\w+)?\\s+([_0-9a-zA-Z]+)\\s+=\\s+__FUNC__\\((.*)\\)\\s*;"});function cr(i,e){let o=[],t=[],r=e!=null&&Array.isArray(e)&&e.length===0,n=e==null||r?null:ug(e,i).sort(),s=0;for(let a=0;a<i.length;++a){if(n!=null){if(n[s]===a&&i[a]!==1)throw new Error(`Can't squeeze axis ${a} since its dim '${i[a]}' is not 1`);(n[s]==null||n[s]>a)&&i[a]===1&&(o.push(i[a]),t.push(a)),n[s]<=a&&s++}i[a]!==1&&(o.push(i[a]),t.push(a))}return{newShape:o,keptDims:t}}function ug(i,e){let o=e.length;return i=i==null?e.map((t,r)=>r):[].concat(i),ir(i.every(t=>t>=-o&&t<o),()=>`All values in axis param must be in range [-${o}, ${o}) but got axis ${i}`),ir(i.every(lg),()=>`All values in axis param must be integers but got axis ${i}`),i.map(t=>t<0?o+t:t)}function lg(i){return i%1===0}function fg(i){if(i.length===0)return 1;let e=i[0];for(let o=1;o<i.length;o++)e*=i[o];return e}function sp(i){let e=Math.ceil(Math.sqrt(i));return[e,Math.ceil(i/e)]}var Rn,$i=O(()=>{"use strict";zt();Z();Rn=class{constructor(e){this.maxTextureSize=e}computeTextureWH(e,o){let t=this.computeTexture(e,o);return o&&o.isPacked&&(t[0]/=2,t[1]/=2),o&&o.reverseWH?[t[1],t[0]]:t}computeTexture(e,o){let t=o&&o.isPacked;if(e.length===0)return t?[2,2]:[1,1];let r=this.maxTextureSize;if(o&&o.breakAxis!==void 0){let a=o.breakAxis>=e.length?1:e.slice(o.breakAxis).reduce((l,f)=>l*f),u=o.breakAxis<=0?1:e.slice(0,o.breakAxis).reduce((l,f)=>l*f);if(a>r||u>r)et.verbose("TextureLayout",`Given width/height preferences were unattainable: shape:${e}, breakAxis:${o.breakAxis}`);else return[a,u]}let n=e.slice(0);t&&(r=r*2,n=n.map((a,u)=>u>=n.length-2?n[u]%2===0?n[u]:n[u]+1:n[u]),n.length===1&&(n=[2,n[0]])),n.length!==2&&(n=cr(n).newShape);let s=fg(n);return n.length<=1&&s<=r?[1,s]:n.length===2&&n[0]<=r&&n[1]<=r?n:n.length===3&&n[0]*n[1]<=r&&n[2]<=r?[n[0]*n[1],n[2]]:n.length===3&&n[0]<=r&&n[1]*n[2]<=r?[n[0],n[1]*n[2]]:n.length===4&&n[0]*n[1]*n[2]<=r&&n[3]<=r?[n[0]*n[1]*n[2],n[3]]:n.length===4&&n[0]<=r&&n[1]*n[2]*n[3]<=r?[n[0],n[1]*n[2]*n[3]]:t?sp(s/4).map(a=>a*2):sp(s)}}});var Gn,up=O(()=>{"use strict";Z();ge();ut();$i();ue();Gn=class extends jt{constructor(o){super(o)}getFunctions(){return{...this.offsetToCoords(),...this.coordsToOffset(),...this.toVec(),...this.valueFrom(),...this.getCommonUtilFuncs(),...this.getInputsSamplingSnippets(),...this.getOutputSamplingSnippet()}}getCustomTypes(){return{}}offsetToCoords(){let o="offsetToCoords";return{offsetToCoords:new k(`
-      vec2 ${o}(int offset, int width, int height) {
-        int t = offset / width;
-        int s = offset - t*width;
-        vec2 coords = (vec2(s,t) + vec2(0.5,0.5)) / vec2(width, height);
-        return coords;
-      }
-      `)}}coordsToOffset(){let o="coordsToOffset";return{coordsToOffset:new k(`
-      int ${o}(vec2 coords, int width, int height) {
-        float s = coords.s * float(width);
-        float t = coords.t * float(height);
-        int offset = int(t) * width + int(s);
-        return offset;
-      }
-      `)}}getOutputSamplingSnippet(){let o=this.context.outputTextureLayout;return o.isPacked?this.getPackedOutputSamplingSnippet(o):this.getUnpackedOutputSamplingSnippet(o)}getPackedOutputSamplingSnippet(o){let t=o.unpackedShape,r=[o.width,o.height],n={},s="getOutputCoords";switch(t.length){case 0:n[s]=this.getOutputScalarCoords();break;case 1:n[s]=this.getOutputPacked1DCoords(t,r);break;case 2:n[s]=this.getOutputPacked2DCoords(t,r);break;case 3:n[s]=this.getOutputPacked3DCoords(t,r);break;default:n[s]=this.getOutputPackedNDCoords(t,r)}let u=`
-      void setOutput(vec4 val) {
-        ${R(this.context.glContext.version).output} = val;
-      }
-    `,l="floatTextureSetRGBA";return n[l]=new k(u),n}getUnpackedOutputSamplingSnippet(o){let t=o.unpackedShape,r=[o.width,o.height],n={},s="getOutputCoords";switch(t.length){case 0:n[s]=this.getOutputScalarCoords();break;case 1:n[s]=this.getOutputUnpacked1DCoords(t,r);break;case 2:n[s]=this.getOutputUnpacked2DCoords(t,r);break;case 3:n[s]=this.getOutputUnpacked3DCoords(t,r);break;case 4:n[s]=this.getOutputUnpacked4DCoords(t,r);break;case 5:n[s]=this.getOutputUnpacked5DCoords(t,r);break;case 6:n[s]=this.getOutputUnpacked6DCoords(t,r);break;default:throw new Error(`Unsupported output dimensionality: ${t.length}`)}let u=`
-        void setOutput(float val) {
-          ${R(this.context.glContext.version).output} = vec4(val, 0, 0, 0);
-        }
-    `,l="floatTextureSetR";return n[l]=new k(u),n}getOutputScalarCoords(){return new k(`
-      int getOutputCoords() {
-        return 0;
-      }
-    `)}getOutputPacked1DCoords(o,t){let r=t,n="";return r[0]===1?(n=`
-          int getOutputCoords() {
-            return 2 * int(TexCoords.y * ${r[1]}.0);
-          }
-        `,new k(n)):r[1]===1?(n=`
-          int getOutputCoords() {
-            return 2 * int(TexCoords.x * ${r[0]}.0);
-          }
-        `,new k(n)):(n=`
-        int getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                 vec2(${r[0]}, ${r[1]}));
-          return 2 * (resTexRC.y * ${r[0]} + resTexRC.x);
-        }
-      `,new k(n))}getOutputPacked2DCoords(o,t){let r="";if(Re.arraysEqual(o,t))return r=`
-        ivec2 getOutputCoords() {
-          return 2 * ivec2(TexCoords.xy * vec2(${t[0]}, ${t[1]}));
-        }
-      `,new k(r);let n=t,s=Math.ceil(o[1]/2);return r=`
-        ivec2 getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                vec2(${n[0]}, ${n[1]}));
-
-          int index = resTexRC.y * ${n[0]} + resTexRC.x;
-
-          // reverse r and c order for packed texture
-          int r = imod(index, ${s}) * 2;
-          int c = 2 * (index / ${s});
-
-          return ivec2(r, c);
-        }
-      `,new k(r)}getOutputPacked3DCoords(o,t){let r=[t[0],t[1]],n=Math.ceil(o[2]/2),s=n*Math.ceil(o[1]/2),a=`
-        ivec3 getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                vec2(${r[0]}, ${r[1]}));
-          int index = resTexRC.y * ${r[0]} + resTexRC.x;
-
-          int b = index / ${s};
-          index -= b * ${s};
-
-          // reverse r and c order for packed texture
-          int r = imod(index, ${n}) * 2;
-          int c = 2 * (index / ${n});
-
-          return ivec3(b, r, c);
-        }
-      `;return new k(a)}getOutputPackedNDCoords(o,t){let r=[t[0],t[1]],n=Math.ceil(o[o.length-1]/2),s=n*Math.ceil(o[o.length-2]/2),a=s,u="",l="b, r, c";for(let p=2;p<o.length-1;p++)a*=o[o.length-p-1],u=`
-      int b${p} = index / ${a};
-      index -= b${p} * ${a};
-    `+u,l=`b${p}, `+l;let f=`
-      ivec${o.length} getOutputCoords() {
-        ivec2 resTexRC = ivec2(TexCoords.xy *
-                              vec2(${r[0]}, ${r[1]}));
-        int index = resTexRC.y * ${r[0]} + resTexRC.x;
-
-        ${u}
-
-        int b = index / ${s};
-        index -= b * ${s};
-
-        // reverse r and c order for packed texture
-        int r = imod(index, ${n}) * 2;
-        int c = 2 * (index / ${n});
-
-        return ivec${o.length}(${l});
-      }
-    `;return new k(f)}getOutputUnpacked1DCoords(o,t){let r=`
-        int getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                vec2(${t[0]}, ${t[1]}));
-          return resTexRC.y * ${t[0]} + resTexRC.x;
-        }
-      `;return new k(r)}getOutputUnpacked2DCoords(o,t){let r=`
-        ivec2 getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                vec2(${t[0]}, ${t[1]}));
-          int index = resTexRC.y * ${t[0]} + resTexRC.x;
-          int r = index / ${o[1]};
-          int c = index - r * ${o[1]};
-          return ivec2(r, c);
-        }
-      `;return new k(r)}getOutputUnpacked3DCoords(o,t){let r="",n=o.length,s=null;n<2&&(s=[]),s=new Array(n-1),s[n-2]=o[n-1];for(let l=n-3;l>=0;--l)s[l]=s[l+1]*o[l+1];let a=["r","c","d"],u=s.map((l,f)=>{let p=`int ${a[f]} = index / ${l}`,d=f===s.length-1?`int ${a[f+1]} = index - ${a[f]} * ${l}`:`index -= ${a[f]} * ${l}`;return`${p}; ${d};`}).join("");return r=`
-        ivec3 getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                vec2(${t[0]}, ${t[1]}));
-          int index = resTexRC.y * ${t[0]} + resTexRC.x;
-          ${u}
-          return ivec3(r, c, d);
-        }
-      `,new k(r)}getOutputUnpacked4DCoords(o,t){let r="",n=o.length,s=null;n<2&&(s=[]),s=new Array(n-1),s[n-2]=o[n-1];for(let l=n-3;l>=0;--l)s[l]=s[l+1]*o[l+1];let a=["r","c","d","d2"],u=s.map((l,f)=>{let p=`int ${a[f]} = index / ${l}`,d=f===s.length-1?`int ${a[f+1]} = index - ${a[f]} * ${l}`:`index -= ${a[f]} * ${l}`;return`${p}; ${d};`}).join("");return r=`
-      ivec4 getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                vec2(${t[0]}, ${t[1]}));
-          int index = resTexRC.y * ${t[0]} + resTexRC.x;
-          ${u}
-          return ivec4(r, c, d, d2);
-        }
-      `,new k(r)}getOutputUnpacked5DCoords(o,t){let r="",n=o.length,s=null;n<2&&(s=[]),s=new Array(n-1),s[n-2]=o[n-1];for(let l=n-3;l>=0;--l)s[l]=s[l+1]*o[l+1];let a=["r","c","d","d2","d3"],u=s.map((l,f)=>{let p=`int ${a[f]} = index / ${l}`,d=f===s.length-1?`int ${a[f+1]} = index - ${a[f]} * ${l}`:`index -= ${a[f]} * ${l}`;return`${p}; ${d};`}).join("");return r=`
-      ivec5 getOutputCoords() {
-          ivec2 resTexRC = ivec2(TexCoords.xy *
-                                vec2(${t[0]}, ${t[1]}));
-          int index = resTexRC.y * ${t[0]} + resTexRC.x;
-          ${u}
-          return ivec5(r, c, d, d2, d3);
-        }
-      `,new k(r)}getOutputUnpacked6DCoords(o,t){let r="",n=o.length,s=null;n<2&&(s=[]),s=new Array(n-1),s[n-2]=o[n-1];for(let l=n-3;l>=0;--l)s[l]=s[l+1]*o[l+1];let a=["r","c","d","d2","d3","d4"],u=s.map((l,f)=>{let p=`int ${a[f]} = index / ${l}`,d=f===s.length-1?`int ${a[f+1]} = index - ${a[f]} * ${l}`:`index -= ${a[f]} * ${l}`;return`${p}; ${d};`}).join("");return r=`
-     ivec6 getOutputCoords() {
-         ivec2 resTexRC = ivec2(TexCoords.xy *
-                               vec2(${t[0]}, ${t[1]}));
-         int index = resTexRC.y * ${t[0]} + resTexRC.x;
-         ${u}
-         return ivec6(r, c, d, d2, d3, d4);
-       }
-     `,new k(r)}getCommonUtilFuncs(){let o={},t="uvFromFlat";o[t]=new k(`
-    vec2 uvFromFlat(int texNumR, int texNumC, int index) {
-      int texC = index / texNumR;
-      int texR = index - texC * texNumR;
-      // TODO: swap texR, texC order in following function so row is corresponding to u and column is corresponding to
-      //       v.
-      return (vec2(texR, texC) + halfCR) / vec2(texNumR, texNumC);
-    }
-    `),t="packedUVfrom1D",o[t]=new k(`
-      vec2 packedUVfrom1D(int texNumR, int texNumC, int index) {
-        int texelIndex = index / 2;
-        int texR = texelIndex / texNumC;
-        int texC = texelIndex - texR * texNumC;
-        return (vec2(texC, texR) + halfCR) / vec2(texNumC, texNumR);
-      }
-      `),t="packedUVfrom2D",o[t]=new k(`
-      vec2 packedUVfrom2D(int texNumR, int texNumC, int texelsInLogicalRow, int row, int col) {
-        int texelIndex = (row / 2) * texelsInLogicalRow + (col / 2);
-        int texR = texelIndex / texNumC;
-        int texC = texelIndex - texR * texNumC;
-        return (vec2(texC, texR) + halfCR) / vec2(texNumC, texNumR);
-      }
-      `),t="packedUVfrom3D",o[t]=new k(`
-      vec2 packedUVfrom3D(int texNumR, int texNumC,
-          int texelsInBatch, int texelsInLogicalRow, int b,
-          int row, int col) {
-        int index = b * texelsInBatch + (row / 2) * texelsInLogicalRow + (col / 2);
-        int texR = index / texNumC;
-        int texC = index - texR * texNumC;
-        return (vec2(texC, texR) + halfCR) / vec2(texNumC, texNumR);
-      }
-      `),t="sampleTexture";let r=R(this.context.glContext.version);return o[t]=new k(`
-        float sampleTexture(sampler2D textureSampler, vec2 uv) {
-            return ${r.texture2D}(textureSampler, uv).r;
-        }`),o}getInputsSamplingSnippets(){let o={},t=this.context.outputTextureLayout;return this.context.programInfo.inputNames.forEach((r,n)=>{let s=this.context.inputTextureLayouts[n],a=_n(r);s.isPacked?o[a]=this.getPackedSamplerFromInput(a,r,s):o[a]=this.getUnpackedSamplerFromInput(a,r,s);let u=Xu(r);s.unpackedShape.length<=t.unpackedShape.length&&(s.isPacked?o[u]=this.getPackedSamplerAtOutputCoords(u,s,t,r):o[u]=this.getUnpackedSamplerAtOutputCoords(u,s,t,r))}),o}getPackedSamplerAtOutputCoords(o,t,r,n){let s=t.unpackedShape,a=r.unpackedShape,l=_n(n),f=s.length,p=a.length,d=Lt.getBroadcastDims(s,a),y=$t(p),w=p-f,v,S=oe();f===0?v="":p<2&&d.length>=1?v="coords = 0;":v=d.map(Pt=>`coords.${S[Pt+w]} = 0;`).join(`
-`);let D="";p<2&&f>0?D="coords":D=s.map((Pt,rt)=>`coords.${S[rt+w]}`).join(", ");let P="return outputValue;",G=B.size(s)===1,lt=B.size(a)===1;if(f===1&&!G&&!lt)P=`
-        return vec4(outputValue.xy, outputValue.xy);
-      `;else if(G&&!lt)p===1?P=`
-          return vec4(outputValue.x, outputValue.x, 0., 0.);
-        `:P=`
-          return vec4(outputValue.x);
-        `;else if(d.length){let Pt=f-2,rt=f-1;d.indexOf(Pt)>-1&&d.indexOf(rt)>-1?P="return vec4(outputValue.x);":d.indexOf(Pt)>-1?P="return vec4(outputValue.x, outputValue.y, outputValue.x, outputValue.y);":d.indexOf(rt)>-1&&(P="return vec4(outputValue.xx, outputValue.zz);")}let J=`
-        int lastDim = coords.${S[p-1]};
-        coords.${S[p-1]} = coords.${S[p-2]};
-        coords.${S[p-2]} = lastDim;
-      `,Ut=`
-      vec4 ${o}() {
-        ${y} coords = getOutputCoords();
-        ${J}
-        ${v}
-        vec4 outputValue = ${l}(${D});
-        ${P}
-      }
-    `;return new k(Ut,["coordinates.getOutputCoords"])}getUnpackedSamplerAtOutputCoords(o,t,r,n){let s=[r.width,r.height],a=[t.width,t.height],u=t.unpackedShape.length,l=r.unpackedShape.length,f=t.unpackedShape,p=r.unpackedShape,d=_n(n);if(u===l&&Re.arraysEqual(a,s)){let G=`
-          float ${o}() {
-            return sampleTexture(${n}, TexCoords);
-          }
-        `;return new k(G,["coordinates.sampleTexture"])}let y=$t(l),w=Lt.getBroadcastDims(f,p),v=l-u,S,D=oe();u===0?S="":l<2&&w.length>=1?S="coords = 0;":S=w.map(G=>`coords.${D[G+v]} = 0;`).join(`
-`);let P="";l<2&&u>0?P="coords":P=t.unpackedShape.map((G,V)=>`coords.${D[V+v]}`).join(", ");let A=`
-        float ${o}() {
-          ${y} coords = getOutputCoords();
-          ${S}
-          return ${d}(${P});
-        }
-      `;return new k(A,["coordinates.getOutputCoords"])}getPackedSamplerFromInput(o,t,r){switch(r.unpackedShape.length){case 0:return this.getPackedSamplerScalar(o,t);case 1:return this.getPackedSampler1D(o,t,r);case 2:return this.getPackedSampler2D(o,t,r);case 3:return this.getPackedSampler3D(o,t,r);default:return this.getPackedSamplerND(o,t,r)}}getUnpackedSamplerFromInput(o,t,r){let n=r.unpackedShape;switch(n.length){case 0:return this.getUnpackedSamplerScalar(o,t,r);case 1:return this.getUnpackedSampler1D(o,t,r);case 2:return this.getUnpackedSampler2D(o,t,r);case 3:return this.getUnpackedSampler3D(o,t,r);case 4:return this.getUnpackedSampler4D(o,t,r);case 5:return this.getUnpackedSampler5D(o,t,r);case 6:return this.getUnpackedSampler6D(o,t,r);default:throw new Error(`Unsupported dimension ${n.length}-D`)}}getPackedSamplerScalar(o,t){let r=R(this.context.glContext.version),n=`
-          vec4 ${o}() {
-            return ${r.texture2D}(${t}, halfCR);
-          }
-        `;return new k(n)}getPackedSampler1D(o,t,r){let n=[r.width,r.height],s=[n[1],n[0]],a=R(this.context.glContext.version),l=`vec4 ${o}(int index) {
-      vec2 uv = packedUVfrom1D(
-      ${s[0]}, ${s[1]}, index);
-      return ${a.texture2D}(${t}, uv);
-    }`;return new k(l,["coordinates.packedUVfrom1D"])}getPackedSampler2D(o,t,r){let n=r.unpackedShape,s=[r.width,r.height],a=R(this.context.glContext.version),u=s[0],l=s[1];if(s!=null&&Re.arraysEqual(n,s)){let w=`vec4 ${o}(int row, int col) {
-        vec2 uv = (vec2(col, row) + halfCR) / vec2(${l}.0, ${u}.0);
-        return ${a.texture2D}(${t}, uv);
-      }`;return new k(w)}let f=s,p=Math.ceil(n[1]/2),y=`vec4 ${o}(int row, int col) {
-      vec2 uv = packedUVfrom2D(${f[1]}, ${f[0]}, ${p}, row, col);
-      return ${a.texture2D}(${t}, uv);
-    }`;return new k(y,["coordinates.packedUVfrom2D"])}getPackedSampler3D(o,t,r){let n=r.unpackedShape,s=[r.width,r.height],a=[s[0],s[1]],u=R(this.context.glContext.version);if(n[0]===1){let v=n.slice(1),S=[1,2],D=ar(n,v),P=["b","row","col"],A=JSON.parse(JSON.stringify(r));A.unpackedShape=D;let G=this.getPackedSamplerFromInput(o,t,A),lt=`${G.routineBody}
-      vec4 ${o}(int b, int row, int col) {
-        return ${o}(${sr(P,S)});
-      } `;return new k(lt,G.dependencies)}let l=a[0],f=a[1],p=Math.ceil(n[2]/2),d=p*Math.ceil(n[1]/2),w=`vec4 ${o}(int b, int row, int col) {
-      vec2 uv = packedUVfrom3D(
-        ${f}, ${l}, ${d}, ${p}, b, row, col);
-      return ${u.texture2D}(${t}, uv);}`;return new k(w,["coordinates.packedUVfrom3D"])}getPackedSamplerND(o,t,r){let n=r.unpackedShape,s=n.length,a=[r.width,r.height],u=R(this.context.glContext.version),l=[a[0],a[1]],f=l[1],p=l[0],d=Math.ceil(n[s-1]/2),y=d*Math.ceil(n[s-2]/2),w="int b, int row, int col",v=`b * ${y} + (row / 2) * ${d} + (col / 2)`;for(let P=2;P<s-1;P++)w=`int b${P}, `+w,y*=n[s-P-1],v=`b${P} * ${y} + `+v;let D=`vec4 ${o}(${w}) {
-      int index = ${v};
-      int texR = index / ${p};
-      int texC = index - texR * ${p};
-      vec2 uv = (vec2(texC, texR) + halfCR) / vec2(${p}, ${f});
-      return ${u.texture2D}(${t}, uv);
-    }`;return new k(D)}getUnpackedSamplerScalar(o,t,r){let[n,s]=[r.width,r.height];if(n===1&&s===1){let u=`
-          float ${o}() {
-            return sampleTexture(${t}, halfCR);
-          }
-        `;return new k(u,["coordinates.sampleTexture"])}let a=`
-        float ${o}() {
-          int offset_${t} = coordsToOffset(TexCoords, ${n}, ${s});
-          vec2 uv = uvFromFlat(${n}, ${s}, offset_${t});
-          return sampleTexture(${t}, uv);
-        }
-      `;return new k(a,["coordinates.uvFromFlat","coordinates.sampleTexture","coordinates.coordsToOffset"])}getUnpackedSampler1D(o,t,r){let n=r.width,s=r.height;if(s===1&&n===1){let u=`
-        float ${o}(int index) {
-          return sampleTexture(${t}, halfCR);
-        }
-      `;return new k(u,["coordinates.sampleTexture"])}if(s===1){let u=`
-          float ${o}(int index) {
-            vec2 uv = vec2((float(index) + 0.5) / ${n}.0, 0.5);
-            return sampleTexture(${t}, uv);
-          }
-        `;return new k(u,["coordinates.sampleTexture"])}if(n===1){let u=`
-          float ${o}(int index) {
-            vec2 uv = vec2(0.5, (float(index) + 0.5) / ${s}.0);
-            return sampleTexture(${t}, uv);
-          }
-        `;return new k(u,["coordinates.sampleTexture"])}let a=`
-        float ${o}(int index) {
-          vec2 uv = uvFromFlat(${n}, ${s}, index);
-          return sampleTexture(${t}, uv);
-        }
-      `;return new k(a,["coordinates.uvFromFlat","coordinates.sampleTexture"])}getUnpackedSampler2D(o,t,r){let n=r.unpackedShape,s=[r.height,r.width];if(s!=null&&Re.arraysEqual(n,s)){let y=s[1],w=s[0],v=`
-          float ${o}(int row, int col) {
-            vec2 uv = (vec2(row, col) + halfCR) / vec2(${y}.0, ${w}.0);
-            return sampleTexture(${t}, uv);
-          }
-        `;return new k(v,["coordinates.sampleTexture"])}let{newShape:a,keptDims:u}=cr(n),l=a;if(l.length<n.length){let y=ar(n,l),w=JSON.parse(JSON.stringify(r));w.unpackedShape=y;let v=["col","row"],S=`
-          ${this.getUnpackedSamplerFromInput(o,t,w).routineBody}
-          float ${o}(int row, int col) {
-            return ${o}(${sr(v,u)});
-          }
-        `;return new k(S,["coordinates.sampleTexture"])}let f=s[1],p=s[0];if(p===1){let y=`
-          float ${o}(int row, int col) {
-            int offset_${t} = coordsToOffset(TexCoords, ${f}, ${p});
-            float index = dot(vec3(row, col, offset_${t}), vec3(${n[1]}, 1, 1));
-            vec2 uv = vec2(0.5, (index + 0.5) / ${f}.0);
-            return sampleTexture(${t}, uv);
-          }
-        `;return new k(y,["coordinates.sampleTexture","coordinates.coordsToOffset"])}if(f===1){let y=`
-          float ${o}(int row, int col) {
-            int offset_${t} = coordsToOffset(TexCoords, ${f}, ${p});
-            float index = dot(vec3(row, col, offset_${t}), vec3(${n[1]}, 1, 1));
-            vec2 uv = vec2((index + 0.5) / ${p}.0, 0.5);
-            return sampleTexture(${t}, uv);
-          }
-        `;return new k(y,["coordinates.sampleTexture","coordinates.coordsToOffset"])}let d=`
-        float ${o}(int row, int col) {
-          int index = col * ${n[1]} + row;
-          vec2 uv = uvFromFlat(${f}, ${p}, index);
-          return sampleTexture(${t}, uv);
-        }
-      `;return new k(d,["coordinates.uvFromFlat","coordinates.sampleTexture","coordinates.coordsToOffset"])}getUnpackedSampler3D(o,t,r){let n=r.unpackedShape,s=n[1]*n[2],a=n[2],{newShape:u,keptDims:l}=cr(n),f=u;if(f.length<n.length){let w=ar(n,f),v=["batch","col","row"],S=JSON.parse(JSON.stringify(r));S.unpackedShape=w;let D=this.getUnpackedSamplerFromInput(o,t,S),P=l.reverse(),A=`
-          ${D.routineBody}
-          float ${o}(int batch, int row, int col) {
-            return ${o}(${sr(v,P)});
-          }
-        `;return new k(A,D.dependencies)}let p=r.width,d=r.height,y=`
-          float ${o}(int depth, int row, int col) {
-            // Explicitly use integer operations as dot() only works on floats.
-            int index = depth * ${s} + col * ${a} + row;
-            vec2 uv = uvFromFlat(${p}, ${d}, index);
-            return sampleTexture(${t}, uv);
-          }
-      `;return new k(y,["coordinates.uvFromFlat","coordinates.sampleTexture","coordinates.coordsToOffset"])}getUnpackedSampler4D(o,t,r){let n=r.unpackedShape,s=n[3],a=n[2]*s,u=n[1]*a,l=r.width,f=r.height,p=`
-        float ${o}(int row, int col, int depth, int depth2) {
-          int index = row * ${u} + col * ${a} +
-              depth2 * ${s} + depth;
-          vec2 uv = uvFromFlat(${l}, ${f}, index);
-          return sampleTexture(${t}, uv);
-        }
-      `;return new k(p,["coordinates.uvFromFlat","coordinates.sampleTexture"])}getUnpackedSampler5D(o,t,r){let n=r.unpackedShape,s=n[4],a=n[3]*s,u=n[2]*a,l=n[1]*u,{newShape:f,keptDims:p}=cr(n);if(f.length<n.length){let v=ar(n,f),S=["row","col","depth","depth2","depth3"],D=JSON.parse(JSON.stringify(r));D.unpackedShape=v;let P=`
-          ${this.getUnpackedSamplerFromInput(o,t,D).routineBody}
-          float ${o}(int row, int col, int depth, int depth2, int depth3) {
-            return ${o}(${sr(S,p)});
-          }
-        `;return new k(P,["coordinates.sampleTexture","coordinates.uvFromFlat"])}let d=r.width,y=r.height,w=`
-        float ${o}(int row, int col, int depth, int depth2, int depth3) {
-          int index = row * ${l} + col * ${u} + depth * ${a} +
-          depth3 * ${s} + depth2;
-          vec2 uv = uvFromFlat(${d}, ${y}, index);
-          return sampleTexture(${t}, uv);
-        }
-      `;return new k(w,["coordinates.sampleTexture","coordinates.uvFromFlat"])}getUnpackedSampler6D(o,t,r){let n=r.unpackedShape,s=n[5],a=n[4]*s,u=n[3]*a,l=n[2]*u,f=n[1]*l,{newShape:p,keptDims:d}=cr(n);if(p.length<n.length){let S=ar(n,p),D=["row","col","depth","depth2","depth3","depth4"],P=JSON.parse(JSON.stringify(r));P.unpackedShape=S;let A=`
-            ${this.getUnpackedSamplerFromInput(o,t,P).routineBody}
-            float ${o}(int row, int col, int depth,
-              int depth2, int depth3, int depth4) {
-              return ${o}(${sr(D,d)});
-            }
-          `;return new k(A,["coordinates.sampleTexture","coordinates.uvFromFlat"])}let y=r.width,w=r.height,v=`
-          float ${o}(int row, int col, int depth,
-            int depth2, int depth3, int depth4) {
-            int index = row * ${f} + col * ${l} + depth * ${u} +
-            depth2 * ${a} + depth3 * ${s} + depth4;
-            vec2 uv = uvFromFlat(${y}, ${w}, index);
-            return sampleTexture(${t}, uv);
-          }
-        `;return new k(v,["coordinates.uvFromFlat","coordinates.sampleTexture","coordinates.coordsToOffset"])}toVec(){let o=this.context.outputTextureLayout,t=o.shape.length,r=o.strides,n=o.width,s=o.height,a=[];for(let l=0;l<t-1;++l)a.push(`
-        c[${l}] = offset / ${r[l]};`),a.push(`
-        offset -= c[${l}] * ${r[l]};`);a.push(`
-        c[${t-1}] = offset;`);let u=`
-      void toVec(vec2 texCoords, out int c[${t}]) {
-        int offset = coordsToOffset(texCoords, ${n}, ${s});
-        ${a.join("")}
-      }
-      void toVec(int offset, out int c[${t}]) {
-        ${a.join("")}
-      }
-    `;return{toVec:new k(u,["coordinates.coordsToOffset"])}}valueFrom(){let o={};return this.context.programInfo.inputNames.forEach((t,r)=>{let n=this.context.inputTextureLayouts[r],a=(n.unpackedShape.length>0?n.unpackedShape:n.shape).length,u=`_${t}`;o[u]=new k(this.getValueFromSingle(t,a,n.width,n.height,!1),[`shapeUtils.indicesToOffset${u}`,"coordinates.offsetToCoords","fragcolor.getColorAsFloat"]),u=u+"_T",o[u]=new k(this.getValueFromSingle(t,a,n.width,n.height,!0),[`shapeUtils.indicesToOffset${u}`,"coordinates.offsetToCoords","fragcolor.getColorAsFloat"])}),o}getValueFromSingle(o,t,r,n,s){let a=`_${o}`;s&&(a=a+"_T");let u=R(this.context.glContext.version);return`
-        float ${a}(int m[${t}]) {
-          int offset = indicesToOffset${a}(m);
-          vec2 coords = offsetToCoords(offset, ${r}, ${n});
-          float value = getColorAsFloat(${u.texture2D}(${o}, coords));
-          return value;
-        }
-        `}getPackedValueFrom(o,t,r,n,s){let a=`_${o}_Pack`;s&&(a=a+"_T");let u=R(this.context.glContext.version);return`
-        vec4 ${a}(int m[${t}]) {
-          int offset = indicesToOffset_${o}(m);
-          vec2 coords = offsetToCoords(offset, ${r}, ${n});
-          return ${u.texture2D}(${o}, coords);
-        }
-        `}}});var Mn,lp=O(()=>{"use strict";ge();Mn=class i extends jt{constructor(e){super(e)}getFunctions(){return{...this.encodeFloat32(),...this.decodeFloat32()}}getCustomTypes(){return{}}encodeFloat32(){return{encode:new k(`highp vec4 encode(highp float f) {
-        return vec4(f, 0.0, 0.0, 0.0);
-      }
-        `)}}decodeFloat32(){return{decode:new k(`highp float decode(highp vec4 rgba) {
-        return rgba.r;
-      }
-        `)}}encodeUint8(){let e=i.isLittleEndian()?"rgba.rgba=rgba.abgr;":"";return{encode:new k(`
-      highp vec4 encode(highp float f) {
-        highp float F = abs(f);
-        highp float Sign = step(0.0,-f);
-        highp float Exponent = floor(log2(F));
-        highp float Mantissa = (exp2(- Exponent) * F);
-        Exponent = floor(log2(F) + 127.0) + floor(log2(Mantissa));
-        highp vec4 rgba;
-        rgba[0] = 128.0 * Sign  + floor(Exponent*exp2(-1.0));
-        rgba[1] = 128.0 * mod(Exponent,2.0) + mod(floor(Mantissa*128.0),128.0);
-        rgba[2] = floor(mod(floor(Mantissa*exp2(23.0 -8.0)),exp2(8.0)));
-        rgba[3] = floor(exp2(23.0)*mod(Mantissa,exp2(-15.0)));
-        ${e}
-        rgba = rgba / 255.0; // values need to be normalized to [0,1]
-        return rgba;
-    }
-        `)}}decodeUint8(){let e=i.isLittleEndian()?"rgba.rgba=rgba.abgr;":"";return{decode:new k(`
-        highp float decode(highp vec4 rgba) {
-          rgba = rgba * 255.0; // values need to be de-normalized from [0,1] to [0,255]
-          ${e}
-          highp float Sign = 1.0 - step(128.0,rgba[0])*2.0;
-          highp float Exponent = 2.0 * mod(rgba[0],128.0) + step(128.0,rgba[1]) - 127.0;
-          highp float Mantissa = mod(rgba[1],128.0)*65536.0 + rgba[2]*256.0 +rgba[3] + float(0x800000);
-          highp float Result =  Sign * exp2(Exponent) * (Mantissa * exp2(-23.0 ));
-          return Result;
-      }
-        `)}}static isLittleEndian(){let e=new ArrayBuffer(4),o=new Uint32Array(e),t=new Uint8Array(e);if(o[0]=3735928559,t[0]===239)return!0;if(t[0]===222)return!1;throw new Error("unknown endianness")}}});var Un,fp=O(()=>{"use strict";ge();ut();Un=class extends jt{constructor(e){super(e)}getFunctions(){return{...this.setFragColor(),...this.getColorAsFloat()}}getCustomTypes(){return{}}setFragColor(){let e=R(this.context.glContext.version);return{setFragColor:new k(`
-        void setFragColor(float value) {
-            ${e.output} = encode(value);
-        }
-        `,["encoding.encode"])}}getColorAsFloat(){return{getColorAsFloat:new k(`
-        float getColorAsFloat(vec4 color) {
-            return decode(color);
-        }
-        `,["encoding.decode"])}}}});var Vn,cp=O(()=>{"use strict";ge();Vn=class i extends jt{constructor(e){super(e)}getFunctions(){return{...this.bcastIndex(),...this.bcastMatmulIndex(),...this.offsetToIndices(),...this.indicesToOffset(),...this.incrementIndices()}}getCustomTypes(){return{}}bcastIndex(){let e=this.context.outputTextureLayout.shape.length,o={};return this.context.programInfo.inputNames.forEach((t,r)=>{let n=this.context.inputTextureLayouts[r].unpackedShape;if(n.length<=e){let s=n.length,a=e-s,u=`bcastIndices_${t}`,l="";for(let p=0;p<s;++p)l+=`
-          realIndices[${p}] = int( mod(float(bcastedIndices[${a+p}]), ${n[p]}.0) );
-          `;let f=`
-        void ${u} (int bcastedIndices[${e}], out int realIndices[${s}]) {
-          ${l}
-        }
-        `;o[u]=new k(f)}}),o}bcastMatmulIndex(){let e=this.context.outputTextureLayout.shape.length,o={};return this.context.programInfo.inputNames.forEach((t,r)=>{let n=this.context.inputTextureLayouts[r].shape;if(!(n.length<2||n.length>e)){let s=n.length,a=e-s,u=`bcastMatmulIndices_${t}`,l="";for(let p=0;p<s-2;++p)l+=`
-          realIndices[${p}] = int( mod(float(bcastedIndices[${a+p}]), ${n[p]}.0) );
-          `;let f=`
-        void ${u}(int bcastedIndices[${e}], out int realIndices[${s}]) {
-          ${l}
-          realIndices[${s-1}] = bcastedIndices[${e-1}];
-          realIndices[${s-2}] = bcastedIndices[${e-2}];
-        }
-        `;o[u]=new k(f)}}),o}indicesToOffset(){let e={};return this.context.programInfo.inputNames.forEach((o,t)=>{let r=this.context.inputTextureLayouts[t].shape,n=this.context.inputTextureLayouts[t].strides,s=r.length,a=`indicesToOffset_${o}`;e[a]=new k(i.indexToOffsetSingle(a,s,n)),a=`indicesToOffset_${o}_T`,e[a]=new k(i.indexToOffsetSingle(a,s,n.slice().reverse()))}),e}static indexToOffsetSingle(e,o,t){let r="";for(let n=o-1;n>=0;--n)r+=`
-        offset += indices[${n}] * ${t[n]};
+            offset += k * i32(${j("uniforms.x_strides",o,e)});
         `;return`
-      int ${e}(int indices[${o}]) {
-        int offset = 0;
-        ${r}
-        return offset;
+          value = ${t.type.value}(uniforms.constant_value);
+          for (var i = 0; i < 1; i++) {
+            var offset = 0;
+            var k = 0;
+            ${n}
+            value = x[offset];
+          }
+      `},yy=(t,e,r)=>{let n="";for(let o=e-1;o>=0;--o)n+=`
+                k = i32(${t.indicesGet("indices",o)}) - ${j("uniforms.pads",o,r)};
+                if (k < 0) {
+                  k = -k;
+                }
+                {
+                  let _2n_1 = 2 * (i32(${j("uniforms.x_shape",o,e)}) - 1);
+                  k = k % _2n_1;
+                  if(k >= i32(${j("uniforms.x_shape",o,e)})) {
+                    k = _2n_1 - k;
+                  }
+                }
+                offset += k * i32(${j("uniforms.x_strides",o,e)});
+            `;return`
+              var offset = 0;
+              var k = 0;
+              ${n}
+              value = x[offset];
+          `},by=(t,e,r)=>{let n="";for(let o=e-1;o>=0;--o)n+=`
+                k = i32(${t.indicesGet("indices",o)}) - ${j("uniforms.pads",o,r)};
+                if (k < 0) {
+                  k = 0;
+                }
+                if (k >= i32(${j("uniforms.x_shape",o,e)})) {
+                  k = i32(${j("uniforms.x_shape",o,e)}) - 1;
+                }
+                offset += k * i32(${j("uniforms.x_strides",o,e)});
+            `;return`
+              var offset = 0;
+              var k = 0;
+              ${n}
+              value = x[offset];
+          `},_y=(t,e,r)=>{let n="";for(let o=e-1;o>=0;--o)n+=`
+                k = i32(${t.indicesGet("indices",o)}) - ${j("uniforms.pads",o,r)};
+                if (k < 0)  {
+                  k += i32(${j("uniforms.x_shape",o,e)}]);
+                }
+                if (k >= i32(${j("uniforms.x_shape",o,e)})) {
+                  k -= i32(${j("uniforms.x_shape",o,e)});
+                }
+                offset += k * i32(${j("uniforms.x_strides",o,e)});
+            `;return`
+              var offset = 0;
+              var k = 0;
+              ${n}
+              value = x[offset];
+          `},wy=(t,e,r)=>{switch(r.mode){case 0:return gy(t,e,r.pads.length);case 1:return yy(t,e,r.pads.length);case 2:return by(t,e,r.pads.length);case 3:return _y(t,e,r.pads.length);default:throw new Error("Invalid mode")}},vy=(t,e)=>{let r=k.padShape(t[0].dims.slice(),e.pads),n=t[0].dims,o=k.size(r),i=[{type:12,data:o},{type:6,data:e.pads}],a=t.length>=3&&t[2].data;e.mode===0&&i.push({type:a?t[2].dataType:1,data:e.value}),i.push(...W(t[0].dims,r));let u=["rank"],d=c=>{let p=R("output",t[0].dataType,r.length),m=D("x",t[0].dataType,n.length),g=m.type.value,b=wy(p,n.length,e),y=[{name:"output_size",type:"u32"},{name:"pads",type:"i32",length:e.pads.length}];return e.mode===0&&y.push({name:"constant_value",type:a?g:"f32"}),`
+            ${c.registerUniforms(y).declareVariables(m,p)}
+            ${c.mainStart()}
+            ${c.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+
+            let indices = ${p.offsetToIndices("global_idx")};
+
+            var value = ${g}(0);
+            ${b}
+            output[global_idx] = value;
+        }`};return{name:"Pad",shaderCache:{hint:`${e.mode}${a}`,inputDependencies:u},getRunData:()=>({outputs:[{dims:r,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(k.size(r)/64)},programUniforms:i}),getShaderSource:d}},$y=(t,e)=>{if(t.length>1){let r=t[1].getBigInt64Array(),n=t.length>=3&&t[2].data?t[2].dataType===10?t[2].getUint16Array()[0]:t[2].getFloat32Array()[0]:0,o=t[0].dims.length,i=new Int32Array(2*o).fill(0);if(t.length>=4){let u=t[3].getBigInt64Array();for(let d=0;d<u.length;d++)i[Number(u[d])]=Number(r[d]),i[Number(u[d])+o]=Number(r[d+u.length])}else r.forEach((u,d)=>i[Number(d)]=Number(u));let a=[];return i.forEach(u=>a.push(u)),{mode:e.mode,value:n,pads:a}}else return e},nc=(t,e)=>{hy(t.inputs);let r=$y(t.inputs,e);t.compute(vy(t.inputs,r),{inputs:[0]})}});var fn,ic,ac,sc,uc,xy,Sy,dc,lc,cc,pc,mc,fc,hc,gc,yc,bc,_c,wc,vc=V(()=>{"use strict";Le();ee();te();oe();fn=t=>{if(_e.webgpu.validateInputContent&&(!t||t.length!==1))throw new Error("Pool ops requires 1 input.")},ic=(t,e,r)=>{let n=e.format==="NHWC",o=t.dims.slice();n&&o.splice(1,0,o.pop());let i=Object.hasOwnProperty.call(e,"dilations"),a=e.kernelShape.slice(),u=e.strides.slice(),d=i?e.dilations.slice():[],c=e.pads.slice();zt.adjustPoolAttributes(r,o,a,u,d,c);let p=zt.computePoolOutputShape(r,o,u,d,a,c,e.autoPad,e.ceilMode),m=Object.assign({},e);i?Object.assign(m,{kernelShape:a,strides:u,pads:c,dilations:d,cacheKey:e.cacheKey}):Object.assign(m,{kernelShape:a,strides:u,pads:c,cacheKey:e.cacheKey});let g=p.slice();return g.push(g.splice(1,1)[0]),[m,n?g:p]},ac=(t,e)=>{let r=e.format==="NHWC",n=k.size(t),o=k.size(e.kernelShape),i=[{type:12,data:n},{type:12,data:o}],a=[{name:"outputSize",type:"u32"},{name:"kernelSize",type:"u32"}];if(e.kernelShape.length<=2){let u=e.kernelShape[e.kernelShape.length-1],d=e.strides[e.strides.length-1],c=e.pads[e.pads.length/2-1],p=e.pads[e.pads.length-1],m=!!(c+p);i.push({type:12,data:u},{type:12,data:d},{type:12,data:c},{type:12,data:p}),a.push({name:"kw",type:"u32"},{name:"sw",type:"u32"},{name:"pwStart",type:"u32"},{name:"pwEnd",type:"u32"});let g=!1;if(e.kernelShape.length===2){let b=e.kernelShape[e.kernelShape.length-2],y=e.strides[e.strides.length-2],_=e.pads[e.pads.length/2-2],S=e.pads[e.pads.length-2];g=!!(_+S),i.push({type:12,data:b},{type:12,data:y},{type:12,data:_},{type:12,data:S}),a.push({name:"kh",type:"u32"},{name:"sh",type:"u32"},{name:"phStart",type:"u32"},{name:"phEnd",type:"u32"})}return[i,a,!0,m,g]}else{if(r)throw new Error("Pooling with kernelShape.length > 2 is not supported for NHWC format.");let u=k.computeStrides(e.kernelShape);i.push({type:12,data:u},{type:12,data:e.pads},{type:12,data:e.strides}),a.push({name:"kernelStrides",type:"u32",length:u.length},{name:"pads",type:"u32",length:e.pads.length},{name:"strides",type:"u32",length:e.strides.length});let d=e.pads.reduce((c,p)=>c+p);return[i,a,!!d,!1,!1]}},sc=(t,e,r,n,o,i,a,u,d,c,p,m)=>{let g=o.format==="NHWC",b=e.type.value,y=R("output",e.type.tensor,n);if(o.kernelShape.length<=2){let _="",S="",x="",$=r-(g?2:1);if(p?_=`
+                for (var i: u32 = 0u; i < uniforms.kw; i++) {
+                  xIndices[${$}] = indices[${$}] * uniforms.sw - uniforms.pwStart + i;
+                  if (xIndices[${$}] < 0 || xIndices[${$}]
+                      >= uniforms.x_shape[${$}]) {
+                    pad++;
+                    continue;
+                  }
+                  let x_val = x[${e.indicesToOffset("xIndices")}];
+                  ${i}
+                }`:_=`
+                for (var i: u32 = 0u; i < uniforms.kw; i++) {
+                  xIndices[${$}] = indices[${$}] * uniforms.sw - uniforms.pwStart + i;
+                  let x_val = x[${e.indicesToOffset("xIndices")}];
+                  ${i}
+                }`,o.kernelShape.length===2){let I=r-(g?3:2);m?S=`
+                for (var j: u32 = 0u; j < uniforms.kh; j++) {
+                  xIndices[${I}] = indices[${I}] * uniforms.sh - uniforms.phStart + j;
+                  if (xIndices[${I}] < 0 || xIndices[${I}] >= uniforms.x_shape[${I}]) {
+                    pad += i32(uniforms.kw);
+                    continue;
+                  }
+              `:S=`
+                for (var j: u32 = 0u; j < uniforms.kh; j++) {
+                  xIndices[${I}] = indices[${I}] * uniforms.sh - uniforms.phStart + j;
+                `,x=`
+              }
+            `}return`
+            ${t.registerUniforms(d).declareVariables(e,y)}
+
+            ${t.mainStart()}
+              ${t.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+
+              let indices = ${y.offsetToIndices("global_idx")};
+              var xIndices = ${y.offsetToIndices("global_idx")};
+
+              var value = ${b}(${u});
+              var pad = 0;
+              ${S}
+              ${_}
+              ${x}
+              ${a}
+
+              output[global_idx] = value;
+            }`}else{if(g)throw new Error("Pooling with kernelShape.length > 2 is not supported for NHWC format.");let _=o.kernelShape.length,S=o.pads.length,x="";return c?x=`
+                if (xIndices[j] >= uniforms.x_shape[j]) {
+                  pad++;
+                  isPad = true;
+                  break;
+                }
+              }
+              if (!isPad) {
+                let x_val = x[${e.indicesToOffset("xIndices")}];
+                ${i}
+              }`:x=`
+              }
+              let x_val = x[${e.indicesToOffset("xIndices")}];
+              ${i}
+            `,`
+            ${t.registerUniforms(d).declareVariables(e,y)}
+
+            ${t.mainStart()}
+              ${t.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+              let indices = ${y.offsetToIndices("global_idx")};
+              var xIndices = ${y.offsetToIndices("global_idx")};
+
+              var offsets: array<u32, ${_}>;
+
+              var value = ${b}(${u});
+              var pad = 0;
+              var isPad = false;
+
+              for (var i: u32 = 0u; i < uniforms.kernelSize; i++) {
+                var offset = i;
+                for (var j = 0u; j < ${_-1}u; j++) {
+                  offsets[j] = offset / ${j("uniforms.kernelStrides","j",_)};
+                  offset -= offsets[j] * ${j("uniforms.kernelStrides","j",_)};
+                }
+                offsets[${_-1}] = offset;
+
+                isPad = false;
+                for (var j = ${r-_}u; j < ${r}u; j++) {
+                  xIndices[j] = indices[j] * ${j("uniforms.strides",`j - ${r-_}u`,_)}
+                    + offsets[j - ${r-_}u] - ${j("uniforms.pads","j - 2u",S)};
+                  ${x}
+              }
+              ${a}
+
+              output[global_idx] = value;
+            }`}},uc=t=>`${t.format};${t.ceilMode};${t.autoPad};${t.kernelShape.length}`,xy=t=>`${uc(t)};${t.countIncludePad}`,Sy=t=>`${uc(t)};${t.storageOrder};${t.dilations}`,dc=t=>({format:t.format,autoPad:["NOTSET","VALID","SAME_UPPER","SAME_LOWER"][t.auto_pad],ceilMode:t.ceil_mode,kernelShape:t.kernel_shape,strides:t.strides,pads:t.pads}),lc=(t,e,r,n)=>{let[o,i]=ic(e,n,r),a=D("x",e.dataType,e.dims.length),u=a.type.value,d="value += x_val;",c="";o.countIncludePad?c+=`value /= ${u}(uniforms.kernelSize);`:c+=`value /= ${u}(i32(uniforms.kernelSize) - pad);`;let[p,m,g,b,y]=ac(i,o);p.push(...W(e.dims,i));let _=["rank"];return{name:t,shaderCache:{hint:`${n.cacheKey};${g};${b};${y}`,inputDependencies:_},getRunData:()=>({outputs:[{dims:i,dataType:e.dataType}],dispatchGroup:{x:Math.ceil(k.size(i)/64)},programUniforms:p}),getShaderSource:S=>sc(S,a,e.dims.length,i.length,o,d,c,0,m,g,b,y)}},cc=t=>{let e=t.count_include_pad!==0,r=dc(t);if(r.ceilMode!==0)throw new Error("ceil_mode output-shape is computed, but ceil_mode kernel execution (padding/divisor) is not yet implemented in the WebGPU AveragePool kernel");let n={countIncludePad:e,...r,cacheKey:""};return{...n,cacheKey:xy(n)}},pc=(t,e)=>{fn(t.inputs),t.compute(lc("AveragePool",t.inputs[0],!1,e))},mc={autoPad:"",ceilMode:0,countIncludePad:!1,kernelShape:[],strides:[],pads:[],storageOrder:0,dilations:[]},fc=t=>{let e=t.format;return{format:e,...mc,cacheKey:e}},hc=(t,e)=>{fn(t.inputs),t.compute(lc("GlobalAveragePool",t.inputs[0],!0,e))},gc=(t,e,r,n)=>{let[o,i]=ic(e,n,r),a=`
+      value = max(x_val, value);
+    `,u="",d=D("x",e.dataType,e.dims.length),c=["rank"],[p,m,g,b,y]=ac(i,o);return p.push(...W(e.dims,i)),{name:t,shaderCache:{hint:`${n.cacheKey};${g};${b};${y}`,inputDependencies:c},getRunData:()=>({outputs:[{dims:i,dataType:e.dataType}],dispatchGroup:{x:Math.ceil(k.size(i)/64)},programUniforms:p}),getShaderSource:_=>sc(_,d,e.dims.length,i.length,o,a,u,e.dataType===10?-65504:-1e5,m,g,b,y)}},yc=(t,e)=>{fn(t.inputs),t.compute(gc("MaxPool",t.inputs[0],!1,e))},bc=t=>{let e=t.storage_order,r=t.dilations,n=dc(t);if(e!==0)throw new Error("column major storage order is not yet supported for MaxPool");if(n.ceilMode!==0)throw new Error("ceil_mode output-shape is computed, but ceil_mode kernel execution (padding) is not yet implemented in the WebGPU MaxPool kernel");let o={storageOrder:e,dilations:r,...n,cacheKey:""};return{...o,cacheKey:Sy(o)}},_c=t=>{let e=t.format;return{format:e,...mc,cacheKey:e}},wc=(t,e)=>{fn(t.inputs),t.compute(gc("GlobalMaxPool",t.inputs[0],!0,e))}});var Iy,Cy,$c,xc,Sc=V(()=>{"use strict";ee();te();Ce();oe();Iy=(t,e)=>{if(t.length<2||t.length>3)throw new Error("DequantizeLinear requires 2 or 3 inputs.");if(t.length===3&&t[1].dims===t[2].dims)throw new Error("x-scale and x-zero-point must have the same shape.");if(t.length===3&&t[0].dataType!==t[2].dataType)throw new Error("x and x-zero-point must have the same data type.");if(t[1].dims.length!==0&&t[1].dims.length!==1&&t[1].dims.length!==t[0].dims.length)throw new Error("scale input must be a scalar, a 1D tensor, or have the same rank as the input tensor.");if(t.length>2){if(t[0].dataType!==t[2].dataType)throw new Error("x and x-zero-point must have the same data type.");if(t[1].dims.length!==t[2].dims.length)throw new Error("scale and zero-point inputs must have the same rank.");if(!t[1].dims.map((r,n)=>r===t[2].dims[n]).reduce((r,n)=>r&&n,!0))throw new Error("scale and zero-point inputs must have the same shape.")}if(e.blockSize>0){if(t[1].dims.length===0||t[1].dims.length===1&&t[1].dims[0]===1)throw new Error("blockSize must be set only for block quantization.");if(!t[1].dims.map((o,i)=>i===e.axis||o===t[0].dims[i]).reduce((o,i)=>o&&i,!0))throw new Error("For block qunatization, scale input shape to match the input shape except for the axis");if(t[1].dims.length!==t[0].dims.length)throw new Error("For block qunatization the scale input rank must be the same as the x rank.");let r=t[0].dims[e.axis],n=t[1].dims[e.axis];if(e.blockSize<Math.ceil(r/n)||e.blockSize>Math.ceil(r/(n-1)-1))throw new Error("blockSize must be with in the range [ceil(dI / Si), ceil(dI / (Si - 1) - 1)].")}},Cy=(t,e)=>{let r=k.normalizeAxis(e.axis,t[0].dims.length),n=t[0].dataType,o=n===3,i=t[0].dims,a=t[1].dataType,u=k.size(i),d=n===3||n===2,c=d?[Math.ceil(k.size(t[0].dims)/4)]:t[0].dims,p=t[1].dims,m=t.length>2?t[2]:void 0,g=m?d?[Math.ceil(k.size(m.dims)/4)]:m.dims:void 0,b=p.length===0||p.length===1&&p[0]===1,y=b===!1&&p.length===1,_=fe(u),S=b&&(!d||_===4),x=S?_:1,$=S&&!d?_:1,T=D("input",d?12:n,c.length,$),I=D("scale",a,p.length),E=m?D("zero_point",d?12:n,g.length):void 0,A=R("output",a,i.length,x),O=[T,I];E&&O.push(E);let w=[c,p];m&&w.push(g);let U=[{type:12,data:u/x},{type:12,data:r},{type:12,data:e.blockSize},...W(...w,i)],N=F=>{let q=[{name:"output_size",type:"u32"},{name:"axis",type:"u32"},{name:"block_size",type:"u32"}];return`
+      ${F.registerUniforms(q).declareVariables(...O,A)}
+      ${F.mainStart()}
+          ${F.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+          let output_indices = ${A.offsetToIndices("global_idx")};
+
+          // Set input x
+          ${d?`
+            let input = ${T.getByOffset("global_idx / 4")};
+            let x_vec = ${o?"unpack4xI8(input)":"unpack4xU8(input)"};
+            let x_value = ${x===1?"x_vec[global_idx % 4]":"x_vec"};`:`let x_value = ${T.getByOffset("global_idx")};`};
+
+          // Set scale input
+          ${b?`let scale_value= ${I.getByOffset("0")}`:y?`
+            let scale_index = ${A.indicesGet("output_indices","uniforms.axis")};
+            let scale_value= ${I.getByOffset("scale_index")};`:`
+            var scale_indices: ${I.type.indices} = output_indices;
+            let index = ${I.indicesGet("scale_indices","uniforms.axis")} / uniforms.block_size;
+            ${I.indicesSet("scale_indices","uniforms.axis","index")};
+            let scale_value= ${I.getByIndices("scale_indices")};`};
+
+          // Set zero-point input
+          ${E?b?d?`
+                let zero_point_input = ${E.getByOffset("0")};
+                let zero_point_vec =  ${o?"unpack4xI8(zero_point_input)":"unpack4xU8(zero_point_input)"};
+                let zero_point_value= zero_point_vec[0]`:`let zero_point_value = ${E.getByOffset("0")}`:y?d?`
+                let zero_point_index = ${A.indicesGet("output_indices","uniforms.axis")};
+                let zero_point_input = ${E.getByOffset("zero_point_index / 4")};
+                let zero_point_vec =  ${o?"unpack4xI8(zero_point_input)":"unpack4xU8(zero_point_input)"};
+                let zero_point_value = zero_point_vec[zero_point_index % 4]`:`
+                let zero_point_index = ${A.indicesGet("output_indices","uniforms.axis")};
+                let zero_point_value = ${E.getByOffset("zero_point_index")};`:d?`
+                let zero_point_offset = ${I.indicesToOffset("scale_indices")};
+                let zero_point_input = ${E.getByOffset("zero_point_offset / 4")};
+                let zero_point_vec = ${o?"unpack4xI8(zero_point_input)":"unpack4xU8(zero_point_input)"};
+                let zero_point_value = zero_point_vec[zero_point_offset % 4];`:`let zero_point_value = ${E.getByIndices("scale_indices")};`:`let zero_point_value = ${d?o?"i32":"u32":T.type.value}(0);`};
+      // Compute and write output
+      ${A.setByOffset("global_idx",`${A.type.value}(x_value - zero_point_value) * scale_value`)};
+      }`};return{name:"DequantizeLinear",shaderCache:{hint:e.cacheKey,inputDependencies:E?["rank","rank","rank"]:["rank","rank"]},getShaderSource:N,getRunData:()=>({outputs:[{dims:i,dataType:a}],dispatchGroup:{x:Math.ceil(u/x/64),y:1,z:1},programUniforms:U})}},$c=(t,e)=>{Iy(t.inputs,e),t.compute(Cy(t.inputs,e))},xc=t=>J({axis:t.axis,blockSize:t.blockSize})});var Ay,Ey,Tc,Ic=V(()=>{"use strict";Le();ee();oe();Ay=(t,e,r)=>{let n=t===e,o=t<e&&r<0,i=t>e&&r>0;if(n||o||i)throw new Error("Range these inputs' contents are invalid.")},Ey=(t,e,r,n)=>{let o=Math.abs(Math.ceil((e-t)/r)),i=[o],a=o,u=[{type:12,data:a},{type:n,data:t},{type:n,data:r},...W(i)],d=c=>{let p=R("output",n,i.length),m=p.type.value,g=[{name:"outputSize",type:"u32"},{name:"start",type:m},{name:"delta",type:m}];return`
+        ${c.registerUniforms(g).declareVariables(p)}
+        ${c.mainStart()}
+        ${c.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+        output[global_idx] = uniforms.start + ${m}(global_idx) * uniforms.delta;
+      }`};return{name:"Range",shaderCache:{hint:`${n}`},getShaderSource:d,getRunData:()=>({outputs:[{dims:i,dataType:n}],dispatchGroup:{x:Math.ceil(a/64)},programUniforms:u})}},Tc=t=>{let e=0,r=0,n=0;t.inputs[0].dataType===6?(e=t.inputs[0].getInt32Array()[0],r=t.inputs[1].getInt32Array()[0],n=t.inputs[2].getInt32Array()[0]):t.inputs[0].dataType===1&&(e=t.inputs[0].getFloat32Array()[0],r=t.inputs[1].getFloat32Array()[0],n=t.inputs[2].getFloat32Array()[0]),_e.webgpu.validateInputContent&&Ay(e,r,n),t.compute(Ey(e,r,n,t.inputs[0].dataType),{inputs:[]})}});var ky,Py,Cc,Ac,Ec=V(()=>{"use strict";ee();te();Ce();oe();ky=(t,e,r,n)=>{if(t!=="none"&&n!=="i32"&&n!=="u32"&&n!=="f32")throw new Error(`Input ${n} is not supported with reduction ${t}.`);let o=`{
+                var oldValue = 0;
+                loop {
+                  let newValueF32 =`,i=`;
+                  let newValue = bitcast<i32>(newValueF32);
+                  let res = atomicCompareExchangeWeak(&${e}, oldValue, newValue);
+                  if res.exchanged {
+                    break;
+                  }
+                  oldValue = res.old_value;
+                }
+              }`;switch(t){case"none":return`${e}=${r};`;case"add":return n==="i32"||n==="u32"?`atomicAdd(&${e}, bitcast<${n}>(${r}));`:`
+              ${o}bitcast<${n}>(oldValue) + (${r})${i}`;case"max":return n==="i32"||n==="u32"?`atomicMax(&${e}, bitcast<${n}>(${r}));`:`
+                ${o}max(bitcast<f32>(oldValue), (${r}))${i}`;case"min":return n==="i32"||n==="u32"?`atomicMin(&${e}, bitcast<${n}>(${r}));`:`${o}min(bitcast<${n}>(oldValue), (${r}))${i}`;case"mul":return`${o}(bitcast<${n}>(oldValue) * (${r}))${i}`;default:throw new Error(`Reduction ${t} is not supported.`)}},Py=(t,e)=>{let r=t[0].dims,n=t[1].dims,o=r,i=1,a=Math.ceil(k.sizeToDimension(n,n.length-1)/i),u=n[n.length-1],d=k.sizeFromDimension(r,u),c=[{type:12,data:a},{type:12,data:u},{type:12,data:d},...W(t[1].dims,t[2].dims,o)],p=m=>{let g=D("indices",t[1].dataType,t[1].dims.length),b=D("updates",t[2].dataType,t[2].dims.length,i),y=e.reduction!=="none"&&e.reduction!==""?qs("output",t[0].dataType,o.length):R("output",t[0].dataType,o.length,i);return`
+      ${m.registerUniform("output_size","u32").registerUniform("last_index_dimension","u32").registerUniform("num_updates_elements","u32").declareVariables(g,b,y)}
+      ${m.mainStart()}
+        ${m.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+  var data_offset = 0u;
+  let indices_start = uniforms.last_index_dimension * global_idx;
+  let indices_end = indices_start + uniforms.last_index_dimension;
+  for (var i = indices_start; i < indices_end; i++) {
+    var index = i32(indices[i].x);
+    ${t[0].dims.length===1?`
+    let element_count_dim = uniforms.output_strides;
+    let dim_value = uniforms.output_shape;`:`
+    let element_count_dim = uniforms.output_strides[i - indices_start];
+    let dim_value = uniforms.output_shape[i - indices_start];`}
+    if (index >= 0) {
+      if (index >= i32(dim_value)) {
+        index = i32(dim_value - 1);
       }
-      `}offsetToIndices(){let e={};return this.context.programInfo.inputNames.forEach((o,t)=>{let r=this.context.inputTextureLayouts[t].shape,n=this.context.inputTextureLayouts[t].strides,s=r.length,a=`offsetToIndices_${o}`;e[a]=new k(i.offsetToIndicesSingle(a,s,n)),a=`offsetToIndices_${o}_T`,e[a]=new k(i.offsetToIndicesSingle(a,s,n.slice().reverse()))}),e}static offsetToIndicesSingle(e,o,t){let r=[];for(let n=0;n<o-1;++n)r.push(`
-      indices[${n}] = offset / ${t[n]};`),r.push(`
-        offset -= indices[${n}] * ${t[n]};`);return r.push(`
-      indices[${o-1}] = offset;`),`
-      void ${e}(int offset, out int indices[${o}]) {
-        ${r.join("")}
+    } else {
+      if (index < -i32(dim_value)) {
+        index = 0;
+      } else {
+        index += i32(dim_value);
       }
-      `}incrementIndices(){let e={};return this.context.programInfo.inputNames.forEach((o,t)=>{let r=this.context.inputTextureLayouts[t].shape,n=r.length,s=`incrementIndices_${o}`,a="";for(let l=0;l<n;++l)a+=`
-        shape[${l}] = ${r[l]};`;let u=`
-        void ${s}(int axis, out int indices[${n}]) {
-          int shape[${n}];
-          ${a};
-          for(int i = ${n} -1 ; i >= 0; --i) {
-            if(i > axis) continue;
-            indices[i] += 1;
-            if(indices[i] < shape[i]) {
-              break;
+    }
+    data_offset += u32((u32(index) * element_count_dim));
+  }
+
+  for (var i = 0u; i < uniforms.num_updates_elements; i++) {
+    let value = updates[uniforms.num_updates_elements * global_idx + i];
+    ${ky(e.reduction,"output[data_offset + i]","value",y.type.value)}
+  }
+
+      }`};return{name:"ScatterND",shaderCache:{hint:`${e.cacheKey}_${e.reduction}`,inputDependencies:["rank","rank"]},getRunData:()=>({outputs:[{dims:o,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(a/64)},programUniforms:c}),getShaderSource:p}},Cc=t=>J({reduction:t.reduction}),Ac=(t,e)=>{t.compute(Py(t.inputs,e),{inputs:[t.inputs[1],t.inputs[2]],outputs:[]})}});var Dy,Oy,zy,kc,By,My,Ry,Uy,Ny,Vy,Ly,Wy,Pc,Gy,Hy,Fy,qy,Ky,Dc,Oc,zc=V(()=>{"use strict";ee();te();Ce();oe();Dy=(t,e)=>{if(t.every(r=>r>0||(()=>{throw new Error("Resize requires scales input values to be positive")})),t.length>0){if(e.mode==="linear"){if(!(t.length===2||t.length===3||t.length===4&&t[0]===1&&t[1]===1||t.length===4&&t[0]===1&&t[3]===1||t.length===5&&t[0]===1&&t[1]===1))throw new Error(`For linear mode, Resize requires scales to be 2D, 3D, 4D with either two outermost or one innermost and
+            one outermost scale values equal to 1, or 5D with two outermost scale values equal to 1`)}else if(e.mode==="cubic"&&!(t.length===2||t.length===4&&t[0]===1&&t[1]===1||t.length===4&&t[0]===1&&t[3]===1))throw new Error("Resize requires scales input size to be 2 or 4 for cubic mode")}},Oy=(t,e,r)=>{e.every(o=>o>=0&&o<r||(()=>{throw new Error("Resize requires axes input values to be positive and less than rank")}));let n=new Array(r).fill(1);return e.forEach((o,i)=>n[o]=t[i]),n},zy=(t,e,r,n,o,i)=>{let[a,u,d]=r>10?[1,2,3]:[-1,t.length>1?1:-1,-1],c=t[0].dims.length;if(a>0&&t.length>a&&t[a].dims.length>0)t[a].getFloat32Array().forEach(p=>i.push(p));else if(e.coordinateTransformMode==="tf_crop_and_resize")throw new Error("Resize requires RoI input to be specified when coordinateTransformMode is tfCropAndResize");if(u>0&&t.length>u&&t[u].dims.length===1&&t[u].dims[0]>0){if(t[u].getFloat32Array().forEach(p=>n.push(p)),n.length!==0&&n.length!==c&&r>=18&&n.length!==e.axes.length)throw new Error("Resize requires scales input size to be same as input rank or axes size for opset 18 and up");Dy(n,e),e.axes.length>0&&Oy(n,e.axes,c).forEach((p,m)=>n[m]=p)}if(d>0&&t.length>d&&t[d].dims.length===1&&t[d].dims[0]>0&&(t[d].getBigInt64Array().forEach(p=>o.push(Number(p))),o.length!==0&&o.length!==c&&r>=18&&o.length!==e.axes.length))throw new Error("Resize requires sizes input size to be same as input rank or axes size for opset 18 and up");if(e.axes.length>0){if(n.length!==0&&n.length!==e.axes.length)throw new Error('Resize requires "scales" input size to be of axes rank when axes attributes is specified');if(o.length!==0&&o.length!==e.axes.length)throw new Error('Resize requires "sizes" input size to be of rank axes rank when axes attributes is specified')}if(typeof n<"u"&&typeof o<"u"&&n.length>0&&o.length>c)throw new Error("Resize requires only of scales or sizes to be specified")},kc=(t,e,r,n)=>`
+  // The whole part and the fractional part are calculated separately due to inaccuracy of floating
+  // point division. As an example, f32(21) / f32(7) may evaluate to 2.99... instead of 3, causing an
+  // offset-by-one error later in floor().
+  let big = (${t}) * (${e});
+  let whole = ${n}(big / (${r}));
+  let fract = ${n}(big % (${r})) / ${n}(${r});
+  return whole + fract;
+`,By=(t,e)=>`fn getOriginalCoordinateFromResizedCoordinate(xResized: u32, xScale: f32, lengthResized: u32,
+     lengthOriginal: u32, roiStart: f32, roiEnd: f32) -> ${e} { `+(()=>{switch(t){case"asymmetric":return`
+          if (xScale < 1.0 || floor(xScale) != xScale) {
+            return ${e}(xResized) / ${e}(xScale);
+          } else {
+            ${kc("xResized","lengthOriginal","lengthResized",e)}
+          }
+        `;case"pytorch_half_pixel":return`if (lengthResized > 1) {
+                    return (${e}(xResized) + 0.5) / ${e}(xScale) - 0.5;
+                  } else {
+                    return 0.0;
+                  }`;case"tf_half_pixel_for_nn":return`return (${e}(xResized) + 0.5) / ${e}(xScale);`;case"align_corners":return`if (lengthResized == 1) {
+                    return 0.0;
+                  } else {
+                    ${kc("xResized","lengthOriginal - 1","lengthResized - 1",e)}
+                  }`;case"tf_crop_and_resize":return`if (lengthResized > 1) {
+                    return ${e}(roiStart) * ${e}(lengthOriginal - 1) +
+                        (${e}(xResized) * ${e}(roiEnd - roiStart) * ${e}(lengthOriginal - 1)) /
+                        ${e}(lengthResized - 1);
+                  } else {
+                    return 0.5 * ${e}(roiStart + roiEnd) * ${e}(lengthOriginal - 1);
+                  }`;case"half_pixel_symmetric":return`const outputWidth = ${e}xScale * ${e}(lengthResized);
+                  const adjustment = ${e}(lengthResized) / outputWidth;
+                  const center = ${e}(lengthOriginal) / 2;
+                  const offset = center * (1 - adjustment);
+                  return offset + ((${e}(xResized) + 0.5) / ${e}(xScale)) - 0.5;`;case"half_pixel":return`return ((${e}(xResized) + 0.5) / ${e}(xScale)) - 0.5;`;default:throw new Error(`Coordinate transform mode ${t} is not supported`)}})()+"}",My=(t,e,r)=>`fn getNearestPixelFromOriginal(xOriginal: ${r}, isDownSample: bool) -> ${r} {`+(()=>{switch(t){case"round_prefer_ceil":return"if (fract(xOriginal) == 0.5) {             return ceil(xOriginal);           } else {             return round(xOriginal);           }";case"floor":return"return floor(xOriginal);";case"ceil":return"return ceil(xOriginal);";case"round_prefer_floor":return"if (fract(xOriginal) == 0.5) {                     return floor(xOriginal);                   } else {                     return round(xOriginal);                   }";default:if(e<11)return"if (isDownSample)                     {                       return ceil(xOriginal);                     } else {                       return xOriginal;                     }";throw new Error(`Nearest mode ${t} is not supported`)}})()+"}",Ry=(t,e,r)=>{let n=new Array(r).fill(0).concat(new Array(r).fill(1)),o=t.length===0?n:t.slice();return e.length>0?(e.forEach((i,a)=>{n[i]=o[a],n[a+r]=o[e.length+a]}),n):o},Uy=(t,e,r,n)=>{let o=[];if(r.length>0)if(n.length>0){if(t.forEach(i=>o.push(i)),Math.max(...n)>t.length)throw new Error("axes is out of bound");n.forEach((i,a)=>o[i]=r[a])}else r.forEach(i=>o.push(i));else{if(e.length===0)throw new Error("Resize requires either scales or sizes.");o=t.map((i,a)=>Math.round(i*e[a]))}return o},Ny=(t,e,r)=>{let n=(()=>{switch(r.keepAspectRatioPolicy){case"not_larger":return r.axes.length>0?Math.min(...r.axes.map(i=>e[i]),Number.MAX_VALUE):Math.min(...e,Number.MAX_VALUE);case"not_smaller":return r.axes.length>0?Math.max(...r.axes.map(i=>e[i]),Number.MIN_VALUE):Math.max(...e,Number.MIN_VALUE);default:throw new Error(`Keep aspect ratio policy ${r.keepAspectRatioPolicy} is not supported`)}})();e.fill(1,0,e.length);let o=t.slice();return r.axes.length>0?(r.axes.forEach(i=>e[i]=n),r.axes.forEach(i=>o[i]=Math.round(t[i]*e[i]))):(e.fill(n,0,e.length),o.forEach((i,a)=>o[a]=Math.round(i*e[a]))),o},Vy=(t,e,r,n,o)=>`
+    fn calculateOriginalIndicesFromOutputIndices(output_indices: ${t.type.indices}) -> array<${t.type.value}, ${r.length}> {
+      var original_indices: array<${t.type.value}, ${r.length}>;
+      for (var i:u32 = 0; i < ${r.length}; i++) {
+        var output_index = ${t.indicesGet("output_indices","i")};
+        var scale = ${j("uniforms.scales","i",n)};
+        var roi_low = ${j("uniforms.roi","i",o)};
+        var roi_hi = ${j("uniforms.roi",`i + ${e.length}`,o)};
+        if (scale == 1.0) {
+          original_indices[i] = ${t.type.value}(output_index);
+        } else {
+          var input_shape_i = ${j("uniforms.input_shape","i",e.length)};
+          var output_shape_i = ${j("uniforms.output_shape","i",r.length)};
+          original_indices[i] = getOriginalCoordinateFromResizedCoordinate(output_index, scale, output_shape_i,
+                                                                           input_shape_i, roi_low, roi_hi);
+        }
+      }
+      return original_indices;
+    }`,Ly=(t,e,r,n,o,i,a)=>`
+    fn calculateInputIndicesFromOutputIndices(output_indices: ${e.type.indices}) -> ${t.type.indices} {
+      var input_indices: ${t.type.indices};
+      for (var i:u32 = 0; i < ${n.length}; i++) {
+        var output_index = ${e.indicesGet("output_indices","i")};
+        var input_index: u32;
+        var scale = ${j("uniforms.scales","i",o)};
+        if (scale == 1.0) {
+          input_index = output_index;
+        } else {
+          var roi_low = ${j("uniforms.roi","i",i)};
+          var roi_hi = ${j("uniforms.roi",`i + ${r.length}`,i)};
+          var input_shape_i = ${j("uniforms.input_shape","i",r.length)};
+          var output_shape_i = ${j("uniforms.output_shape","i",n.length)};
+          var original_idx = getOriginalCoordinateFromResizedCoordinate(output_index, scale, output_shape_i,
+                                                                        input_shape_i, roi_low, roi_hi);
+          if (!${a} || (original_idx >= 0 && original_idx < ${e.type.value}(input_shape_i))) {
+            if (original_idx < 0) {
+              input_index = 0;
+            } else if (original_idx > ${e.type.value}(input_shape_i - 1)) {
+              input_index = input_shape_i - 1;
+            } else {
+              input_index = u32(getNearestPixelFromOriginal(original_idx, scale < 1));
             }
-            indices[i] = 0;
+          } else {
+            input_index = u32(original_idx);
           }
         }
-        `;e[s]=new k(u)}),e}}});var zn,pp=O(()=>{"use strict";ge();zn=class extends jt{constructor(e){super(e)}getCustomTypes(){return{}}getFunctions(){return{...this.binaryVecFunctions(),...this.copyVec(),...this.setVecItem(),...this.getVecItem()}}binaryVecFunctions(){let o=this.context.outputTextureLayout.shape.length,t={add:"+=",sub:"-=",mul:"*=",div:"/="},r={};for(let n in t){let s=`${n}Vec`,a="";for(let l=0;l<o;++l)a+=`
-          dest[${l}] ${t[n]} src[${l}];
-          `;let u=`
-        void ${s}(int src[${o}], out int dest[${o}]) {
-          ${a}
+        ${t.indicesSet("input_indices","i","input_index")}
+      }
+      return input_indices;
+    }`,Wy=(t,e)=>`
+    fn checkInputIndices(input_indices: ${t.type.indices}) -> bool {
+      for (var i:u32 = 0; i < ${e.length}; i++) {
+        var input_index = ${t.indicesGet("input_indices","i")};
+        if (input_index < 0 || input_index >= ${j("uniforms.input_shape","i",e.length)}) {
+          return false;
         }
-        `;r[s]=new k(u)}return r}copyVec(){let o=this.context.outputTextureLayout.shape.length,t="";for(let n=0;n<o;++n)t+=`
-        dest[${n}] = src[${n}];
-        `;let r=`
-      void copyVec(int src[${o}], out int dest[${o}]) {
-        ${t}
       }
-      `;return{copyVec:new k(r)}}setVecItem(){let o=this.context.outputTextureLayout.shape.length,t=`
-        if(index < 0)
-            index =${o} + index;
-        if (index == 0)
-            m[0] = value;
-        `;for(let n=1;n<o-1;++n)t+=`
-        else if (index == ${n})
-            m[${n}] = value;
-            `;t+=`
-        else
-            m[${o-1}] = value;
-        `;let r=`
-      void setVecItem(out int m[${o}], int index, int value) {
-        ${t}
-      }
-        `;return{setVecItem:new k(r)}}getVecItem(){let o=this.context.outputTextureLayout.shape.length,t=`
-        if(index < 0)
-            index = ${o} + index;
-        if (index == 0)
-            return m[0];
-      `;for(let n=1;n<o-1;++n)t+=`
-        else if (index == ${n})
-            return m[${n}];
-      `;t+=`
-        else
-            return m[${o-1}];
-        `;let r=`
-      int getVecItem(int m[${o}], int index) {
-        ${t}
-      }
-    `;return{getVecItem:new k(r)}}}});var ki,dp=O(()=>{"use strict";up();lp();fp();cp();pp();ki={encoding:Mn,fragcolor:Un,vec:zn,shapeUtils:Vn,coordinates:Gn}});var Wn,hp=O(()=>{"use strict";ge();ap();dp();ut();Wn=class{constructor(e,o,t,r){this.libs={};this.glslLibRoutineDependencyGraph={};this.context=new Pn(e,o,t,r),Object.keys(ki).forEach(s=>{let a=new ki[s](this.context);this.libs[s]=a});let n=this.glslLibRoutineDependencyGraph;for(let s in this.libs){let u=this.libs[s].getFunctions();for(let l in u){let f=s+"."+l,p;n[f]?(p=n[f],p.routineBody=u[l].routineBody):(p=new Nr(f,u[l].routineBody),n[f]=p);let d=u[l].dependencies;if(d)for(let y=0;y<d.length;++y)if(n[d[y]])p.addDependency(n[d[y]]);else{let w=new Nr(d[y]);n[d[y]]=w,p.addDependency(w)}}}}preprocess(){let e=this.context.programInfo,o=e.shaderSource;return this.context.programInfo.hasMain||(o=`${o}
-      ${ju(this.context.glContext.version,this.context.outputTextureLayout.shape.length)}`),o=ip(o),`${qu(this.context.glContext.version)}
-    ${this.getUniforms(e.inputNames,e.variables)}
-    ${this.getImports(o)}
-    ${o}`}getImports(e){let o=this.selectGlslLibRoutinesToBeIncluded(e);if(o.length===0)return"";let t="";for(let r=0;r<o.length;++r)if(o[r].routineBody)t+=o[r].routineBody+`
-`;else throw new Error(`Missing body for the Glsl Library routine: ${o[r].name}`);return t}selectGlslLibRoutinesToBeIncluded(e){let o=[];return Object.keys(this.glslLibRoutineDependencyGraph).forEach(t=>{let r=t.split(".")[1];e.indexOf(r)!==-1&&o.push(this.glslLibRoutineDependencyGraph[t])}),En.returnOrderedNodes(o)}getUniforms(e,o){let t=[];if(e)for(let r of e)t.push(`uniform sampler2D ${r};`);if(o)for(let r of o)t.push(`uniform ${r.type} ${r.name}${r.arrayLength?`[${r.arrayLength}]`:""};`);return t.join(`
-`)}}});var Hn,mp=O(()=>{"use strict";Zt();zt();hp();ut();Hn=class{constructor(e,o,t){this.profiler=e;this.glContext=o;this.textureLayoutStrategy=t;this.repo=new Map,this.attributesBound=!1}getArtifact(e){return this.repo.get(e)}setArtifact(e,o){this.repo.set(e,o)}run(e,o,t){this.profiler.event("op",`ProgramManager.run ${e.programInfo.name??"unknown kernel"}`,()=>{let r=this.glContext.gl,n=e.program;r.useProgram(n);try{this.bindOutput(t),this.attributesBound||this.bindAttributes(e.attribLocations),this.bindUniforms(e.uniformLocations,e.programInfo.variables??[],o)}catch(s){throw et.error("ProgramManager",e.programInfo.shaderSource),s}this.profiler.event("backend","GlContext.draw()",()=>{this.glContext.draw()})},this.glContext)}dispose(){this.vertexShader&&this.glContext.deleteShader(this.vertexShader),this.repo.forEach(e=>this.glContext.deleteProgram(e.program))}build(e,o,t){return this.profiler.event("backend","ProgramManager.build",()=>{let r=new Wn(this.glContext,e,o,t),n=r.preprocess(),s=this.compile(n);return{programInfo:e,program:s,uniformLocations:this.getUniformLocations(s,r.context.programInfo.inputNames,r.context.programInfo.variables),attribLocations:this.getAttribLocations(s)}})}compile(e){if(!this.vertexShader){et.verbose("ProrgramManager","Compiling and caching Vertex shader for the first time");let r=Hu(this.glContext.version);this.vertexShader=this.glContext.compileShader(r,this.glContext.gl.VERTEX_SHADER)}z.debug&&et.verbose("ProrgramManager",`FragShader:
-${e}
-`);let o=this.glContext.compileShader(e,this.glContext.gl.FRAGMENT_SHADER),t=this.glContext.createProgram(this.vertexShader,o);return this.glContext.deleteShader(o),t}bindOutput(e){let o=e.width,t=e.height;et.verbose("ProrgramManager",`Binding output texture to Framebuffer: w/h=${o}/${t}, shape=${e.shape}, type=${e.tensor.type}`),this.glContext.attachFramebuffer(e.texture,o,t)}bindAttributes(e){let o=e.position,t=e.textureCoord;this.glContext.setVertexAttributes(o,t),this.attributesBound=!0}bindUniforms(e,o,t){let r=this.glContext.gl,n=0;for(let{name:s,type:a,location:u,arrayLength:l}of e){let f=o.find(p=>p.name===s)?.data;if(a!=="sampler2D"&&!f)throw new Error(`variable '${s}' does not have data defined in program info`);switch(a){case"sampler2D":this.bindTexture(t[n],u,n),n++;break;case"float":l?r.uniform1fv(u,f):r.uniform1f(u,f);break;case"int":l?r.uniform1iv(u,f):r.uniform1i(u,f);break;default:throw new Error(`Uniform not implemented: ${a}`)}}}bindTexture(e,o,t){this.glContext.bindTextureToUniform(e.texture,t,o)}getAttribLocations(e){return{position:this.getAttribLocation(e,"position"),textureCoord:this.getAttribLocation(e,"textureCoord")}}getUniformLocations(e,o,t){let r=[];if(o)for(let n of o)r.push({name:n,type:"sampler2D",location:this.getUniformLocation(e,n)});if(t)for(let n of t)r.push({...n,location:this.getUniformLocation(e,n.name)});return r}getUniformLocation(e,o){let r=this.glContext.gl.getUniformLocation(e,o);if(r===null)throw new Error(`Uniform ${o} not found.`);return r}getAttribLocation(e,o){return this.glContext.gl.getAttribLocation(e,o)}}});var qn,bp=O(()=>{"use strict";zt();Fr();qn=class{constructor(e,o,t,r){this.glContext=e;this.layoutStrategy=o;this.profiler=t;this.config=r;this.pendingRead=new Map;r.reuseTextures&&(this.inUseTextures=new Map,this.idleTextures=new Map,this.textureLookup=new Map)}createTextureFromLayout(e,o,t,r){let n=this.toEncoderType(e),s=this.glContext.getEncoder(n,o.channels||1,r);if(o.isPacked&&r===1)throw new Error("not implemented");let a=o.width,u=o.height,l,f;if(this.config.reuseTextures){l=`${a}x${u}_${s.format}_${s.internalFormat}_${s.textureType}`,f=this.inUseTextures.get(l),f||(f=[],this.inUseTextures.set(l,f));let d=this.idleTextures.get(l);if(d&&d.length>0){let y=d.pop();return f.push(y),r===1&&this.glContext.updateTexture(y,a,u,s,this.toTextureData(e,t)),y}}et.verbose("TextureManager",`Creating new texture of size ${o.width}x${o.height}`);let p=this.glContext.allocateTexture(a,u,s,this.toTextureData(e,t));return this.config.reuseTextures&&(f.push(p),this.textureLookup.set(p,l)),p}readTexture(e,o,t){return t||(t=1),this.profiler.event("backend","TextureManager.readTexture",()=>{let r=e.shape.reduce((s,a)=>s*a)*t,n=this.glContext.readTexture(e.texture,e.width,e.height,r,this.toEncoderType(o),t);return this.toTensorData(o,n)})}async readTextureAsync(e,o,t){let r=e.tensor.dataId;if(t||(t=1),this.pendingRead.has(r)){let n=this.pendingRead.get(r);return new Promise(s=>n?.push(s))}return this.profiler.event("backend","TextureManager.readTextureAsync",async()=>{this.pendingRead.set(r,[]);let n=e.shape.reduce((l,f)=>l*f)*t;await this.glContext.createAndWaitForFence();let s=this.glContext.readTexture(e.texture,e.width,e.height,n,this.toEncoderType(o),t),a=this.toTensorData(o,s),u=this.pendingRead.get(r);return this.pendingRead.delete(r),u?.forEach(l=>l(a)),a})}readUint8TextureAsFloat(e){return this.profiler.event("backend","TextureManager.readUint8TextureAsFloat",()=>{let o=e.shape.reduce((r,n)=>r*n),t=this.glContext.readTexture(e.texture,e.width,e.height,o*4,"byte",4);return new Float32Array(t.buffer,t.byteOffset,o)})}releaseTexture(e,o){let t;if(this.config.reuseTextures&&(t=this.textureLookup.get(e.texture),t)){o&&this.textureLookup.delete(t);let r=this.inUseTextures.get(t);if(r){let n=r.indexOf(e.texture);if(n!==-1){r.splice(n,1);let s=this.idleTextures.get(t);s||(s=[],this.idleTextures.set(t,s)),s.push(e.texture)}}}(!t||o)&&(et.verbose("TextureManager",`Deleting texture of size ${e.width}x${e.height}`),this.glContext.deleteTexture(e.texture))}toTensorData(e,o){switch(e){case"int16":return o instanceof Int16Array?o:Int16Array.from(o);case"int32":return o instanceof Int32Array?o:Int32Array.from(o);case"int8":return o instanceof Int8Array?o:Int8Array.from(o);case"uint16":return o instanceof Uint16Array?o:Uint16Array.from(o);case"uint32":return o instanceof Uint32Array?o:Uint32Array.from(o);case"uint8":case"bool":return o instanceof Uint8Array?o:Uint8Array.from(o);case"float32":return o instanceof Float32Array?o:Float32Array.from(o);case"float64":return o instanceof Float64Array?o:Float64Array.from(o);default:throw new Error(`TensorData type ${e} is not supported`)}}toTextureData(e,o){if(o)return o instanceof Float32Array?o:new Float32Array(o)}toEncoderType(e){return"float"}clearActiveTextures(){this.glContext.clearActiveTextures()}}});var jn,gp=O(()=>{"use strict";zt();Ls();ul();np();mp();$i();bp();jn=class{constructor(e,o){this.backend=e;this.context=o;this.layoutStrategy=new Rn(e.glContext.maxTextureSize),this.programManager=new Hn(this.context.profiler,e.glContext,this.layoutStrategy),this.textureManager=new qn(e.glContext,this.layoutStrategy,this.context.profiler,{reuseTextures:e.textureCacheMode==="full"}),this.packedTextureDataCache=new Map,this.unpackedTextureDataCache=new Map,this.pack=e.pack,this.pack2unpackMap=new Map,this.unpack2packMap=new Map}createInferenceHandler(){return new An(this)}onGraphInitialized(e){let o=e.getValues().filter(t=>t.from===-1&&t.tensor).map(t=>t.tensor.dataId);this.initializers=new Set(o)}isInitializer(e){return this.initializers?this.initializers.has(e):!1}addInitializer(e){this.initializers.add(e)}getTextureData(e,o){return o?this.packedTextureDataCache.get(e):this.unpackedTextureDataCache.get(e)}setTextureData(e,o,t=!1){et.verbose("WebGLSessionHandler","Storing Texture data in cache"),t?this.packedTextureDataCache.set(e,o):this.unpackedTextureDataCache.set(e,o)}dispose(){this.programManager.dispose(),this.textureManager.clearActiveTextures(),this.packedTextureDataCache.forEach(e=>this.textureManager.releaseTexture(e,!0)),this.packedTextureDataCache=new Map,this.unpackedTextureDataCache.forEach(e=>this.textureManager.releaseTexture(e,!0)),this.unpackedTextureDataCache=new Map}resolve(e,o,t){let r=Ds(e,o,rp);return{impl:r.opImpl,context:r.opInit?r.opInit(e,t):e}}}});function cg(i){let e=0;for(;e<i.length&&i[e]();++e);return e-1}var Mr,yp=O(()=>{"use strict";Zt();Fr();Fr();ue();Mr=class{constructor(e,o){this.frameBufferBound=!1;this.itemsToPoll=[];this.gl=e,this.version=o,this.getExtensions(),this.vertexbuffer=this.createVertexbuffer(),this.framebuffer=this.createFramebuffer(),this.queryVitalParameters()}allocateTexture(e,o,t,r){let n=this.gl,s=n.createTexture();n.bindTexture(n.TEXTURE_2D,s),n.texParameteri(n.TEXTURE_2D,n.TEXTURE_MIN_FILTER,n.NEAREST),n.texParameteri(n.TEXTURE_2D,n.TEXTURE_MAG_FILTER,n.NEAREST),n.texParameteri(n.TEXTURE_2D,n.TEXTURE_WRAP_S,n.CLAMP_TO_EDGE),n.texParameteri(n.TEXTURE_2D,n.TEXTURE_WRAP_T,n.CLAMP_TO_EDGE);let a=r?t.encode(r,e*o):null;return n.texImage2D(n.TEXTURE_2D,0,t.internalFormat,e,o,0,t.format,t.textureType,a),this.checkError(),s}updateTexture(e,o,t,r,n){let s=this.gl;s.bindTexture(s.TEXTURE_2D,e);let a=r.encode(n,o*t);s.texSubImage2D(s.TEXTURE_2D,0,0,0,o,t,r.format,r.textureType,a),this.checkError()}attachFramebuffer(e,o,t){let r=this.gl;r.bindTexture(r.TEXTURE_2D,e),r.bindFramebuffer(r.FRAMEBUFFER,this.framebuffer),r.framebufferTexture2D(r.FRAMEBUFFER,r.COLOR_ATTACHMENT0,r.TEXTURE_2D,e,0),this.checkError(),r.viewport(0,0,o,t),r.scissor(0,0,o,t)}readTexture(e,o,t,r,n,s){let a=this.gl;s||(s=1),this.frameBufferBound||this.attachFramebuffer(e,o,t);let u=this.getEncoder(n,s),l=u.allocate(o*t);return a.bindTexture(a.TEXTURE_2D,e),a.framebufferTexture2D(a.FRAMEBUFFER,a.COLOR_ATTACHMENT0,a.TEXTURE_2D,e,0),a.readPixels(0,0,o,t,a.RGBA,u.textureType,l),this.checkError(),u.decode(l,r)}isFramebufferReady(){return!0}getActiveTexture(){let e=this.gl;return`TEXTURE${e.getParameter(this.gl.ACTIVE_TEXTURE)-e.TEXTURE0}`}getTextureBinding(){return this.gl.getParameter(this.gl.TEXTURE_BINDING_2D)}getFramebufferBinding(){return this.gl.getParameter(this.gl.FRAMEBUFFER_BINDING)}setVertexAttributes(e,o){let t=this.gl;t.vertexAttribPointer(e,3,t.FLOAT,!1,20,0),t.enableVertexAttribArray(e),o!==-1&&(t.vertexAttribPointer(o,2,t.FLOAT,!1,20,12),t.enableVertexAttribArray(o)),this.checkError()}createProgram(e,o){let t=this.gl,r=t.createProgram();return t.attachShader(r,e),t.attachShader(r,o),t.linkProgram(r),r}compileShader(e,o){let t=this.gl,r=t.createShader(o);if(!r)throw new Error(`createShader() returned null with type ${o}`);if(t.shaderSource(r,e),t.compileShader(r),t.getShaderParameter(r,t.COMPILE_STATUS)===!1)throw new Error(`Failed to compile shader: ${t.getShaderInfoLog(r)}
-Shader source:
-${e}`);return r}deleteShader(e){this.gl.deleteShader(e)}bindTextureToUniform(e,o,t){let r=this.gl;r.activeTexture(r.TEXTURE0+o),this.checkError(),r.bindTexture(r.TEXTURE_2D,e),this.checkError(),r.uniform1i(t,o),this.checkError()}draw(){this.gl.drawArrays(this.gl.TRIANGLE_STRIP,0,4),this.checkError()}checkError(){if(z.debug){let e=this.gl,o=e.getError(),t="";switch(o){case e.NO_ERROR:return;case e.INVALID_ENUM:t="INVALID_ENUM";break;case e.INVALID_VALUE:t="INVALID_VALUE";break;case e.INVALID_OPERATION:t="INVALID_OPERATION";break;case e.INVALID_FRAMEBUFFER_OPERATION:t="INVALID_FRAMEBUFFER_OPERATION";break;case e.OUT_OF_MEMORY:t="OUT_OF_MEMORY";break;case e.CONTEXT_LOST_WEBGL:t="CONTEXT_LOST_WEBGL";break;default:t=`Unknown WebGL Error: ${o.toString(16)}`}throw new Error(t)}}deleteTexture(e){this.gl.deleteTexture(e)}deleteProgram(e){this.gl.deleteProgram(e)}getEncoder(e,o,t=0){if(this.version===2)return new On(this.gl,o);switch(e){case"float":return t===1||this.isRenderFloat32Supported?new Br(this.gl,o):new Br(this.gl,o,this.textureHalfFloatExtension.HALF_FLOAT_OES);case"int":throw new Error("not implemented");case"byte":return new Sn(this.gl,o);default:throw new Error(`Invalid dataType: ${e}`)}}clearActiveTextures(){let e=this.gl;for(let o=0;o<this.maxTextureImageUnits;++o)e.activeTexture(e.TEXTURE0+o),e.bindTexture(e.TEXTURE_2D,null)}dispose(){if(this.disposed)return;let e=this.gl;e.bindFramebuffer(e.FRAMEBUFFER,null),e.deleteFramebuffer(this.framebuffer),e.bindBuffer(e.ARRAY_BUFFER,null),e.deleteBuffer(this.vertexbuffer),e.bindBuffer(e.ELEMENT_ARRAY_BUFFER,null),e.finish(),this.disposed=!0}createDefaultGeometry(){return new Float32Array([-1,1,0,0,1,-1,-1,0,0,0,1,1,0,1,1,1,-1,0,1,0])}createVertexbuffer(){let e=this.gl,o=e.createBuffer();if(!o)throw new Error("createBuffer() returned null");let t=this.createDefaultGeometry();return e.bindBuffer(e.ARRAY_BUFFER,o),e.bufferData(e.ARRAY_BUFFER,t,e.STATIC_DRAW),this.checkError(),o}createFramebuffer(){let e=this.gl.createFramebuffer();if(!e)throw new Error("createFramebuffer returned null");return e}queryVitalParameters(){let e=this.gl;if(this.isFloatTextureAttachableToFrameBuffer=this.checkFloatTextureAttachableToFrameBuffer(),this.isRenderFloat32Supported=this.checkRenderFloat32(),this.isFloat32DownloadSupported=this.checkFloat32Download(),this.version===1&&!this.textureHalfFloatExtension&&!this.isRenderFloat32Supported)throw new Error("both float32 and float16 TextureType are not supported");this.isBlendSupported=!this.isRenderFloat32Supported||this.checkFloat32Blend(),this.maxTextureSize=e.getParameter(e.MAX_TEXTURE_SIZE),this.maxTextureImageUnits=e.getParameter(e.MAX_TEXTURE_IMAGE_UNITS),this.version}getExtensions(){this.version===2?(this.colorBufferFloatExtension=this.gl.getExtension("EXT_color_buffer_float"),this.disjointTimerQueryWebgl2Extension=this.gl.getExtension("EXT_disjoint_timer_query_webgl2")):(this.textureFloatExtension=this.gl.getExtension("OES_texture_float"),this.textureHalfFloatExtension=this.gl.getExtension("OES_texture_half_float"))}checkFloatTextureAttachableToFrameBuffer(){let e=this.gl,o=e.createTexture();e.bindTexture(e.TEXTURE_2D,o);let t=this.version===2?e.RGBA32F:e.RGBA;e.texImage2D(e.TEXTURE_2D,0,t,1,1,0,e.RGBA,e.FLOAT,null);let r=e.createFramebuffer();e.bindFramebuffer(e.FRAMEBUFFER,r),e.framebufferTexture2D(e.FRAMEBUFFER,e.COLOR_ATTACHMENT0,e.TEXTURE_2D,o,0);let n=e.checkFramebufferStatus(e.FRAMEBUFFER)===e.FRAMEBUFFER_COMPLETE;return e.bindTexture(e.TEXTURE_2D,null),e.bindFramebuffer(e.FRAMEBUFFER,null),e.deleteTexture(o),e.deleteFramebuffer(r),n}checkRenderFloat32(){if(this.version===2){if(!this.colorBufferFloatExtension)return!1}else if(!this.textureFloatExtension)return!1;return this.isFloatTextureAttachableToFrameBuffer}checkFloat32Download(){if(this.version===2){if(!this.colorBufferFloatExtension)return!1}else if(!this.textureFloatExtension||!this.gl.getExtension("WEBGL_color_buffer_float"))return!1;return this.isFloatTextureAttachableToFrameBuffer}checkFloat32Blend(){let e=this.gl,o,t,r,n,s;try{o=e.createTexture(),t=e.createFramebuffer(),e.bindTexture(e.TEXTURE_2D,o);let a=this.version===2?e.RGBA32F:e.RGBA;return e.texImage2D(e.TEXTURE_2D,0,a,1,1,0,e.RGBA,e.FLOAT,null),e.bindFramebuffer(e.FRAMEBUFFER,t),e.framebufferTexture2D(e.FRAMEBUFFER,e.COLOR_ATTACHMENT0,e.TEXTURE_2D,o,0),e.enable(e.BLEND),r=e.createShader(e.VERTEX_SHADER),!r||(e.shaderSource(r,"void main(){}"),e.compileShader(r),n=e.createShader(e.FRAGMENT_SHADER),!n)||(e.shaderSource(n,"precision highp float;void main(){gl_FragColor=vec4(0.5);}"),e.compileShader(n),s=e.createProgram(),!s)?!1:(e.attachShader(s,r),e.attachShader(s,n),e.linkProgram(s),e.useProgram(s),e.drawArrays(e.POINTS,0,1),e.getError()===e.NO_ERROR)}finally{e.disable(e.BLEND),s&&e.deleteProgram(s),r&&e.deleteShader(r),n&&e.deleteShader(n),t&&(e.bindFramebuffer(e.FRAMEBUFFER,null),e.deleteFramebuffer(t)),o&&(e.bindTexture(e.TEXTURE_2D,null),e.deleteTexture(o))}}beginTimer(){if(this.version===2&&this.disjointTimerQueryWebgl2Extension){let e=this.gl,o=this.disjointTimerQueryWebgl2Extension,t=e.createQuery();return e.beginQuery(o.TIME_ELAPSED_EXT,t),t}else throw new Error("WebGL1 profiling currently not supported.")}endTimer(){if(this.version===2&&this.disjointTimerQueryWebgl2Extension){let e=this.gl,o=this.disjointTimerQueryWebgl2Extension;e.endQuery(o.TIME_ELAPSED_EXT);return}else throw new Error("WebGL1 profiling currently not supported")}isTimerResultAvailable(e){let o=!1,t=!1;if(this.version===2&&this.disjointTimerQueryWebgl2Extension){let r=this.gl,n=this.disjointTimerQueryWebgl2Extension;o=r.getQueryParameter(e,r.QUERY_RESULT_AVAILABLE),t=r.getParameter(n.GPU_DISJOINT_EXT)}else throw new Error("WebGL1 profiling currently not supported");return o&&!t}getTimerResult(e){let o=0;if(this.version===2){let t=this.gl;o=t.getQueryParameter(e,t.QUERY_RESULT),t.deleteQuery(e)}else throw new Error("WebGL1 profiling currently not supported");return o/1e6}async waitForQueryAndGetTime(e){return await oi(()=>this.isTimerResultAvailable(e)),this.getTimerResult(e)}async createAndWaitForFence(){let e=this.createFence(this.gl);return this.pollFence(e)}createFence(e){let o,t=e,r=t.fenceSync(t.SYNC_GPU_COMMANDS_COMPLETE,0);return e.flush(),r===null?o=()=>!0:o=()=>{let n=t.clientWaitSync(r,0,0);return n===t.ALREADY_SIGNALED||n===t.CONDITION_SATISFIED},{query:r,isFencePassed:o}}async pollFence(e){return new Promise(o=>{this.addItemToPoll(()=>e.isFencePassed(),()=>o())})}pollItems(){let e=cg(this.itemsToPoll.map(o=>o.isDoneFn));for(let o=0;o<=e;++o){let{resolveFn:t}=this.itemsToPoll[o];t()}this.itemsToPoll=this.itemsToPoll.slice(e+1)}async addItemToPoll(e,o){this.itemsToPoll.push({isDoneFn:e,resolveFn:o}),!(this.itemsToPoll.length>1)&&await oi(()=>(this.pollItems(),this.itemsToPoll.length===0))}}});function Bi(i){let e;if((!i||i==="webgl2")&&"webgl2"in pr?e=pr.webgl2:(!i||i==="webgl")&&"webgl"in pr&&(e=pr.webgl),!e)try{let t=dg();e=xp(t,i)}catch{let r=pg();e=xp(r,i)}i=i||e.version===1?"webgl":"webgl2";let o=e.gl;return pr[i]=e,o.isContextLost()?(delete pr[i],Bi(i)):(o.disable(o.DEPTH_TEST),o.disable(o.STENCIL_TEST),o.disable(o.BLEND),o.disable(o.DITHER),o.disable(o.POLYGON_OFFSET_FILL),o.disable(o.SAMPLE_COVERAGE),o.enable(o.SCISSOR_TEST),o.enable(o.CULL_FACE),o.cullFace(o.BACK),e)}function xp(i,e){let o={alpha:!1,depth:!1,antialias:!1,stencil:!1,preserveDrawingBuffer:!1,premultipliedAlpha:!1,failIfMajorPerformanceCaveat:!1},t,r=o;if((!e||e==="webgl2")&&(t=i.getContext("webgl2",r),t))try{return new Mr(t,2)}catch(n){et.warning("GlContextFactory",`failed to create WebGLContext using contextId 'webgl2'. Error: ${n}`)}if((!e||e==="webgl")&&(t=i.getContext("webgl",r)||i.getContext("experimental-webgl",r),t))try{return new Mr(t,1)}catch(n){et.warning("GlContextFactory",`failed to create WebGLContext using contextId 'webgl' or 'experimental-webgl'. Error: ${n}`)}throw new Error("WebGL is not supported")}function pg(){if(typeof document>"u")throw new TypeError("failed to create canvas: document is not supported");let i=document.createElement("canvas");return i.width=1,i.height=1,i}function dg(){if(typeof OffscreenCanvas>"u")throw new TypeError("failed to create offscreen canvas: OffscreenCanvas is not supported");return new OffscreenCanvas(1,1)}var pr,Tp=O(()=>{"use strict";zt();yp();pr={}});var Xn,wp=O(()=>{"use strict";Zt();zt();gp();Tp();Xn=class{get contextId(){return z.webgl.contextId}set contextId(e){z.webgl.contextId=e}get matmulMaxBatchSize(){return z.webgl.matmulMaxBatchSize}set matmulMaxBatchSize(e){z.webgl.matmulMaxBatchSize=e}get textureCacheMode(){return z.webgl.textureCacheMode}set textureCacheMode(e){z.webgl.textureCacheMode=e}get pack(){return z.webgl.pack}set pack(e){z.webgl.pack=e}get async(){return z.webgl.async}set async(e){z.webgl.async=e}initialize(){try{return this.glContext=Bi(this.contextId),typeof this.matmulMaxBatchSize!="number"&&(this.matmulMaxBatchSize=16),typeof this.textureCacheMode!="string"&&(this.textureCacheMode="full"),typeof this.pack!="boolean"&&(this.pack=!1),typeof this.async!="boolean"&&(this.async=!1),et.setWithEnv(z),z.webgl.context||Object.defineProperty(z.webgl,"context",{value:this.glContext.gl}),et.verbose("WebGLBackend",`Created WebGLContext: ${typeof this.glContext} with matmulMaxBatchSize: ${this.matmulMaxBatchSize}; textureCacheMode: ${this.textureCacheMode}; pack: ${this.pack}; async: ${this.async}.`),!0}catch(e){return et.warning("WebGLBackend",`Unable to initialize WebGLBackend. ${e}`),!1}}createSessionHandler(e){return new jn(this,e)}dispose(){this.glContext.dispose()}}});async function Fi(i){if(i){let e=typeof i=="string"?[i]:i;for(let o of e){let t=vp.get(o);if(t)return t;let r=await mg(o);if(r)return r}}else return Fi(["webgl"]);throw new Error("no available backend to use")}async function mg(i){let e=hg;if(typeof e[i]<"u"&&bg(e[i])){let o=e[i],t=o.initialize();if(typeof t=="object"&&"then"in t&&(t=await t),t)return vp.set(i,o),o}}function bg(i){let e=i;return"initialize"in e&&typeof e.initialize=="function"&&"createSessionHandler"in e&&typeof e.createSessionHandler=="function"&&"dispose"in e&&typeof e.dispose=="function"}var vp,hg,Ip=O(()=>{"use strict";wp();vp=new Map,hg={webgl:new Xn}});var Ci,Kn,_p=O(()=>{"use strict";zt();Ci=class{constructor(e,o){this.op=e;this.node=o}},Kn=class{constructor(e,o,t){this.graph=e;this.profiler=t;this.initialize(o)}initialize(e){this.profiler.event("session","ExecutionPlan.initialize",()=>{let o=this.graph.getNodes();if(o.length!==e.length)throw new Error("The size of nodes and OPs do not match.");this._ops=e.map((t,r)=>new Ci(t,o[r])),this.reset(),this._starter=[],this._ops.forEach((t,r)=>{let n=!0;for(let s of t.node.inputs)if(!this._values[s]&&this.graph.getInputIndices().indexOf(s)===-1){n=!1;break}n&&this._starter.push(r)})})}reset(){this._values=this.graph.getValues().map(e=>e.tensor)}async execute(e,o){return this.profiler.event("session","ExecutionPlan.execute",async()=>{this.reset();let t=e.createInferenceHandler(),r=this.graph.getInputIndices();if(o.length!==r.length)throw new Error(`number of input tensors don't match the number of inputs to the model: actual: ${o.length} expected: ${r.length}`);o.forEach((f,p)=>{let d=r[p];this._values[d]=f});let n=this._starter.slice(0),s=this.graph.getValues(),a=this.graph.getNodes(),u=0;for(;u<n.length;){let f=n[u++],p=this._ops[f],d=p.node.inputs.map(S=>this._values[S]);if(d.indexOf(void 0)!==-1)throw new Error(`unresolved input detected: op: ${p.node}`);let y=d;et.verbose("ExecPlan",`Running op:${p.node.name} (${y.map((S,D)=>`'${p.node.inputs[D]}': ${S.type}[${S.dims.join(",")}]`).join(", ")})`);let w=await this.profiler.event("node",p.node.name,async()=>p.op.impl(t,y,p.op.context));if(w.length!==p.node.outputs.length)throw new Error("the size of output does not match model definition.");w.forEach((S,D)=>{let P=p.node.outputs[D];if(this._values[P])throw new Error(`output [${P}] already has value: op:${p.node.name}`);this._values[P]=S});let v=new Set;w.forEach((S,D)=>{let P=p.node.outputs[D];for(let A of s[P].to){let G=a[A],V=!0;for(let lt of G.inputs)if(!this._values[lt]){V=!1;break}V&&v.add(A)}}),n.push(...v)}let l=[];for(let f=0;f<this.graph.getOutputIndices().length;f++){let p=this.graph.getOutputIndices()[f],d=this._values[p];if(d===void 0)throw new Error(`required output [${p}] does not have value`);p===0?await d.getData():d.data,l.push(d)}return et.verbose("ExecPlan","disposing of inferenceHandler"),t.dispose(),l})}}});var q,Jt,Ur,Op=O(()=>{"use strict";Pr();q=Qe(or());Ve();Z();Jt=F.experimental.fbs,Ur=class i{constructor(e){if(this._attributes=new Map,e!=null){for(let o of e)o instanceof q.onnx.AttributeProto?this._attributes.set(o.name,[i.getValue(o),i.getType(o)]):o instanceof Jt.Attribute&&this._attributes.set(o.name(),[i.getValue(o),i.getType(o)]);if(this._attributes.size<e.length)throw new Error("duplicated attribute names")}}set(e,o,t){this._attributes.set(e,[t,o])}delete(e){this._attributes.delete(e)}getFloat(e,o){return this.get(e,"float",o)}getInt(e,o){return this.get(e,"int",o)}getString(e,o){return this.get(e,"string",o)}getTensor(e,o){return this.get(e,"tensor",o)}getFloats(e,o){return this.get(e,"floats",o)}getInts(e,o){return this.get(e,"ints",o)}getStrings(e,o){return this.get(e,"strings",o)}getTensors(e,o){return this.get(e,"tensors",o)}get(e,o,t){let r=this._attributes.get(e);if(r===void 0){if(t!==void 0)return t;throw new Error(`required attribute not found: ${e}`)}if(r[1]!==o)throw new Error(`type mismatch: expected ${o} but got ${r[1]}`);return r[0]}static getType(e){let o=e instanceof q.onnx.AttributeProto?e.type:e.type();switch(o){case q.onnx.AttributeProto.AttributeType.FLOAT:return"float";case q.onnx.AttributeProto.AttributeType.INT:return"int";case q.onnx.AttributeProto.AttributeType.STRING:return"string";case q.onnx.AttributeProto.AttributeType.TENSOR:return"tensor";case q.onnx.AttributeProto.AttributeType.FLOATS:return"floats";case q.onnx.AttributeProto.AttributeType.INTS:return"ints";case q.onnx.AttributeProto.AttributeType.STRINGS:return"strings";case q.onnx.AttributeProto.AttributeType.TENSORS:return"tensors";default:throw new Error(`attribute type is not supported yet: ${q.onnx.AttributeProto.AttributeType[o]}`)}}static getValue(e){let o=e instanceof q.onnx.AttributeProto?e.type:e.type();if(o===q.onnx.AttributeProto.AttributeType.GRAPH||o===q.onnx.AttributeProto.AttributeType.GRAPHS)throw new Error("graph attribute is not supported yet");let t=this.getValueNoCheck(e);if(o===q.onnx.AttributeProto.AttributeType.INT&&Ct.isLong(t))return Ct.longToNumber(t);if(o===q.onnx.AttributeProto.AttributeType.INTS){let r=t,n=new Array(r.length);for(let s=0;s<r.length;s++){let a=r[s];n[s]=Ct.longToNumber(a)}return n}if(o===q.onnx.AttributeProto.AttributeType.TENSOR)return e instanceof q.onnx.AttributeProto?bt.fromProto(t):bt.fromOrtTensor(t);if(o===q.onnx.AttributeProto.AttributeType.TENSORS){if(e instanceof q.onnx.AttributeProto)return t.map(n=>bt.fromProto(n));if(e instanceof Jt.Attribute)return t.map(n=>bt.fromOrtTensor(n))}return o===q.onnx.AttributeProto.AttributeType.STRING&&e instanceof q.onnx.AttributeProto?kr(t):o===q.onnx.AttributeProto.AttributeType.STRINGS&&e instanceof q.onnx.AttributeProto?t.map(kr):t}static getValueNoCheck(e){return e instanceof q.onnx.AttributeProto?this.getValueNoCheckFromOnnxFormat(e):this.getValueNoCheckFromOrtFormat(e)}static getValueNoCheckFromOnnxFormat(e){switch(e.type){case q.onnx.AttributeProto.AttributeType.FLOAT:return e.f;case q.onnx.AttributeProto.AttributeType.INT:return e.i;case q.onnx.AttributeProto.AttributeType.STRING:return e.s;case q.onnx.AttributeProto.AttributeType.TENSOR:return e.t;case q.onnx.AttributeProto.AttributeType.GRAPH:return e.g;case q.onnx.AttributeProto.AttributeType.FLOATS:return e.floats;case q.onnx.AttributeProto.AttributeType.INTS:return e.ints;case q.onnx.AttributeProto.AttributeType.STRINGS:return e.strings;case q.onnx.AttributeProto.AttributeType.TENSORS:return e.tensors;case q.onnx.AttributeProto.AttributeType.GRAPHS:return e.graphs;default:throw new Error(`unsupported attribute type: ${q.onnx.AttributeProto.AttributeType[e.type]}`)}}static getValueNoCheckFromOrtFormat(e){switch(e.type()){case Jt.AttributeType.FLOAT:return e.f();case Jt.AttributeType.INT:return e.i();case Jt.AttributeType.STRING:return e.s();case Jt.AttributeType.TENSOR:return e.t();case Jt.AttributeType.GRAPH:return e.g();case Jt.AttributeType.FLOATS:return e.floatsArray();case Jt.AttributeType.INTS:{let o=[];for(let t=0;t<e.intsLength();t++)o.push(e.ints(t));return o}case Jt.AttributeType.STRINGS:{let o=[];for(let t=0;t<e.stringsLength();t++)o.push(e.strings(t));return o}case Jt.AttributeType.TENSORS:{let o=[];for(let t=0;t<e.tensorsLength();t++)o.push(e.tensors(t));return o}default:throw new Error(`unsupported attribute type: ${Jt.AttributeType[e.type()]}`)}}}});var Ri,Jn,Gi,ce,Yn,Ni,Sp=O(()=>{"use strict";Op();Pr();Ri=Qe(or());Ve();Z();Jn=F.experimental.fbs,Gi={from:(i,e)=>new Ni(i,e)},ce=class{constructor(e){this._from=void 0,this._to=[],this.tensor=void 0,this.type=void 0,e&&(this.type=vt.tensorValueTypeFromProto(e.type.tensorType))}get from(){return this._from}get to(){return this._to}},Yn=class{constructor(e,o){e instanceof Ri.onnx.NodeProto?(this.name=e.name,this.opType=e.opType,this.attributes=new Ur(e.attribute)):e instanceof Jn.Node&&(this.name=o??e.name(),this.opType=e.opType(),this.attributes=new Ur(vt.tensorAttributesFromORTFormat(e))),this.inputs=[],this.outputs=[],this.executeNode=!0}},Ni=class{constructor(e,o){if(!e)throw new TypeError("graph is empty");this.buildGraph(e),this.transformGraph(o),this.checkIsAcyclic()}getInputIndices(){return this._allInputIndices}getInputNames(){return this._allInputNames}getOutputIndices(){return this._allOutputIndices}getOutputNames(){return this._allOutputNames}getValues(){return this._allData}getNodes(){return this._nodes}buildGraph(e){if(e instanceof Ri.onnx.GraphProto)this.buildGraphFromOnnxFormat(e);else if(e instanceof Jn.Graph)this.buildGraphFromOrtFormat(e);else throw new TypeError("Graph type is not supported.")}buildGraphFromOnnxFormat(e){let o=new Map;this._allData=[],this._allInputIndices=[],this._allInputNames=[],this._allOutputIndices=[],this._allOutputNames=[],this._nodes=[];let t=new Map;if(!e.input)throw new Error("missing information in graph: input");let r=[];for(let n of e.input){if(o.has(n.name))throw new Error(`duplicated input name: ${n.name}`);let s=this._allData.push(new ce(n))-1;o.set(n.name,s),r.push(n.name)}if(!e.initializer)throw new Error("missing information in graph: initializer");for(let n of e.initializer){let s=o.get(n.name);if(s===void 0){let a=new ce;a.type={shape:{dims:vt.tensorDimsFromProto(n.dims)},tensorType:vt.tensorDataTypeFromProto(n.dataType)},s=this._allData.push(a)-1,o.set(n.name,s)}this._allData[s]._from=-1,this._allData[s].tensor=bt.fromProto(n)}for(let n=0;n<this._allData.length;n++)this._allData[n].tensor||(this._allInputIndices.push(n),this._allInputNames.push(r[n]));if(!e.output)throw new Error("missing information in graph: output");for(let n of e.output){if(o.has(n.name))throw new Error(`duplicated output name: ${n.name}`);let s=this._allData.push(new ce(n))-1;o.set(n.name,s),this._allOutputIndices.push(s),this._allOutputNames.push(n.name)}if(!e.node)throw new Error("missing information in graph: node");for(let n of e.node){if(!n.name)for(let a=0;;a++){let u=`unnamed_${n.opType}_${a}`;if(!t.has(u)){n.name=u;break}}if(t.has(n.name))throw new Error(`duplicated node name: ${n.name}`);let s=this._nodes.push(new Yn(n))-1;t.set(n.name,s)}for(let n=0;n<this._nodes.length;n++){let s=this._nodes[n],a=e.node[n];if(!a.output)throw new Error(`missing output for node: ${a.name}`);for(let u of a.output){let l=o.get(u);if(typeof l>"u"&&(l=this._allData.push(new ce)-1,o.set(u,l)),s.outputs.push(l),this._allData[l]._from!==void 0)throw new Error(`multiple nodes output to one data value: ${l}`);if(this._allData[l]._from=n,a.opType==="Constant"){if(!a.attribute||a.attribute.length!==1||!a.attribute[0].t)throw new Error("missing attributes or missing tensor value in attributes for this Constant operator");if(!a.output||a.output.length!==1)throw new Error("missing output or incorrect number of outputs for this Constant operator");s.outputs.pop(),s.executeNode=!1,this._allData[l]._from=-1,this._allData[l].tensor=bt.fromProto(a.attribute[0].t)}}}for(let n=0;n<this._nodes.length;n++){let s=this._nodes[n],a=e.node[n];if(!a.input)throw new Error(`missing input for node: ${a.name}`);for(let u of a.input){let l=o.get(u);if(typeof l>"u"){if(u===""&&(a.input.length===3||a.input.length===4)&&a.opType==="Resize")continue;throw new Error(`unrecognized input '${u}' for node: ${a.name}`)}s.inputs.push(l),this._allData[l]._to.push(n)}}return!0}buildGraphFromOrtFormat(e){let o=new Map;this._allData=[],this._allInputIndices=[],this._allInputNames=[],this._allOutputIndices=[],this._allOutputNames=[],this._nodes=[];let t=new Map,r=[];for(let n=0;n<e.inputsLength();n++){let s=e.inputs(n);if(o.has(s))throw new Error(`duplicated input name: ${s}`);for(let a=0;a<e.nodeArgsLength();a++)if(e.nodeArgs(a)?.name()===s){let u=new ce;if(e.nodeArgs(a)?.type()?.valueType()!==Jn.TypeInfoValue.tensor_type)throw new Error("Unexpected value type for the nodeArg.");let f=e.nodeArgs(a).type().value(new Jn.TensorTypeAndShape),p=vt.tensorDataTypeFromProto(f.elemType()),d=f.shape(),y=[];for(let v=0;v<d.dimLength();v++)y.push(Ct.longToNumber(d.dim(v).value().dimValue()));u.type={shape:{dims:y},tensorType:p};let w=this._allData.push(u)-1;o.set(s,w),r.push(s)}}for(let n=0;n<e.initializersLength();n++){let s=e.initializers(n),a=o.get(s.name());if(a===void 0){let u=new ce,l=vt.tensorDimsFromORTFormat(s),f=vt.tensorDataTypeFromProto(s.dataType());u.type={shape:{dims:l},tensorType:f},a=this._allData.push(u)-1,o.set(s.name(),a)}this._allData[a]._from=-1,this._allData[a].tensor=bt.fromOrtTensor(s)}for(let n=0;n<this._allData.length;n++)this._allData[n].tensor||(this._allInputIndices.push(n),this._allInputNames.push(r[n]));for(let n=0;n<e.outputsLength();n++){let s=e.outputs(n);if(o.has(s))throw new Error(`duplicated output name: ${s}`);let a=this._allData.push(new ce)-1;o.set(s,a),this._allOutputIndices.push(a),this._allOutputNames.push(s)}if(!e.nodes)throw new Error("missing information in graph: node");for(let n=0;n<e.nodesLength();n++){let s=e.nodes(n),a=s.name();if(!a)for(let l=0;a=`unnamed_${s.opType()}_${l}`,!!t.has(a);l++);if(t.has(a))throw new Error(`duplicated node name: ${a}`);let u=this._nodes.push(new Yn(s,a))-1;t.set(a,u)}for(let n=0;n<this._nodes.length;n++){let s=this._nodes[n],a=e.nodes(n);if(a==null)throw new Error(`No node exists at index ${n}`);if(a?.outputsLength()===0)throw new Error(`missing output for node: ${a.name}`);for(let u=0;u<a?.outputsLength();u++){let l=a?.outputs(u),f=o.get(l);if(typeof f>"u"&&(f=this._allData.push(new ce)-1,o.set(l,f)),s.outputs.push(f),this._allData[f]._from!==void 0)throw new Error(`multiple nodes output to one data value: ${f}`);if(this._allData[f]._from=n,a.opType()==="Constant"){if(a.attributesLength()!==1||!a.attributes(0).t())throw new Error("missing attributes or missing tensor value in attributes for this Constant operator");if(a.outputsLength()!==1)throw new Error("missing output or incorrect number of outputs for this Constant operator");s.outputs.pop(),s.executeNode=!1,this._allData[f]._from=-1,this._allData[f].tensor=bt.fromOrtTensor(a.attributes(0).t())}}}for(let n=0;n<this._nodes.length;n++){let s=this._nodes[n],a=e.nodes(n);if(a.inputsLength()===0)throw new Error(`missing input for node: ${a.name}`);for(let u=0;u<a.inputsLength();u++){let l=a.inputs(u),f=o.get(l);if(typeof f>"u")throw new Error(`unrecognized input '${l}' for node: ${a.name()}`);s.inputs.push(f),this._allData[f]._to.push(n)}}}checkIsAcyclic(){let e=new Set;this._allInputIndices.forEach(r=>{this._allData[r]._to.forEach(s=>{e.add(s)})});let o=Array.from(e),t=new Array(this._nodes.length).fill("white");for(;o.length>0;){let r=o.pop();t[r]==="gray"?t[r]="black":(o.push(r),t[r]="gray",this._nodes[r].outputs.forEach(n=>{let s=this._allData[n];if(typeof s.tensor<"u")throw new Error("node outputs should not be initialized");if(s._from!==r)throw new Error("from property of the Value object doesn't match index of Node being processed");s._to.forEach(a=>{if(t[a]==="gray")throw new Error("model graph is cyclic");t[a]==="white"&&o.push(a)})}))}}transformGraph(e){this.removeAllIdentityNodes(),this.removeAllDropoutNodes(),this.fuseConvActivationNodes(),e&&e.transformGraph(this),this.finalizeGraph()}finalizeGraph(){let e=0,o=new Array(this._nodes.length,0),t=0;for(let r=0;r<this._nodes.length;r++)o[r]=t,this._nodes[r].executeNode?(t!==r&&(this._nodes[t]=this._nodes[r]),t++):this._nodes[r].outputs.forEach(n=>{this._allData[n]._from=-2});this._nodes.splice(t,this._nodes.length-t);for(let r=0;r<this._allData.length;r++){let n=this._allData[r];n._from!==void 0&&n._from!==-1&&n._from!==-2&&(n._from=o[n._from]);for(let s=0;s<n._to.length;s++)if(n._to[s]>=0)n._to[s]=o[n._to[s]];else throw new Error("Trying to update a removed node")}e=0;for(let r=0;r<this._allData.length;r++){if(this._allData[r].from===-2&&this._allOutputIndices.indexOf(r+e)===-1){e++,this._allData.splice(r,1),r--;continue}if(e>0){let n=-1;this._allData[r].from!==void 0&&this._allData[r].from!==-1?(n=this._nodes[this._allData[r].from].outputs.indexOf(r+e),n!==-1&&(this._nodes[this._allData[r].from].outputs[n]=r)):(n=this._allInputIndices.indexOf(r+e),n!==-1&&(this._allInputIndices[n]=r)),this._allData[r].to.forEach(s=>{n=this._nodes[s].inputs.indexOf(r+e),n!==-1&&(this._nodes[s].inputs[n]=r)}),this._allData[r].to.length===0&&(n=this._allOutputIndices.indexOf(r+e),n!==-1&&(this._allOutputIndices[n]=r))}}}deleteNode(e){let o=this._nodes[e];if(o.outputs.length>1){for(let a=1;a<o.outputs.length;a++)if(this._allData[o.outputs[a]].to.length>0)throw new Error("Node deletion with more than one output connected to other nodes is not supported. ")}o.executeNode=!1;let t=o.inputs[0],r=o.outputs[0],n=this._allData[r].to;for(let a=0;a<o.inputs.length;a++){let u=this._allData[o.inputs[a]].to.indexOf(e);if(u===-1)throw new Error("The Value object doesn't have the current Node in it's 'to' property ");this._allData[o.inputs[a]].to.splice(u,1)}this._allData[r]._to=[];let s=this._allOutputIndices.indexOf(r);if(s!==-1&&(this._allOutputIndices[s]=t),n&&n.length>0)for(let a of n){let u=this._nodes[a].inputs.indexOf(r);if(u===-1)throw new Error("The Node object doesn't have the output Value in it's 'inputs' property ");this._nodes[a].inputs[u]=t,this._allData[t].to.push(a)}}removeAllDropoutNodes(){let e=0;for(let o of this._nodes){if(o.opType==="Dropout"){if(o.inputs.length!==1)throw new Error("Dropout nodes should only contain one input. ");if(o.outputs.length!==1&&o.outputs.length!==2)throw new Error("Dropout nodes should contain either 1 or 2 output(s)");if(o.outputs.length===2&&this._allData[o.outputs[1]]._to.length!==0)throw new Error("Dropout nodes's second output should not be referenced by other nodes");this.deleteNode(e)}e++}}removeAllIdentityNodes(){let e=0;for(let o of this._nodes)o.opType==="Identity"&&this.deleteNode(e),e++}isActivation(e){switch(e.opType){case"Relu":case"Sigmoid":case"Clip":return!0;default:return!1}}fuseConvActivationNodes(){for(let e of this._nodes)if(e.opType==="Conv"){let o=this._allData[e.outputs[0]]._to;if(o.length===1&&this.isActivation(this._nodes[o[0]])){let t=this._nodes[o[0]];if(t.opType==="Clip")if(t.inputs.length===1)try{e.attributes.set("activation_params","floats",[t.attributes.getFloat("min"),t.attributes.getFloat("max")])}catch{e.attributes.set("activation_params","floats",[Me,Ue])}else if(t.inputs.length>=3&&this._allData[t.inputs[1]].tensor!==void 0&&this._allData[t.inputs[2]].tensor!==void 0)e.attributes.set("activation_params","floats",[this._allData[t.inputs[1]].tensor.floatData[0],this._allData[t.inputs[2]].tensor.floatData[0]]);else continue;e.attributes.set("activation","string",t.opType),this.deleteNode(o[0])}}}}});var Ap,gg,Zn,Pp=O(()=>{"use strict";yn();Sp();Pr();Ap=Qe(or());Z();gg=F.experimental.fbs,Zn=class{constructor(){}load(e,o,t){let r;if(!t)try{this.loadFromOnnxFormat(e,o);return}catch(n){if(t!==void 0)throw n;r=n}try{this.loadFromOrtFormat(e,o)}catch(n){throw t!==void 0?n:new Error(`Failed to load model as ONNX format: ${r}
-as ORT format: ${n}`)}}loadFromOnnxFormat(e,o){let t=Ap.onnx.ModelProto.decode(e);if(Ct.longToNumber(t.irVersion)<3)throw new Error("only support ONNX model with IR_VERSION>=3");this._opsets=t.opsetImport.map(n=>({domain:n.domain,version:Ct.longToNumber(n.version)})),this._graph=Gi.from(t.graph,o)}loadFromOrtFormat(e,o){let t=new T.ByteBuffer(e),r=gg.InferenceSession.getRootAsInferenceSession(t).model();if(Ct.longToNumber(r.irVersion())<3)throw new Error("only support ONNX model with IR_VERSION>=3");this._opsets=[];for(let s=0;s<r.opsetImportLength();s++){let a=r.opsetImport(s);this._opsets.push({domain:a?.domain(),version:Ct.longToNumber(a.version())})}this._graph=Gi.from(r.graph(),o)}get graph(){return this._graph}get opsets(){return this._opsets}}});var Qn,Ep=O(()=>{"use strict";Ip();_p();zt();Pp();Qn=class{constructor(e={}){this._initialized=!1,this.backendHint=e.backendHint,this.profiler=bn.create(e.profiler),this.context={profiler:this.profiler,graphInputTypes:[],graphInputDims:[]}}get inputNames(){return this._model.graph.getInputNames()}get outputNames(){return this._model.graph.getOutputNames()}startProfiling(){this.profiler.start()}endProfiling(){this.profiler.stop()}async loadModel(e,o,t){await this.profiler.event("session","Session.loadModel",async()=>{let r=await Fi(this.backendHint);if(this.sessionHandler=r.createSessionHandler(this.context),this._model=new Zn,typeof e=="string"){let n=e.endsWith(".ort");{let a=await(await fetch(e)).arrayBuffer();this.initialize(new Uint8Array(a),n)}}else if(ArrayBuffer.isView(e))this.initialize(e);else{let n=new Uint8Array(e,o||0,t||e.byteLength);this.initialize(n)}})}initialize(e,o){if(this._initialized)throw new Error("already initialized");this.profiler.event("session","Session.initialize",()=>{let t=this.sessionHandler.transformGraph?this.sessionHandler:void 0;this._model.load(e,t,o),this.sessionHandler.onGraphInitialized&&this.sessionHandler.onGraphInitialized(this._model.graph),this.initializeOps(this._model.graph),this._executionPlan=new Kn(this._model.graph,this._ops,this.profiler)}),this._initialized=!0}async run(e){if(!this._initialized)throw new Error("session not initialized yet");return this.profiler.event("session","Session.run",async()=>{let o=this.normalizeAndValidateInputs(e),t=await this._executionPlan.execute(this.sessionHandler,o);return this.createOutput(t)})}normalizeAndValidateInputs(e){let o=this._model.graph.getInputNames();if(Array.isArray(e)){if(e.length!==o.length)throw new Error(`incorrect input array length: expected ${o.length} but got ${e.length}`)}else{if(e.size!==o.length)throw new Error(`incorrect input map size: expected ${o.length} but got ${e.size}`);let t=new Array(e.size),r=0;for(let n=0;n<o.length;++n){let s=e.get(o[n]);if(!s)throw new Error(`missing input tensor for: '${name}'`);t[r++]=s}e=t}if(!this.context.graphInputTypes||this.context.graphInputTypes.length===0||!this.context.graphInputDims||this.context.graphInputDims.length===0){let t=this._model.graph.getInputIndices(),r=this._model.graph.getValues(),n=new Array(t.length);for(let s=0;s<t.length;++s){let a=r[t[s]];n[s]=a.type.shape.dims,this.context.graphInputTypes.push(a.type.tensorType),this.context.graphInputDims.push(e[s].dims)}this.validateInputTensorDims(n,e,!0)}else this.validateInputTensorDims(this.context.graphInputDims,e,!1);return this.validateInputTensorTypes(this.context.graphInputTypes,e),e}validateInputTensorTypes(e,o){for(let t=0;t<o.length;t++){let r=e[t],n=o[t].type;if(r!==n)throw new Error(`input tensor[${t}] check failed: expected type '${r}' but got ${n}`)}}validateInputTensorDims(e,o,t){for(let r=0;r<o.length;r++){let n=e[r],s=o[r].dims;if(!this.compareTensorDims(n,s,t))throw new Error(`input tensor[${r}] check failed: expected shape '[${n.join(",")}]' but got [${s.join(",")}]`)}}compareTensorDims(e,o,t){if(e.length!==o.length)return!1;for(let r=0;r<e.length;++r)if(e[r]!==o[r]&&(!t||e[r]!==0))return!1;return!0}createOutput(e){let o=this._model.graph.getOutputNames();if(e.length!==o.length)throw new Error("expected number of outputs do not match number of generated outputs");let t=new Map;for(let r=0;r<o.length;++r)t.set(o[r],e[r]);return t}initializeOps(e){let o=e.getNodes();this._ops=new Array(o.length);for(let t=0;t<o.length;t++)this._ops[t]=this.sessionHandler.resolve(o[t],this._model.opsets,e)}}});var to,Dp=O(()=>{"use strict";Zt();Ve();to=class{constructor(e){this.session=e;this.inputNames=this.session.inputNames,this.outputNames=this.session.outputNames}async dispose(){}async run(e,o,t){let r=new Map;for(let a in e)if(Object.hasOwnProperty.call(e,a)){let u=e[a];r.set(a,new bt(u.dims,u.type,void 0,void 0,u.data))}let n=await this.session.run(r),s={};return n.forEach((a,u)=>{s[u]=new xt(a.type,a.data,a.dims)}),s}startProfiling(){this.session.startProfiling()}endProfiling(){this.session.endProfiling()}}});var Lp={};Or(Lp,{onnxjsBackend:()=>yg});var Mi,yg,$p=O(()=>{"use strict";Ep();Dp();Mi=class{async init(){}async createInferenceSessionHandler(e,o){let t=new Qn(o);return typeof e=="string"?await t.loadModel(e):await t.loadModel(e),new to(t)}},yg=new Mi});var eo=O(()=>{"use strict"});var Fp={};Or(Fp,{default:()=>xg});var kp,Bp,xg,Cp=O(()=>{"use strict";Ui();je();Vr();kp="ort-wasm-proxy-worker",Bp=globalThis.self?.name===kp;Bp&&(self.onmessage=i=>{let{type:e,in:o}=i.data;try{switch(e){case"init-wasm":ro(o.wasm).then(()=>{no(o).then(()=>{postMessage({type:e})},t=>{postMessage({type:e,err:t})})},t=>{postMessage({type:e,err:t})});break;case"init-ep":{let{epName:t,env:r}=o;oo(r,t).then(()=>{postMessage({type:e})},n=>{postMessage({type:e,err:n})});break}case"copy-from":{let{buffer:t}=o,r=zr(t);postMessage({type:e,out:r});break}case"create":{let{model:t,options:r}=o;io(t,r).then(n=>{postMessage({type:e,out:n})},n=>{postMessage({type:e,err:n})});break}case"release":ao(o),postMessage({type:e});break;case"run":{let{sessionId:t,inputIndices:r,inputs:n,outputIndices:s,options:a}=o;so(t,r,n,s,new Array(s.length).fill(null),a).then(u=>{u.some(l=>l[3]!=="cpu")?postMessage({type:e,err:"Proxy does not support non-cpu tensor location."}):postMessage({type:e,out:u},lo([...n,...u]))},u=>{postMessage({type:e,err:u})});break}case"end-profiling":uo(o),postMessage({type:e});break;default:}}catch(t){postMessage({type:e,err:t})}});xg=Bp?null:i=>new Worker(i??dr,{type:"module",name:kp})});var Rp={};Or(Rp,{default:()=>Tg});var Vi,Np,Tg,Gp=O(()=>{"use strict";Np=(Vi=import.meta.url,async function(i={}){function e(){return rt.buffer!=pe.buffer&&Rt(),pe}function o(){return rt.buffer!=pe.buffer&&Rt(),yr}function t(){return rt.buffer!=pe.buffer&&Rt(),xe}function r(){return rt.buffer!=pe.buffer&&Rt(),Q}function n(){return rt.buffer!=pe.buffer&&Rt(),xr}var s,a,u=Object.assign({},i),l=new Promise((c,m)=>{s=c,a=m}),f=typeof window=="object",p=typeof importScripts=="function",d=p&&self.name=="em-pthread";u.mountExternalData=(c,m)=>{(u.Ra||(u.Ra=new Map)).set(c,m)},u.unmountExternalData=()=>{delete u.Ra};var y,w,v=globalThis.SharedArrayBuffer??new WebAssembly.Memory({initial:0,maximum:0,shared:!0}).buffer.constructor,S=Object.assign({},u),D="./this.program",P=(c,m)=>{throw m},A="";(f||p)&&(p?A=self.location.href:typeof document<"u"&&document.currentScript&&(A=document.currentScript.src),Vi&&(A=Vi),A=A.startsWith("blob:")?"":A.substr(0,A.replace(/[?#].*/,"").lastIndexOf("/")+1),p&&(w=c=>{var m=new XMLHttpRequest;return m.open("GET",c,!1),m.responseType="arraybuffer",m.send(null),new Uint8Array(m.response)}),y=(c,m,g)=>{var x=new XMLHttpRequest;x.open("GET",c,!0),x.responseType="arraybuffer",x.onload=()=>{x.status==200||x.status==0&&x.response?m(x.response):g()},x.onerror=g,x.send(null)});var G=console.log.bind(console),V=console.error.bind(console),lt=G,J=V;if(Object.assign(u,S),S=null,d){let c=function(m){try{var g=m.data,x=g.cmd;if(x==="load"){let I=[];self.onmessage=E=>I.push(E),self.startWorker=()=>{postMessage({cmd:"loaded"});for(let E of I)c(E);self.onmessage=c};for(let E of g.handlers)u[E]&&!u[E].proxy||(u[E]=(...N)=>{postMessage({Wa:"callHandler",hb:E,args:N})},E=="print"&&(lt=u[E]),E=="printErr"&&(J=u[E]));rt=g.wasmMemory,Rt(),Ut(g.wasmModule)}else if(x==="run"){Ao(g.pthread_ptr,0,0,1,0,0),vo(g.pthread_ptr),cd(),oa(),Pt||=!0;try{pd(g.start_routine,g.arg)}catch(I){if(I!="unwind")throw I}}else x==="cancel"?Ze()&&tn(-1):g.target!=="setimmediate"&&(x==="checkMailbox"?Pt&&Yr():x&&(J(`worker: received unknown command ${x}`),J(g)))}catch(I){throw za(),I}};var Rg=c,Ut,Pt=!1;J=function(...m){m=m.join(" "),console.error(m)},self.alert=function(...m){postMessage({Wa:"alert",text:m.join(" "),jb:Ze()})},u.instantiateWasm=(m,g)=>new Promise(x=>{Ut=I=>{I=new WebAssembly.Instance(I,wr()),g(I),x()}}),self.onunhandledrejection=m=>{throw m.reason||m},self.onmessage=c}var rt,M,ye,pe,yr,xe,Q,Nt,xr,Vt=!1;function Rt(){var c=rt.buffer;u.HEAP8=pe=new Int8Array(c),u.HEAP16=new Int16Array(c),u.HEAPU8=yr=new Uint8Array(c),u.HEAPU16=new Uint16Array(c),u.HEAP32=xe=new Int32Array(c),u.HEAPU32=Q=new Uint32Array(c),u.HEAPF32=new Float32Array(c),u.HEAPF64=xr=new Float64Array(c),u.HEAP64=Nt=new BigInt64Array(c),u.HEAPU64=new BigUint64Array(c)}if(!d){if(u.wasmMemory)rt=u.wasmMemory;else if(!((rt=new WebAssembly.Memory({initial:256,maximum:65536,shared:!0})).buffer instanceof v))throw J("requested a shared WebAssembly.Memory but the returned buffer is not a SharedArrayBuffer, indicating that while the browser has SharedArrayBuffer it does not have WebAssembly threads support - you may need to set a flag"),Error("bad memory");Rt()}var It=[],Gt=[],Zi=[],ie=0,Ke=null,Te=null;function jr(){if(--ie==0&&(Ke!==null&&(clearInterval(Ke),Ke=null),Te)){var c=Te;Te=null,c()}}function de(c){throw J(c="Aborted("+c+")"),Vt=!0,ye=1,c=new WebAssembly.RuntimeError(c+". Build with -sASSERTIONS for more info."),a(c),c}var we,Tr=c=>c.startsWith("data:application/octet-stream;base64,"),_t=c=>c.startsWith("file://");function Ot(c){if(w)return w(c);throw"both async and sync fetching of the wasm failed"}function he(c,m,g){return function(x){if(f||p){if(typeof fetch=="function"&&!_t(x))return fetch(x,{credentials:"same-origin"}).then(I=>{if(!I.ok)throw`failed to load wasm binary file at '${x}'`;return I.arrayBuffer()}).catch(()=>Ot(x));if(y)return new Promise((I,E)=>{y(x,N=>I(new Uint8Array(N)),E)})}return Promise.resolve().then(()=>Ot(x))}(c).then(x=>WebAssembly.instantiate(x,m)).then(g,x=>{J(`failed to asynchronously prepare wasm: ${x}`),de(x)})}function wr(){return{a:{b:hd,C:la,g:pa,T:da,x:ba,A:ga,U:ya,R:xa,K:Ta,Q:wa,m:va,y:Ia,v:_a,S:Oa,w:Sa,o:md,X:bd,N:gd,t:yd,D:xd,i:Td,M:vo,W:wd,G:vd,H:Id,J:_d,E:Ea,F:Da,s:Od,n:Sd,j:Ad,h:Pd,p:Ed,V:Dd,u:Ld,d:La,e:$d,r:kd,z:Bd,q:Fd,O:Ba,P:Fa,B:wo,f:Ca,l:Na,L:Ra,k:Ga,a:rt,I:Va,c:Rd}}}var Xr={816884:(c,m,g,x)=>{if(u===void 0||!u.Ra)return 1;if((c=Ir(c>>>0)).startsWith("./")&&(c=c.substring(2)),!(c=u.Ra.get(c)))return 2;if(x>>>=0,(m>>>=0)+(g>>>=0)>c.byteLength)return 3;try{return o().set(c.subarray(m,m+g),x>>>0),0}catch{return 4}},817385:()=>typeof wasmOffsetConverter<"u"};function xo(c){this.name="ExitStatus",this.message=`Program terminated with exit(${c})`,this.status=c}var To=c=>{c.terminate(),c.onmessage=()=>{}},Qi=c=>{ve.length==0&&(aa(),ia(ve[0]));var m=ve.pop();if(!m)return 6;Ee.push(m),ae[c.Oa]=m,m.Oa=c.Oa;var g={cmd:"run",start_routine:c.$a,arg:c.Ya,pthread_ptr:c.Oa};return m.postMessage(g,c.fb),0},vr=0,st=(c,m,...g)=>{for(var x=2*g.length,I=Do(),E=Eo(8*x),N=E>>>3,at=0;at<g.length;at++){var St=g[at];typeof St=="bigint"?(Nt[N+2*at]=1n,Nt[N+2*at+1]=St):(Nt[N+2*at]=0n,n()[N+2*at+1>>>0]=St)}return c=Wa(c,0,x,E,m),en(I),c};function ta(c){if(d)return st(0,1,c);if(ye=c,!(0<vr)){for(var m of Ee)To(m);for(m of ve)To(m);ve=[],Ee=[],ae=[],u.onExit?.(c),Vt=!0}P(c,new xo(c))}function ea(c){if(d)return st(1,0,c);wo(c)}var wo=c=>{if(ye=c,d)throw ea(c),"unwind";ta(c)},ve=[],Ee=[],ra=[],ae={},na=c=>{var m=c.Oa;delete ae[m],ve.push(c),Ee.splice(Ee.indexOf(c),1),c.Oa=0,Po(m)};function oa(){ra.forEach(c=>c())}var ia=c=>new Promise(m=>{c.onmessage=I=>{var E=(I=I.data).cmd;if(I.targetThread&&I.targetThread!=Ze()){var N=ae[I.targetThread];N?N.postMessage(I,I.transferList):J(`Internal error! Worker sent a message "${E}" to target pthread ${I.targetThread}, but that thread no longer exists!`)}else E==="checkMailbox"?Yr():E==="spawnThread"?Qi(I):E==="cleanupThread"?na(ae[I.thread]):E==="killThread"?(I=I.thread,E=ae[I],delete ae[I],To(E),Po(I),Ee.splice(Ee.indexOf(E),1),E.Oa=0):E==="cancelThread"?ae[I.thread].postMessage({cmd:"cancel"}):E==="loaded"?(c.loaded=!0,m(c)):E==="alert"?alert(`Thread ${I.threadId}: ${I.text}`):I.target==="setimmediate"?c.postMessage(I):E==="callHandler"?u[I.handler](...I.args):E&&J(`worker sent an unknown command ${E}`)},c.onerror=I=>{throw J(`worker sent an error! ${I.filename}:${I.lineno}: ${I.message}`),I};var g,x=[];for(g of["onExit"])u.hasOwnProperty(g)&&x.push(g);c.postMessage({cmd:"load",handlers:x,wasmMemory:rt,wasmModule:M})});function aa(){var c=new Worker(new URL(import.meta.url),{type:"module",workerData:"em-pthread",name:"em-pthread"});ve.push(c)}var sa,Kr=c=>{for(;0<c.length;)c.shift()(u)},cd=()=>{var c=Ze(),m=r()[c+52>>>2>>>0];c=r()[c+56>>>2>>>0],qa(m,m-c),en(m)},Jr=[],pd=(c,m)=>{vr=0;var g=Jr[c];g||(c>=Jr.length&&(Jr.length=c+1),Jr[c]=g=sa.get(c)),c=g(m),0<vr?ye=c:tn(c)};class dd{constructor(m){this.Ua=m-24}}function hd(c,m,g){var x=new dd(c>>>=0);throw m>>>=0,g>>>=0,r()[x.Ua+16>>>2>>>0]=0,r()[x.Ua+4>>>2>>>0]=m,r()[x.Ua+8>>>2>>>0]=g,c}function ua(c,m,g,x){return d?st(2,1,c,m,g,x):la(c,m,g,x)}function la(c,m,g,x){if(c>>>=0,m>>>=0,g>>>=0,x>>>=0,v===void 0)return J("Current environment does not support SharedArrayBuffer, pthreads are not available!"),6;var I=[];return d&&I.length===0?ua(c,m,g,x):(c={$a:g,Oa:c,Ya:x,fb:I},d?(c.Wa="spawnThread",postMessage(c,I),0):Qi(c))}var fa=typeof TextDecoder<"u"?new TextDecoder("utf8"):void 0,ca=(c,m,g)=>{var x=(m>>>=0)+g;for(g=m;c[g]&&!(g>=x);)++g;if(16<g-m&&c.buffer&&fa)return fa.decode(c.buffer instanceof v?c.slice(m,g):c.subarray(m,g));for(x="";m<g;){var I=c[m++];if(128&I){var E=63&c[m++];if((224&I)==192)x+=String.fromCharCode((31&I)<<6|E);else{var N=63&c[m++];65536>(I=(240&I)==224?(15&I)<<12|E<<6|N:(7&I)<<18|E<<12|N<<6|63&c[m++])?x+=String.fromCharCode(I):(I-=65536,x+=String.fromCharCode(55296|I>>10,56320|1023&I))}}else x+=String.fromCharCode(I)}return x},Ir=(c,m)=>(c>>>=0)?ca(o(),c,m):"";function pa(c,m,g){return d?st(3,1,c,m,g):0}function da(c,m){if(d)return st(4,1,c,m)}var ha=c=>{for(var m=0,g=0;g<c.length;++g){var x=c.charCodeAt(g);127>=x?m++:2047>=x?m+=2:55296<=x&&57343>=x?(m+=4,++g):m+=3}return m},ma=(c,m,g,x)=>{if(!(0<x))return 0;var I=g>>>=0;x=g+x-1;for(var E=0;E<c.length;++E){var N=c.charCodeAt(E);if(55296<=N&&57343>=N&&(N=65536+((1023&N)<<10)|1023&c.charCodeAt(++E)),127>=N){if(g>=x)break;m[g++>>>0]=N}else{if(2047>=N){if(g+1>=x)break;m[g++>>>0]=192|N>>6}else{if(65535>=N){if(g+2>=x)break;m[g++>>>0]=224|N>>12}else{if(g+3>=x)break;m[g++>>>0]=240|N>>18,m[g++>>>0]=128|N>>12&63}m[g++>>>0]=128|N>>6&63}m[g++>>>0]=128|63&N}}return m[g>>>0]=0,g-I},_r=(c,m,g)=>ma(c,o(),m,g);function ba(c,m){if(d)return st(5,1,c,m)}function ga(c,m,g){if(d)return st(6,1,c,m,g)}function ya(c,m,g){return d?st(7,1,c,m,g):0}function xa(c,m){if(d)return st(8,1,c,m)}function Ta(c,m,g){if(d)return st(9,1,c,m,g)}function wa(c,m,g,x){if(d)return st(10,1,c,m,g,x)}function va(c,m,g,x){if(d)return st(11,1,c,m,g,x)}function Ia(c,m,g,x){if(d)return st(12,1,c,m,g,x)}function _a(c){if(d)return st(13,1,c)}function Oa(c,m){if(d)return st(14,1,c,m)}function Sa(c,m,g){if(d)return st(15,1,c,m,g)}var md=()=>{de("")},bd=()=>1;function gd(c){Ao(c>>>0,!p,1,!f,131072,!1),oa()}function vo(c){c>>>=0,typeof Atomics.gb=="function"&&(Atomics.gb(t(),c>>>2,c).value.then(Yr),c+=128,Atomics.store(t(),c>>>2,1))}var Yr=()=>{var c=Ze();if(c&&(vo(c),c=Ha,!Vt))try{if(c(),!(0<vr))try{d?tn(ye):wo(ye)}catch(m){m instanceof xo||m=="unwind"||P(1,m)}}catch(m){m instanceof xo||m=="unwind"||P(1,m)}};function yd(c,m){(c>>>=0)==m>>>0?setTimeout(Yr):d?postMessage({targetThread:c,cmd:"checkMailbox"}):(c=ae[c])&&c.postMessage({cmd:"checkMailbox"})}var Io=[];function xd(c,m,g,x,I){for(m>>>=0,x/=2,Io.length=x,g=I>>>0>>>3,I=0;I<x;I++)Io[I]=Nt[g+2*I]?Nt[g+2*I+1]:n()[g+2*I+1>>>0];return(m?Xr[m]:Gd[c])(...Io)}function Td(c){c>>>=0,d?postMessage({cmd:"cleanupThread",thread:c}):na(ae[c])}function wd(c){}function vd(c,m){c=-9007199254740992>c||9007199254740992<c?NaN:Number(c),m>>>=0,c=new Date(1e3*c),t()[m>>>2>>>0]=c.getUTCSeconds(),t()[m+4>>>2>>>0]=c.getUTCMinutes(),t()[m+8>>>2>>>0]=c.getUTCHours(),t()[m+12>>>2>>>0]=c.getUTCDate(),t()[m+16>>>2>>>0]=c.getUTCMonth(),t()[m+20>>>2>>>0]=c.getUTCFullYear()-1900,t()[m+24>>>2>>>0]=c.getUTCDay(),c=(c.getTime()-Date.UTC(c.getUTCFullYear(),0,1,0,0,0,0))/864e5|0,t()[m+28>>>2>>>0]=c}var Je=c=>c%4==0&&(c%100!=0||c%400==0),Aa=[0,31,60,91,121,152,182,213,244,274,305,335],Pa=[0,31,59,90,120,151,181,212,243,273,304,334];function Id(c,m){c=-9007199254740992>c||9007199254740992<c?NaN:Number(c),m>>>=0,c=new Date(1e3*c),t()[m>>>2>>>0]=c.getSeconds(),t()[m+4>>>2>>>0]=c.getMinutes(),t()[m+8>>>2>>>0]=c.getHours(),t()[m+12>>>2>>>0]=c.getDate(),t()[m+16>>>2>>>0]=c.getMonth(),t()[m+20>>>2>>>0]=c.getFullYear()-1900,t()[m+24>>>2>>>0]=c.getDay();var g=(Je(c.getFullYear())?Aa:Pa)[c.getMonth()]+c.getDate()-1|0;t()[m+28>>>2>>>0]=g,t()[m+36>>>2>>>0]=-60*c.getTimezoneOffset(),g=new Date(c.getFullYear(),6,1).getTimezoneOffset();var x=new Date(c.getFullYear(),0,1).getTimezoneOffset();c=0|(g!=x&&c.getTimezoneOffset()==Math.min(x,g)),t()[m+32>>>2>>>0]=c}function _d(c){c>>>=0;var m=new Date(t()[c+20>>>2>>>0]+1900,t()[c+16>>>2>>>0],t()[c+12>>>2>>>0],t()[c+8>>>2>>>0],t()[c+4>>>2>>>0],t()[c>>>2>>>0],0),g=t()[c+32>>>2>>>0],x=m.getTimezoneOffset(),I=new Date(m.getFullYear(),6,1).getTimezoneOffset(),E=new Date(m.getFullYear(),0,1).getTimezoneOffset(),N=Math.min(E,I);return 0>g?t()[c+32>>>2>>>0]=+(I!=E&&N==x):0<g!=(N==x)&&(I=Math.max(E,I),m.setTime(m.getTime()+6e4*((0<g?N:I)-x))),t()[c+24>>>2>>>0]=m.getDay(),g=(Je(m.getFullYear())?Aa:Pa)[m.getMonth()]+m.getDate()-1|0,t()[c+28>>>2>>>0]=g,t()[c>>>2>>>0]=m.getSeconds(),t()[c+4>>>2>>>0]=m.getMinutes(),t()[c+8>>>2>>>0]=m.getHours(),t()[c+12>>>2>>>0]=m.getDate(),t()[c+16>>>2>>>0]=m.getMonth(),t()[c+20>>>2>>>0]=m.getYear(),c=m.getTime(),BigInt(isNaN(c)?-1:c/1e3)}function Ea(c,m,g,x,I,E,N){return d?st(16,1,c,m,g,x,I,E,N):-52}function Da(c,m,g,x,I,E){if(d)return st(17,1,c,m,g,x,I,E)}function Od(c,m,g,x){c>>>=0,m>>>=0,g>>>=0,x>>>=0;var I=new Date().getFullYear(),E=new Date(I,0,1),N=new Date(I,6,1);I=E.getTimezoneOffset();var at=N.getTimezoneOffset(),St=Math.max(I,at);r()[c>>>2>>>0]=60*St,t()[m>>>2>>>0]=+(I!=at),E=(c=Et=>Et.toLocaleTimeString(void 0,{hour12:!1,timeZoneName:"short"}).split(" ")[1])(E),N=c(N),at<I?(_r(E,g,17),_r(N,x,17)):(_r(E,x,17),_r(N,g,17))}var _o=[];function Sd(c,m,g){c>>>=0,m>>>=0,g>>>=0,_o.length=0;for(var x;x=o()[m++>>>0];){var I=x!=105;g+=(I&=x!=112)&&g%8?4:0,_o.push(x==112?r()[g>>>2>>>0]:x==106?Nt[g>>>3]:x==105?t()[g>>>2>>>0]:n()[g>>>3>>>0]),g+=I?8:4}return Xr[c](..._o)}var Ad=()=>{},Pd=()=>Date.now();function Ed(c,m){return J(Ir(c>>>0,m>>>0))}var La,Dd=()=>{throw vr+=1,"unwind"};function Ld(){return 4294901760}La=()=>performance.timeOrigin+performance.now();var $d=()=>navigator.hardwareConcurrency;function kd(c){c>>>=0;var m=o().length;if(c<=m||4294901760<c)return!1;for(var g=1;4>=g;g*=2){var x=m*(1+.2/g);x=Math.min(x,c+100663296);var I=Math;x=Math.max(c,x);t:{I=(I.min.call(I,4294901760,x+(65536-x%65536)%65536)-rt.buffer.byteLength+65535)/65536;try{rt.grow(I),Rt();var E=1;break t}catch{}E=void 0}if(E)return!0}return!1}var Zr=()=>(de("Cannot use convertFrameToPC (needed by __builtin_return_address) without -sUSE_OFFSET_CONVERTER"),0),Ye={},$a=c=>{c.forEach(m=>{var g=Zr();g&&(Ye[g]=m)})};function Bd(){var c=Error().stack.toString().split(`
-`);return c[0]=="Error"&&c.shift(),$a(c),Ye.Xa=Zr(),Ye.Za=c,Ye.Xa}function Fd(c,m,g){if(c>>>=0,m>>>=0,Ye.Xa==c)var x=Ye.Za;else(x=Error().stack.toString().split(`
-`))[0]=="Error"&&x.shift(),$a(x);for(var I=3;x[I]&&Zr()!=c;)++I;for(c=0;c<g&&x[c+I];++c)t()[m+4*c>>>2>>>0]=Zr();return c}var Oo,So={},ka=()=>{if(!Oo){var c,m={USER:"web_user",LOGNAME:"web_user",PATH:"/",PWD:"/",HOME:"/home/web_user",LANG:(typeof navigator=="object"&&navigator.languages&&navigator.languages[0]||"C").replace("-","_")+".UTF-8",_:D||"./this.program"};for(c in So)So[c]===void 0?delete m[c]:m[c]=So[c];var g=[];for(c in m)g.push(`${c}=${m[c]}`);Oo=g}return Oo};function Ba(c,m){if(d)return st(18,1,c,m);c>>>=0,m>>>=0;var g=0;return ka().forEach((x,I)=>{var E=m+g;for(I=r()[c+4*I>>>2>>>0]=E,E=0;E<x.length;++E)e()[I++>>>0]=x.charCodeAt(E);e()[I>>>0]=0,g+=x.length+1}),0}function Fa(c,m){if(d)return st(19,1,c,m);c>>>=0,m>>>=0;var g=ka();r()[c>>>2>>>0]=g.length;var x=0;return g.forEach(I=>x+=I.length+1),r()[m>>>2>>>0]=x,0}function Ca(c){return d?st(20,1,c):52}function Na(c,m,g,x){return d?st(21,1,c,m,g,x):52}function Ra(c,m,g,x){return d?st(22,1,c,m,g,x):70}var Cd=[null,[],[]];function Ga(c,m,g,x){if(d)return st(23,1,c,m,g,x);m>>>=0,g>>>=0,x>>>=0;for(var I=0,E=0;E<g;E++){var N=r()[m>>>2>>>0],at=r()[m+4>>>2>>>0];m+=8;for(var St=0;St<at;St++){var Et=o()[N+St>>>0],kt=Cd[c];Et===0||Et===10?((c===1?lt:J)(ca(kt,0)),kt.length=0):kt.push(Et)}I+=at}return r()[x>>>2>>>0]=I,0}var Ma=[31,29,31,30,31,30,31,31,30,31,30,31],Ua=[31,28,31,30,31,30,31,31,30,31,30,31],Nd=(c,m)=>{e().set(c,m>>>0)};function Va(c,m,g,x){function I(_,tt,ft){for(_=typeof _=="number"?_.toString():_||"";_.length<tt;)_=ft[0]+_;return _}function E(_,tt){return I(_,tt,"0")}function N(_,tt){function ft(Ja){return 0>Ja?-1:0<Ja?1:0}var De;return(De=ft(_.getFullYear()-tt.getFullYear()))===0&&(De=ft(_.getMonth()-tt.getMonth()))===0&&(De=ft(_.getDate()-tt.getDate())),De}function at(_){switch(_.getDay()){case 0:return new Date(_.getFullYear()-1,11,29);case 1:return _;case 2:return new Date(_.getFullYear(),0,3);case 3:return new Date(_.getFullYear(),0,2);case 4:return new Date(_.getFullYear(),0,1);case 5:return new Date(_.getFullYear()-1,11,31);case 6:return new Date(_.getFullYear()-1,11,30)}}function St(_){var tt=_.Pa;for(_=new Date(new Date(_.Qa+1900,0,1).getTime());0<tt;){var ft=_.getMonth(),De=(Je(_.getFullYear())?Ma:Ua)[ft];if(!(tt>De-_.getDate())){_.setDate(_.getDate()+tt);break}tt-=De-_.getDate()+1,_.setDate(1),11>ft?_.setMonth(ft+1):(_.setMonth(0),_.setFullYear(_.getFullYear()+1))}return ft=new Date(_.getFullYear()+1,0,4),tt=at(new Date(_.getFullYear(),0,4)),ft=at(ft),0>=N(tt,_)?0>=N(ft,_)?_.getFullYear()+1:_.getFullYear():_.getFullYear()-1}c>>>=0,m>>>=0,g>>>=0,x>>>=0;var Et=r()[x+40>>>2>>>0];for(var kt in x={cb:t()[x>>>2>>>0],bb:t()[x+4>>>2>>>0],Sa:t()[x+8>>>2>>>0],Va:t()[x+12>>>2>>>0],Ta:t()[x+16>>>2>>>0],Qa:t()[x+20>>>2>>>0],Na:t()[x+24>>>2>>>0],Pa:t()[x+28>>>2>>>0],kb:t()[x+32>>>2>>>0],ab:t()[x+36>>>2>>>0],eb:Et?Ir(Et):""},g=Ir(g),Et={"%c":"%a %b %d %H:%M:%S %Y","%D":"%m/%d/%y","%F":"%Y-%m-%d","%h":"%b","%r":"%I:%M:%S %p","%R":"%H:%M","%T":"%H:%M:%S","%x":"%m/%d/%y","%X":"%H:%M:%S","%Ec":"%c","%EC":"%C","%Ex":"%m/%d/%y","%EX":"%H:%M:%S","%Ey":"%y","%EY":"%Y","%Od":"%d","%Oe":"%e","%OH":"%H","%OI":"%I","%Om":"%m","%OM":"%M","%OS":"%S","%Ou":"%u","%OU":"%U","%OV":"%V","%Ow":"%w","%OW":"%W","%Oy":"%y"})g=g.replace(new RegExp(kt,"g"),Et[kt]);var Xa="Sunday Monday Tuesday Wednesday Thursday Friday Saturday".split(" "),Ka="January February March April May June July August September October November December".split(" ");for(kt in Et={"%a":_=>Xa[_.Na].substring(0,3),"%A":_=>Xa[_.Na],"%b":_=>Ka[_.Ta].substring(0,3),"%B":_=>Ka[_.Ta],"%C":_=>E((_.Qa+1900)/100|0,2),"%d":_=>E(_.Va,2),"%e":_=>I(_.Va,2," "),"%g":_=>St(_).toString().substring(2),"%G":St,"%H":_=>E(_.Sa,2),"%I":_=>((_=_.Sa)==0?_=12:12<_&&(_-=12),E(_,2)),"%j":_=>{for(var tt=0,ft=0;ft<=_.Ta-1;tt+=(Je(_.Qa+1900)?Ma:Ua)[ft++]);return E(_.Va+tt,3)},"%m":_=>E(_.Ta+1,2),"%M":_=>E(_.bb,2),"%n":()=>`
-`,"%p":_=>0<=_.Sa&&12>_.Sa?"AM":"PM","%S":_=>E(_.cb,2),"%t":()=>"	","%u":_=>_.Na||7,"%U":_=>E(Math.floor((_.Pa+7-_.Na)/7),2),"%V":_=>{var tt=Math.floor((_.Pa+7-(_.Na+6)%7)/7);if(2>=(_.Na+371-_.Pa-2)%7&&tt++,tt)tt==53&&((ft=(_.Na+371-_.Pa)%7)==4||ft==3&&Je(_.Qa)||(tt=1));else{tt=52;var ft=(_.Na+7-_.Pa-1)%7;(ft==4||ft==5&&Je(_.Qa%400-1))&&tt++}return E(tt,2)},"%w":_=>_.Na,"%W":_=>E(Math.floor((_.Pa+7-(_.Na+6)%7)/7),2),"%y":_=>(_.Qa+1900).toString().substring(2),"%Y":_=>_.Qa+1900,"%z":_=>{var tt=0<=(_=_.ab);return _=Math.abs(_)/60,(tt?"+":"-")+("0000"+(_/60*100+_%60)).slice(-4)},"%Z":_=>_.eb,"%%":()=>"%"},g=g.replace(/%%/g,"\0\0"),Et)g.includes(kt)&&(g=g.replace(new RegExp(kt,"g"),Et[kt](x)));return kt=function(_){var tt=Array(ha(_)+1);return ma(_,tt,0,tt.length),tt}(g=g.replace(/\0\0/g,"%")),kt.length>m?0:(Nd(kt,c),kt.length-1)}function Rd(c,m,g,x){return Va(c>>>0,m>>>0,g>>>0,x>>>0)}d||function(){for(var c=u.numThreads-1;c--;)aa();It.unshift(()=>{ie++,function(m){d?m():Promise.all(ve.map(ia)).then(m)}(()=>jr())})}();var Gd=[ta,ea,ua,pa,da,ba,ga,ya,xa,Ta,wa,va,Ia,_a,Oa,Sa,Ea,Da,Ba,Fa,Ca,Na,Ra,Ga],U=function(){function c(g,x){return U=g.exports,U=function(){var I=U,E=at=>()=>at()>>>0,N=at=>St=>at(St)>>>0;return(I=Object.assign({},I)).ya=E(I.ya),I.za=N(I.za),I.emscripten_main_runtime_thread_id=E(I.emscripten_main_runtime_thread_id),I.La=N(I.La),I.Ma=E(I.Ma),I}(),ra.push(U.Ba),sa=U.Ca,Gt.unshift(U.Y),M=x,jr(),U}var m=wr();if(ie++,u.instantiateWasm)try{return u.instantiateWasm(m,c)}catch(g){J(`Module.instantiateWasm callback failed with error: ${g}`),a(g)}return we||=u.locateFile?Tr("ort-wasm-simd-threaded.wasm")?"ort-wasm-simd-threaded.wasm":u.locateFile?u.locateFile("ort-wasm-simd-threaded.wasm",A):A+"ort-wasm-simd-threaded.wasm":new URL("ort-wasm-simd-threaded.wasm",import.meta.url).href,function(g,x){var I=we;return typeof WebAssembly.instantiateStreaming!="function"||Tr(I)||_t(I)||typeof fetch!="function"?he(I,g,x):fetch(I,{credentials:"same-origin"}).then(E=>WebAssembly.instantiateStreaming(E,g).then(x,function(N){return J(`wasm streaming compile failed: ${N}`),J("falling back to ArrayBuffer instantiation"),he(I,g,x)}))}(m,function(g){c(g.instance,g.module)}).catch(a),{}}();u._OrtInit=(c,m)=>(u._OrtInit=U.Z)(c,m),u._OrtGetLastError=(c,m)=>(u._OrtGetLastError=U._)(c,m),u._OrtCreateSessionOptions=(c,m,g,x,I,E,N,at,St,Et)=>(u._OrtCreateSessionOptions=U.$)(c,m,g,x,I,E,N,at,St,Et),u._OrtAppendExecutionProvider=(c,m)=>(u._OrtAppendExecutionProvider=U.aa)(c,m),u._OrtAddFreeDimensionOverride=(c,m,g)=>(u._OrtAddFreeDimensionOverride=U.ba)(c,m,g),u._OrtAddSessionConfigEntry=(c,m,g)=>(u._OrtAddSessionConfigEntry=U.ca)(c,m,g),u._OrtReleaseSessionOptions=c=>(u._OrtReleaseSessionOptions=U.da)(c),u._OrtCreateSession=(c,m,g)=>(u._OrtCreateSession=U.ea)(c,m,g),u._OrtReleaseSession=c=>(u._OrtReleaseSession=U.fa)(c),u._OrtGetInputOutputCount=(c,m,g)=>(u._OrtGetInputOutputCount=U.ga)(c,m,g),u._OrtGetInputName=(c,m)=>(u._OrtGetInputName=U.ha)(c,m),u._OrtGetOutputName=(c,m)=>(u._OrtGetOutputName=U.ia)(c,m),u._OrtFree=c=>(u._OrtFree=U.ja)(c),u._OrtCreateTensor=(c,m,g,x,I,E)=>(u._OrtCreateTensor=U.ka)(c,m,g,x,I,E),u._OrtGetTensorData=(c,m,g,x,I)=>(u._OrtGetTensorData=U.la)(c,m,g,x,I),u._OrtReleaseTensor=c=>(u._OrtReleaseTensor=U.ma)(c),u._OrtCreateRunOptions=(c,m,g,x)=>(u._OrtCreateRunOptions=U.na)(c,m,g,x),u._OrtAddRunConfigEntry=(c,m,g)=>(u._OrtAddRunConfigEntry=U.oa)(c,m,g),u._OrtReleaseRunOptions=c=>(u._OrtReleaseRunOptions=U.pa)(c),u._OrtCreateBinding=c=>(u._OrtCreateBinding=U.qa)(c),u._OrtBindInput=(c,m,g)=>(u._OrtBindInput=U.ra)(c,m,g),u._OrtBindOutput=(c,m,g,x)=>(u._OrtBindOutput=U.sa)(c,m,g,x),u._OrtClearBoundOutputs=c=>(u._OrtClearBoundOutputs=U.ta)(c),u._OrtReleaseBinding=c=>(u._OrtReleaseBinding=U.ua)(c),u._OrtRunWithBinding=(c,m,g,x,I)=>(u._OrtRunWithBinding=U.va)(c,m,g,x,I),u._OrtRun=(c,m,g,x,I,E,N,at)=>(u._OrtRun=U.wa)(c,m,g,x,I,E,N,at),u._OrtEndProfiling=c=>(u._OrtEndProfiling=U.xa)(c);var Ze=()=>(Ze=U.ya)();u._malloc=c=>(u._malloc=U.za)(c),u._free=c=>(u._free=U.Aa)(c);var Qr,Ao=(c,m,g,x,I,E)=>(Ao=U.Da)(c,m,g,x,I,E),za=()=>(za=U.Ea)(),Wa=(c,m,g,x,I)=>(Wa=U.Fa)(c,m,g,x,I),Po=c=>(Po=U.Ga)(c),tn=c=>(tn=U.Ha)(c),Ha=()=>(Ha=U.Ia)(),qa=(c,m)=>(qa=U.Ja)(c,m),en=c=>(en=U.Ka)(c),Eo=c=>(Eo=U.La)(c),Do=()=>(Do=U.Ma)();function ja(){if(!(0<ie))if(d)s(u),d||Kr(Gt),startWorker(u);else{if(u.preRun)for(typeof u.preRun=="function"&&(u.preRun=[u.preRun]);u.preRun.length;)It.unshift(u.preRun.shift());Kr(It),0<ie||Qr||(Qr=!0,u.calledRun=!0,Vt||(d||Kr(Gt),s(u),d||Kr(Zi)))}}return u.stackSave=()=>Do(),u.stackRestore=c=>en(c),u.stackAlloc=c=>Eo(c),u.UTF8ToString=Ir,u.stringToUTF8=_r,u.lengthBytesUTF8=ha,Te=function c(){Qr||ja(),Qr||(Te=c)},ja(),l}),Tg=Np;globalThis.self?.name==="em-pthread"&&Np()});var dr,wg,vg,Ig,Mp,Up,_g,Vp,Vr=O(()=>{"use strict";eo();dr=!1?void 0:import.meta.url??(typeof document<"u"?document.currentScript?.src:typeof self<"u"?self.location?.href:void 0),wg=!1||typeof location>"u"?void 0:location.origin,vg=(i,e)=>{try{let o=e??dr;return(o?new URL(i,o):new URL(i)).origin===wg}catch{return!1}},Ig=async i=>{let o=await(await fetch(i,{credentials:"same-origin"})).blob();return URL.createObjectURL(o)},Mp=(Cp(),nn(Fp)).default,Up=async()=>{if(!dr)throw new Error("Failed to load proxy worker: cannot determine the script source URL.");if(vg(dr))return[void 0,Mp()];let i=await Ig(dr);return[i,Mp(i)]},_g=(Gp(),nn(Rp)).default,Vp=async(i,e,o)=>[void 0,_g]});var zi,Wi,fo,zp,Og,Sg,ro,gt,je=O(()=>{"use strict";Vr();Wi=!1,fo=!1,zp=!1,Og=()=>{if(typeof SharedArrayBuffer>"u")return!1;try{return typeof MessageChannel<"u"&&new MessageChannel().port1.postMessage(new SharedArrayBuffer(1)),WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,3,2,1,0,5,4,1,3,1,1,10,11,1,9,0,65,0,254,16,2,0,26,11]))}catch{return!1}},Sg=()=>{try{return WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,3,2,1,0,10,30,1,28,0,65,0,253,15,253,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,253,186,1,26,11]))}catch{return!1}},ro=async i=>{if(Wi)return Promise.resolve();if(fo)throw new Error("multiple calls to 'initializeWebAssembly()' detected.");if(zp)throw new Error("previous call to 'initializeWebAssembly()' failed.");fo=!0;let e=i.initTimeout,o=i.numThreads;if(!Sg())throw new Error("WebAssembly SIMD is not supported in the current environment.");let t=Og();o>1&&!t&&(typeof self<"u"&&!self.crossOriginIsolated&&console.warn("env.wasm.numThreads is set to "+o+", but this will not work unless you enable crossOriginIsolated mode. See https://web.dev/cross-origin-isolation-guide/ for more info."),console.warn("WebAssembly multi-threading is not supported in the current environment. Falling back to single-threading."),i.numThreads=o=1);let r=i.wasmPaths,n=typeof r=="string"?r:void 0,s=r?.mjs,a=s?.href??s,u=r?.wasm,l=u?.href??u,[f,p]=await Vp(a,n,o>1),d=!1,y=[];if(e>0&&y.push(new Promise(w=>{setTimeout(()=>{d=!0,w()},e)})),y.push(new Promise((w,v)=>{let S={numThreads:o};(l||n)&&(S.locateFile=(D,P)=>l??(n??P)+D),p(S).then(D=>{fo=!1,Wi=!0,zi=D,w(),f&&URL.revokeObjectURL(f)},D=>{fo=!1,zp=!0,v(D)})})),await Promise.race(y),d)throw new Error(`WebAssembly backend initializing failed due to timeout: ${e}ms`)},gt=()=>{if(Wi&&zi)return zi;throw new Error("WebAssembly is not initialized yet.")}});var yt,Wr,ht,co=O(()=>{"use strict";je();yt=(i,e)=>{let o=gt(),t=o.lengthBytesUTF8(i)+1,r=o._malloc(t);return o.stringToUTF8(i,r,t),e.push(r),r},Wr=(i,e,o,t)=>{if(typeof i=="object"&&i!==null){if(o.has(i))throw new Error("Circular reference in options");o.add(i)}Object.entries(i).forEach(([r,n])=>{let s=e?e+r:r;if(typeof n=="object")Wr(n,s+".",o,t);else if(typeof n=="string"||typeof n=="number")t(s,n.toString());else if(typeof n=="boolean")t(s,n?"1":"0");else throw new Error(`Can't handle extra config type: ${typeof n}`)})},ht=i=>{let e=gt(),o=e.stackSave();try{let t=e.stackAlloc(8);e._OrtGetLastError(t,t+4);let r=e.HEAP32[t/4],n=e.HEAPU32[t/4+1],s=n?e.UTF8ToString(n):"";throw new Error(`${i} ERROR_CODE: ${r}, ERROR_MESSAGE: ${s}`)}finally{e.stackRestore(o)}}});var Wp,Hp=O(()=>{"use strict";je();co();Wp=i=>{let e=gt(),o=0,t=[],r=i||{};try{if(i?.logSeverityLevel===void 0)r.logSeverityLevel=2;else if(typeof i.logSeverityLevel!="number"||!Number.isInteger(i.logSeverityLevel)||i.logSeverityLevel<0||i.logSeverityLevel>4)throw new Error(`log serverity level is not valid: ${i.logSeverityLevel}`);if(i?.logVerbosityLevel===void 0)r.logVerbosityLevel=0;else if(typeof i.logVerbosityLevel!="number"||!Number.isInteger(i.logVerbosityLevel))throw new Error(`log verbosity level is not valid: ${i.logVerbosityLevel}`);i?.terminate===void 0&&(r.terminate=!1);let n=0;return i?.tag!==void 0&&(n=yt(i.tag,t)),o=e._OrtCreateRunOptions(r.logSeverityLevel,r.logVerbosityLevel,!!r.terminate,n),o===0&&ht("Can't create run options."),i?.extra!==void 0&&Wr(i.extra,"",new WeakSet,(s,a)=>{let u=yt(s,t),l=yt(a,t);e._OrtAddRunConfigEntry(o,u,l)!==0&&ht(`Can't set a run config entry: ${s} - ${a}.`)}),[o,t]}catch(n){throw o!==0&&e._OrtReleaseRunOptions(o),t.forEach(s=>e._free(s)),n}}});var Ag,Pg,Eg,Dg,qp,jp=O(()=>{"use strict";je();co();Ag=i=>{switch(i){case"disabled":return 0;case"basic":return 1;case"extended":return 2;case"all":return 99;default:throw new Error(`unsupported graph optimization level: ${i}`)}},Pg=i=>{switch(i){case"sequential":return 0;case"parallel":return 1;default:throw new Error(`unsupported execution mode: ${i}`)}},Eg=i=>{i.extra||(i.extra={}),i.extra.session||(i.extra.session={});let e=i.extra.session;e.use_ort_model_bytes_directly||(e.use_ort_model_bytes_directly="1"),i.executionProviders&&i.executionProviders.some(o=>(typeof o=="string"?o:o.name)==="webgpu")&&(i.enableMemPattern=!1)},Dg=(i,e,o)=>{for(let t of e){let r=typeof t=="string"?t:t.name;switch(r){case"webnn":if(r="WEBNN",typeof t!="string"){let a=t?.deviceType;if(a){let u=yt("deviceType",o),l=yt(a,o);gt()._OrtAddSessionConfigEntry(i,u,l)!==0&&ht(`Can't set a session config entry: 'deviceType' - ${a}.`)}}break;case"webgpu":if(r="JS",typeof t!="string"){let s=t;if(s?.preferredLayout){if(s.preferredLayout!=="NCHW"&&s.preferredLayout!=="NHWC")throw new Error(`preferredLayout must be either 'NCHW' or 'NHWC': ${s.preferredLayout}`);let a=yt("preferredLayout",o),u=yt(s.preferredLayout,o);gt()._OrtAddSessionConfigEntry(i,a,u)!==0&&ht(`Can't set a session config entry: 'preferredLayout' - ${s.preferredLayout}.`)}}break;case"wasm":case"cpu":continue;default:throw new Error(`not supported execution provider: ${r}`)}let n=yt(r,o);gt()._OrtAppendExecutionProvider(i,n)!==0&&ht(`Can't append execution provider: ${r}.`)}},qp=i=>{let e=gt(),o=0,t=[],r=i||{};Eg(r);try{let n=Ag(r.graphOptimizationLevel??"all"),s=Pg(r.executionMode??"sequential"),a=typeof r.logId=="string"?yt(r.logId,t):0,u=r.logSeverityLevel??2;if(!Number.isInteger(u)||u<0||u>4)throw new Error(`log serverity level is not valid: ${u}`);let l=r.logVerbosityLevel??0;if(!Number.isInteger(l)||l<0||l>4)throw new Error(`log verbosity level is not valid: ${l}`);let f=typeof r.optimizedModelFilePath=="string"?yt(r.optimizedModelFilePath,t):0;if(o=e._OrtCreateSessionOptions(n,!!r.enableCpuMemArena,!!r.enableMemPattern,s,!!r.enableProfiling,0,a,u,l,f),o===0&&ht("Can't create session options."),r.executionProviders&&Dg(o,r.executionProviders,t),r.enableGraphCapture!==void 0){if(typeof r.enableGraphCapture!="boolean")throw new Error(`enableGraphCapture must be a boolean value: ${r.enableGraphCapture}`);let p=yt("enableGraphCapture",t),d=yt(r.enableGraphCapture.toString(),t);e._OrtAddSessionConfigEntry(o,p,d)!==0&&ht(`Can't set a session config entry: 'enableGraphCapture' - ${r.enableGraphCapture}.`)}if(r.freeDimensionOverrides)for(let[p,d]of Object.entries(r.freeDimensionOverrides)){if(typeof p!="string")throw new Error(`free dimension override name must be a string: ${p}`);if(typeof d!="number"||!Number.isInteger(d)||d<0)throw new Error(`free dimension override value must be a non-negative integer: ${d}`);let y=yt(p,t);e._OrtAddFreeDimensionOverride(o,y,d)!==0&&ht(`Can't set a free dimension override: ${p} - ${d}.`)}return r.extra!==void 0&&Wr(r.extra,"",new WeakSet,(p,d)=>{let y=yt(p,t),w=yt(d,t);e._OrtAddSessionConfigEntry(o,y,w)!==0&&ht(`Can't set a session config entry: ${p} - ${d}.`)}),[o,t]}catch(n){throw o!==0&&e._OrtReleaseSessionOptions(o),t.forEach(s=>e._free(s)),n}}});var Hi,Xp,qi,Kp,Jp,po,Yp,ji=O(()=>{"use strict";Hi=i=>{switch(i){case"int8":return 3;case"uint8":return 2;case"bool":return 9;case"int16":return 5;case"uint16":return 4;case"int32":return 6;case"uint32":return 12;case"float16":return 10;case"float32":return 1;case"float64":return 11;case"string":return 8;case"int64":return 7;case"uint64":return 13;default:throw new Error(`unsupported data type: ${i}`)}},Xp=i=>{switch(i){case 3:return"int8";case 2:return"uint8";case 9:return"bool";case 5:return"int16";case 4:return"uint16";case 6:return"int32";case 12:return"uint32";case 10:return"float16";case 1:return"float32";case 11:return"float64";case 8:return"string";case 7:return"int64";case 13:return"uint64";default:throw new Error(`unsupported data type: ${i}`)}},qi=i=>[void 0,4,1,1,2,2,4,8,void 0,1,2,8,4,8,void 0,void 0,void 0][i],Kp=i=>{switch(i){case"float16":return typeof Float16Array<"u"&&Float16Array.from?Float16Array:Uint16Array;case"float32":return Float32Array;case"uint8":return Uint8Array;case"int8":return Int8Array;case"uint16":return Uint16Array;case"int16":return Int16Array;case"int32":return Int32Array;case"bool":return Uint8Array;case"float64":return Float64Array;case"uint32":return Uint32Array;case"int64":return BigInt64Array;case"uint64":return BigUint64Array;default:throw new Error(`unsupported type: ${i}`)}},Jp=i=>{switch(i){case"verbose":return 0;case"info":return 1;case"warning":return 2;case"error":return 3;case"fatal":return 4;default:throw new Error(`unsupported logging level: ${i}`)}},po=i=>i==="float32"||i==="float16"||i==="int32"||i==="int64"||i==="uint32"||i==="uint8"||i==="bool",Yp=i=>{switch(i){case"none":return 0;case"cpu":return 1;case"cpu-pinned":return 2;case"texture":return 3;case"gpu-buffer":return 4;default:throw new Error(`unsupported data location: ${i}`)}}});var Hr,Xi=O(()=>{"use strict";eo();Hr=async i=>{if(typeof i=="string")if(!1)try{let{readFile:e}=Lo("node:fs/promises");return new Uint8Array(await e(i))}catch(e){if(e.code==="ERR_FS_FILE_TOO_LARGE"){let{createReadStream:o}=Lo("node:fs"),t=o(i),r=[];for await(let n of t)r.push(n);return new Uint8Array(Buffer.concat(r))}throw e}else{let e=await fetch(i);if(!e.ok)throw new Error(`failed to load external data file: ${i}`);let o=e.headers.get("Content-Length"),t=o?parseInt(o,10):0;if(t<1073741824)return new Uint8Array(await e.arrayBuffer());{if(!e.body)throw new Error(`failed to load external data file: ${i}, no response body.`);let r=e.body.getReader(),n;try{n=new ArrayBuffer(t)}catch(a){if(a instanceof RangeError){let u=Math.ceil(t/65536);n=new WebAssembly.Memory({initial:u,maximum:u}).buffer}else throw a}let s=0;for(;;){let{done:a,value:u}=await r.read();if(a)break;let l=u.byteLength;new Uint8Array(n,s,l).set(u),s+=l}return new Uint8Array(n,0,t)}}else return i instanceof Blob?new Uint8Array(await i.arrayBuffer()):i instanceof Uint8Array?i:new Uint8Array(i)}});var Lg,no,oo,mr,$g,zr,io,ao,Zp,so,uo,lo,Ui=O(()=>{"use strict";Hp();jp();ji();je();co();Xi();Lg=(i,e)=>{gt()._OrtInit(i,e)!==0&&ht("Can't initialize onnxruntime.")},no=async i=>{Lg(i.wasm.numThreads,Jp(i.logLevel))},oo=async(i,e)=>{},mr=new Map,$g=i=>{let e=gt(),o=e.stackSave();try{let t=e.stackAlloc(8);return e._OrtGetInputOutputCount(i,t,t+4)!==0&&ht("Can't get session input/output count."),[e.HEAP32[t/4],e.HEAP32[t/4+1]]}finally{e.stackRestore(o)}},zr=i=>{let e=gt(),o=e._malloc(i.byteLength);if(o===0)throw new Error(`Can't create a session. failed to allocate a buffer of size ${i.byteLength}.`);return e.HEAPU8.set(i,o),[o,i.byteLength]},io=async(i,e)=>{let o,t,r=gt();Array.isArray(i)?[o,t]=i:i.buffer===r.HEAPU8.buffer?[o,t]=[i.byteOffset,i.byteLength]:[o,t]=zr(i);let n=0,s=0,a=0,u=[],l=[],f=[];try{if([s,u]=qp(e),e?.externalData&&r.mountExternalData){let P=[];for(let A of e.externalData){let G=typeof A=="string"?A:A.path;P.push(Hr(typeof A=="string"?A:A.data).then(V=>{r.mountExternalData(G,V)}))}await Promise.all(P)}for(let P of e?.executionProviders??[])if((typeof P=="string"?P:P.name)==="webnn"){if(r.currentContext)throw new Error("WebNN execution provider is already set.");if(typeof P!="string"){let G=P,V=G?.context,lt=G?.gpuDevice,J=G?.deviceType,Ut=G?.numThreads,Pt=G?.powerPreference;V?r.currentContext=V:lt?r.currentContext=await navigator.ml.createContext(lt):r.currentContext=await navigator.ml.createContext({deviceType:J,numThreads:Ut,powerPreference:Pt})}else r.currentContext=await navigator.ml.createContext();break}n=await r._OrtCreateSession(o,t,s),n===0&&ht("Can't create a session."),r.currentContext&&(r.currentContext=void 0);let[p,d]=$g(n),y=!!e?.enableGraphCapture,w=[],v=[],S=[];for(let P=0;P<p;P++){let A=r._OrtGetInputName(n,P);A===0&&ht("Can't get an input name."),l.push(A),w.push(r.UTF8ToString(A))}for(let P=0;P<d;P++){let A=r._OrtGetOutputName(n,P);A===0&&ht("Can't get an output name."),f.push(A);let G=r.UTF8ToString(A);v.push(G)}let D=null;return mr.set(n,[n,l,f,D,y,!1]),[n,w,v]}catch(p){throw l.forEach(d=>r._OrtFree(d)),f.forEach(d=>r._OrtFree(d)),a!==0&&r._OrtReleaseBinding(a),n!==0&&r._OrtReleaseSession(n),p}finally{r._free(o),s!==0&&r._OrtReleaseSessionOptions(s),u.forEach(p=>r._free(p)),r.unmountExternalData?.()}},ao=i=>{let e=gt(),o=mr.get(i);if(!o)throw new Error(`cannot release session. invalid session id: ${i}`);let[t,r,n,s,a]=o;s&&(a&&e._OrtClearBoundOutputs(s.handle),e._OrtReleaseBinding(s.handle)),e.jsepOnReleaseSession?.(i),r.forEach(u=>e._OrtFree(u)),n.forEach(u=>e._OrtFree(u)),e._OrtReleaseSession(t),mr.delete(i)},Zp=(i,e,o,t,r,n=!1)=>{if(!i){e.push(0);return}let s=gt(),a=i[0],u=i[1],l=i[3],f,p;if(a==="string"&&l==="gpu-buffer")throw new Error("String tensor is not supported on GPU.");if(n&&l!=="gpu-buffer")throw new Error(`External buffer must be provided for input/output index ${r} when enableGraphCapture is true.`);if(l==="gpu-buffer"){let w=i[2].gpuBuffer,v=qi(Hi(a));p=u.reduce((D,P)=>D*P,1)*v;let S=s.jsepRegisterBuffer;if(!S)throw new Error('Tensor location "gpu-buffer" is not supported without using WebGPU.');f=S(t,r,w,p)}else{let w=i[2];if(Array.isArray(w)){p=4*w.length,f=s._malloc(p),o.push(f);let v=f/4;for(let S=0;S<w.length;S++){if(typeof w[S]!="string")throw new TypeError(`tensor data at index ${S} is not a string`);s.HEAPU32[v++]=yt(w[S],o)}}else p=w.byteLength,f=s._malloc(p),o.push(f),s.HEAPU8.set(new Uint8Array(w.buffer,w.byteOffset,p),f)}let d=s.stackSave(),y=s.stackAlloc(4*u.length);try{let w=y/4;u.forEach(S=>s.HEAP32[w++]=S);let v=s._OrtCreateTensor(Hi(a),f,p,y,u.length,Yp(l));v===0&&ht(`Can't create tensor for input/output. session=${t}, index=${r}.`),e.push(v)}finally{s.stackRestore(d)}},so=async(i,e,o,t,r,n)=>{let s=gt(),a=mr.get(i);if(!a)throw new Error(`cannot run inference. invalid session id: ${i}`);let u=a[0],l=a[1],f=a[2],p=a[3],d=a[4],y=a[5],w=e.length,v=t.length,S=0,D=[],P=[],A=[],G=[],V=s.stackSave(),lt=s.stackAlloc(w*4),J=s.stackAlloc(w*4),Ut=s.stackAlloc(v*4),Pt=s.stackAlloc(v*4);try{[S,D]=Wp(n);for(let Q=0;Q<w;Q++)Zp(o[Q],P,G,i,e[Q],d);for(let Q=0;Q<v;Q++)Zp(r[Q],A,G,i,w+t[Q],d);let rt=lt/4,M=J/4,ye=Ut/4,pe=Pt/4;for(let Q=0;Q<w;Q++)s.HEAPU32[rt++]=P[Q],s.HEAPU32[M++]=l[e[Q]];for(let Q=0;Q<v;Q++)s.HEAPU32[ye++]=A[Q],s.HEAPU32[pe++]=f[t[Q]];s.jsepOnRunStart?.(u);let yr;yr=await s._OrtRun(u,J,lt,w,Pt,v,Ut,S),yr!==0&&ht("failed to call OrtRun().");let xe=[];for(let Q=0;Q<v;Q++){let Nt=s.HEAPU32[Ut/4+Q];if(Nt===A[Q]){xe.push(r[Q]);continue}let xr=s.stackSave(),Vt=s.stackAlloc(4*4),Rt=!1,It,Gt=0;try{s._OrtGetTensorData(Nt,Vt,Vt+4,Vt+8,Vt+12)!==0&&ht(`Can't access output tensor data on index ${Q}.`);let ie=Vt/4,Ke=s.HEAPU32[ie++];Gt=s.HEAPU32[ie++];let Te=s.HEAPU32[ie++],jr=s.HEAPU32[ie++],de=[];for(let _t=0;_t<jr;_t++)de.push(s.HEAPU32[Te/4+_t]);s._OrtFree(Te);let we=de.reduce((_t,Ot)=>_t*Ot,1);It=Xp(Ke);let Tr=p?.outputPreferredLocations[t[Q]];if(It==="string"){if(Tr==="gpu-buffer")throw new Error("String tensor is not supported on GPU.");let _t=[],Ot=Gt/4;for(let he=0;he<we;he++){let wr=s.HEAPU32[Ot++],Xr=he===we-1?void 0:s.HEAPU32[Ot]-wr;_t.push(s.UTF8ToString(wr,Xr))}xe.push([It,de,_t,"cpu"])}else if(Tr==="gpu-buffer"&&we>0){let _t=s.jsepGetBuffer;if(!_t)throw new Error('preferredLocation "gpu-buffer" is not supported without using WebGPU.');let Ot=_t(Gt),he=qi(Ke);if(he===void 0||!po(It))throw new Error(`Unsupported data type: ${It}`);Rt=!0,xe.push([It,de,{gpuBuffer:Ot,download:s.jsepCreateDownloader(Ot,we*he,It),dispose:()=>{s._OrtReleaseTensor(Nt)}},"gpu-buffer"])}else{let _t=Kp(It),Ot=new _t(we);new Uint8Array(Ot.buffer,Ot.byteOffset,Ot.byteLength).set(s.HEAPU8.subarray(Gt,Gt+Ot.byteLength)),xe.push([It,de,Ot,"cpu"])}}finally{s.stackRestore(xr),It==="string"&&Gt&&s._free(Gt),Rt||s._OrtReleaseTensor(Nt)}}return p&&!d&&(s._OrtClearBoundOutputs(p.handle),mr.set(i,[u,l,f,p,d,!1])),xe}finally{s.stackRestore(V),P.forEach(rt=>s._OrtReleaseTensor(rt)),A.forEach(rt=>s._OrtReleaseTensor(rt)),G.forEach(rt=>s._free(rt)),S!==0&&s._OrtReleaseRunOptions(S),D.forEach(rt=>s._free(rt))}},uo=i=>{let e=gt(),o=mr.get(i);if(!o)throw new Error("invalid session id");let t=o[0],r=e._OrtEndProfiling(t);r===0&&ht("Can't get an profile file name."),e._OrtFree(r)},lo=i=>{let e=[];for(let o of i){let t=o[2];!Array.isArray(t)&&"buffer"in t&&e.push(t.buffer)}return e}});var Xe,Yt,qr,mo,bo,ho,Ki,Ji,br,gr,Bg,Qp,td,ed,rd,nd,od,id,Yi=O(()=>{"use strict";Zt();Ui();je();Vr();Xe=()=>!!z.wasm.proxy&&typeof document<"u",qr=!1,mo=!1,bo=!1,Ji=new Map,br=(i,e)=>{let o=Ji.get(i);o?o.push(e):Ji.set(i,[e])},gr=()=>{if(qr||!mo||bo||!Yt)throw new Error("worker not ready")},Bg=i=>{switch(i.data.type){case"init-wasm":qr=!1,i.data.err?(bo=!0,Ki[1](i.data.err)):(mo=!0,Ki[0]()),ho&&(URL.revokeObjectURL(ho),ho=void 0);break;case"init-ep":case"copy-from":case"create":case"release":case"run":case"end-profiling":{let e=Ji.get(i.data.type);i.data.err?e.shift()[1](i.data.err):e.shift()[0](i.data.out);break}default:}},Qp=async()=>{if(!mo){if(qr)throw new Error("multiple calls to 'initWasm()' detected.");if(bo)throw new Error("previous call to 'initWasm()' failed.");if(qr=!0,Xe())return new Promise((i,e)=>{Yt?.terminate(),Up().then(([o,t])=>{try{Yt=t,Yt.onerror=n=>e(n),Yt.onmessage=Bg,Ki=[i,e];let r={type:"init-wasm",in:z};Yt.postMessage(r),ho=o}catch(r){e(r)}},e)});try{await ro(z.wasm),await no(z),mo=!0}catch(i){throw bo=!0,i}finally{qr=!1}}},td=async i=>{if(Xe())return gr(),new Promise((e,o)=>{br("init-ep",[e,o]);let t={type:"init-ep",in:{epName:i,env:z}};Yt.postMessage(t)});await oo(z,i)},ed=async i=>Xe()?(gr(),new Promise((e,o)=>{br("copy-from",[e,o]);let t={type:"copy-from",in:{buffer:i}};Yt.postMessage(t,[i.buffer])})):zr(i),rd=async(i,e)=>{if(Xe()){if(e?.preferredOutputLocation)throw new Error('session option "preferredOutputLocation" is not supported for proxy.');return gr(),new Promise((o,t)=>{br("create",[o,t]);let r={type:"create",in:{model:i,options:{...e}}},n=[];i instanceof Uint8Array&&n.push(i.buffer),Yt.postMessage(r,n)})}else return io(i,e)},nd=async i=>{if(Xe())return gr(),new Promise((e,o)=>{br("release",[e,o]);let t={type:"release",in:i};Yt.postMessage(t)});ao(i)},od=async(i,e,o,t,r,n)=>{if(Xe()){if(o.some(s=>s[3]!=="cpu"))throw new Error("input tensor on GPU is not supported for proxy.");if(r.some(s=>s))throw new Error("pre-allocated output tensor is not supported for proxy.");return gr(),new Promise((s,a)=>{br("run",[s,a]);let u=o,l={type:"run",in:{sessionId:i,inputIndices:e,inputs:u,outputIndices:t,options:n}};Yt.postMessage(l,lo(u))})}else return so(i,e,o,t,r,n)},id=async i=>{if(Xe())return gr(),new Promise((e,o)=>{br("end-profiling",[e,o]);let t={type:"end-profiling",in:i};Yt.postMessage(t)});uo(i)}});var ad,Fg,go,sd=O(()=>{"use strict";Zt();Yi();ji();eo();Xi();ad=(i,e)=>{switch(i.location){case"cpu":return[i.type,i.dims,i.data,"cpu"];case"gpu-buffer":return[i.type,i.dims,{gpuBuffer:i.gpuBuffer},"gpu-buffer"];default:throw new Error(`invalid data location: ${i.location} for ${e()}`)}},Fg=i=>{switch(i[3]){case"cpu":return new xt(i[0],i[2],i[1]);case"gpu-buffer":{let e=i[0];if(!po(e))throw new Error(`not supported data type: ${e} for deserializing GPU tensor`);let{gpuBuffer:o,download:t,dispose:r}=i[2];return xt.fromGpuBuffer(o,{dataType:e,dims:i[1],download:t,dispose:r})}default:throw new Error(`invalid data location: ${i[3]}`)}},go=class{async fetchModelAndCopyToWasmMemory(e){return ed(await Hr(e))}async loadModel(e,o){ke();let t;typeof e=="string"?!1?t=await Hr(e):t=await this.fetchModelAndCopyToWasmMemory(e):t=e,[this.sessionId,this.inputNames,this.outputNames]=await rd(t,o),Be()}async dispose(){return nd(this.sessionId)}async run(e,o,t){ke();let r=[],n=[];Object.entries(e).forEach(d=>{let y=d[0],w=d[1],v=this.inputNames.indexOf(y);if(v===-1)throw new Error(`invalid input '${y}'`);r.push(w),n.push(v)});let s=[],a=[];Object.entries(o).forEach(d=>{let y=d[0],w=d[1],v=this.outputNames.indexOf(y);if(v===-1)throw new Error(`invalid output '${y}'`);s.push(w),a.push(v)});let u=r.map((d,y)=>ad(d,()=>`input "${this.inputNames[n[y]]}"`)),l=s.map((d,y)=>d?ad(d,()=>`output "${this.outputNames[a[y]]}"`):null),f=await od(this.sessionId,n,u,a,l,t),p={};for(let d=0;d<f.length;d++)p[this.outputNames[a[d]]]=s[d]??Fg(f[d]);return Be(),p}startProfiling(){}endProfiling(){id(this.sessionId)}}});var Cg,yo,ud=O(()=>{"use strict";Zt();Yi();sd();Vr();Cg=()=>{if((typeof z.wasm.initTimeout!="number"||z.wasm.initTimeout<0)&&(z.wasm.initTimeout=0),z.wasm.simd===!1&&console.warn('Deprecated property "env.wasm.simd" is set to false. non-SIMD build is no longer provided, and this setting will be ignored.'),typeof z.wasm.proxy!="boolean"&&(z.wasm.proxy=!1),typeof z.wasm.trace!="boolean"&&(z.wasm.trace=!1),typeof z.wasm.numThreads!="number"||!Number.isInteger(z.wasm.numThreads)||z.wasm.numThreads<=0)if(typeof self<"u"&&!self.crossOriginIsolated)z.wasm.numThreads=1;else{let i=typeof navigator>"u"?Lo("node:os").cpus().length:navigator.hardwareConcurrency;z.wasm.numThreads=Math.min(4,Math.ceil((i||1)/2))}},yo=class{async init(e){Cg(),await Qp(),await td(e)}async createInferenceSessionHandler(e,o){let t=new go;return await t.loadModel(e,o),Promise.resolve(t)}}});var ld={};Or(ld,{wasmBackend:()=>Ng});var Ng,fd=O(()=>{"use strict";ud();Ng=new yo});Zt();Zt();Zt();var As="1.19.0";var dO=Fo;{let i=($p(),nn(Lp)).onnxjsBackend;tr("webgl",i,-10)}{let i=(fd(),nn(ld)).wasmBackend;tr("cpu",i,10),tr("wasm",i,10)}Object.defineProperty(z.versions,"web",{value:As,enumerable:!0});export{qd as InferenceSession,gs as TRACE,ke as TRACE_FUNC_BEGIN,Be as TRACE_FUNC_END,xt as Tensor,Xd as TrainingSession,dO as default,z as env,tr as registerBackend};
-/*! Bundled license information:
+      return true;
+    }`,Pc=(t,e,r,n)=>t.rank>n?`
+    ${t.indicesSet("input_indices",e,"channel")};
+    ${t.indicesSet("input_indices",r,"batch")};
+`:"",Gy=(t,e,r,n,o)=>{let[a,u,d,c]=r.length===2?[-1,0,1,-1]:[0,2,3,1],p=t.type.value;return`
+    fn getInputValue(batch: u32, channel: u32, row: u32, col: u32) -> ${p} {
+      var input_indices: ${t.type.indices};
+      ${t.indicesSet("input_indices",u,`max(0, min(row, ${r[u]} - 1))`)};
+      ${t.indicesSet("input_indices",d,`max(0, min(col, ${r[d]} - 1))`)};
+      ${Pc(t,c,a,2)}
+      return ${t.getByIndices("input_indices")};
+    }
 
-long/index.js:
-  (**
-   * @license
-   * Copyright 2009 The Closure Library Authors
-   * Copyright 2020 Daniel Wirtz / The long.js Authors.
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *     http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   *
-   * SPDX-License-Identifier: Apache-2.0
-   *)
-*/
+    fn bilinearInterpolation(output_indices: ${e.type.indices}) -> ${p} {
+      var originalIndices = calculateOriginalIndicesFromOutputIndices(output_indices);
+      var row:${p} = originalIndices[${u}];
+      var col:${p} = originalIndices[${d}];
+      ${n?`if (row < 0 || row > (${r[u]} - 1) || col < 0 || col > (${r[d]} - 1)) {
+        return ${o};
+      }`:""};
+      row = max(0, min(row, ${r[u]} - 1));
+      col = max(0, min(col, ${r[d]} - 1));
+      var row1: u32 = u32(row);
+      var col1: u32 = u32(col);
+      var row2: u32 = u32(row + 1);
+      var col2: u32 = u32(col + 1);
+      var channel: u32 = ${r.length>2?`u32(originalIndices[${c}])`:"0"};
+      var batch: u32 =  ${r.length>2?`u32(originalIndices[${a}])`:"0"};
+      var x11: ${p} = getInputValue(batch, channel, row1, col1);
+      var x12: ${p} = getInputValue(batch, channel, row1, col2);
+      var x21: ${p} = getInputValue(batch, channel, row2, col1);
+      var x22: ${p} = getInputValue(batch, channel, row2, col2);
+      var dx1: ${p} = abs(row - ${p}(row1));
+      var dx2: ${p} = abs(${p}(row2) - row);
+      var dy1: ${p} = abs(col - ${p}(col1));
+      var dy2: ${p} = abs(${p}(col2) - col);
+      if (row1 == row2) {
+        dx1 = 0.5;
+        dx2 = 0.5;
+      }
+      if (col1 == col2) {
+        dy1 = 0.5;
+        dy2 = 0.5;
+      }
+      return (x11 * dx2 * dy2 + x12 * dx2 * dy1 + x21 * dx1 * dy2 + x22 * dx1 * dy1);
+    }`},Hy=(t,e,r,n,o,i,a,u,d,c)=>{let p=r.length===2,m=!0,[g,b]=p?[0,1]:m?[2,3]:[1,2],y=t.type.value,_=S=>{let x=S===g?"row":"col";return`
+      fn ${x}CubicInterpolation(input_indices: ${t.type.indices}, output_indices: ${e.type.indices}) -> ${y} {
+        var output_index = ${e.indicesGet("output_indices",S)};
+        var originalIdx: ${y} = getOriginalCoordinateFromResizedCoordinate(output_index, ${o[S]},
+        ${n[S]}, ${r[S]}, ${i[S]}, ${i[S]} + ${r.length});
+        var fractOriginalIdx: ${y} = originalIdx - floor(originalIdx);
+        var coefs = getCubicInterpolationCoefs(fractOriginalIdx);
+
+        if (${u} && (originalIdx < 0 || originalIdx > (${r[S]} - 1))) {
+          return ${d};
+        }
+        var data: array<${y}, 4> = array<${y}, 4>(0.0, 0.0, 0.0, 0.0);
+        for (var i: i32 = -1; i < 3; i++) {
+          var ${x}: ${y} = originalIdx + ${y}(i);
+          if (${x} < 0 || ${x} >= ${r[S]}) {
+            ${c?`coefs[i + 1] = 0.0;
+                        continue;`:u?`return ${d};`:`${x} = max(0, min(${x}, ${r[S]} - 1));`};
+          }
+        var input_indices_copy: ${t.type.indices} = input_indices;
+          ${t.indicesSet("input_indices_copy",S,`u32(${x})`)};
+          data[i + 1] = ${S===g?t.getByIndices("input_indices_copy"):"rowCubicInterpolation(input_indices_copy, output_indices)"};
+        }
+        return cubicInterpolation1D(data, coefs);
+      }`};return`
+    ${_(g)};
+    ${_(b)};
+  fn getCubicInterpolationCoefs(s: ${y}) -> array<${y}, 4> {
+    var absS = abs(s);
+    var coeffs: array<${y}, 4> = array<${y}, 4>(0.0, 0.0, 0.0, 0.0);
+    var oneMinusAbsS: ${y} = 1.0 - absS;
+    var twoMinusAbsS: ${y} = 2.0 - absS;
+    var onePlusAbsS: ${y} = 1.0 + absS;
+    coeffs[0] = ((${a} * onePlusAbsS - 5 * ${a}) * onePlusAbsS + 8 * ${a}) * onePlusAbsS - 4 * ${a};
+    coeffs[1] = ((${a} + 2) * absS - (${a} + 3)) * absS * absS + 1;
+    coeffs[2] = ((${a} + 2) * oneMinusAbsS - (${a} + 3)) * oneMinusAbsS * oneMinusAbsS + 1;
+    coeffs[3] = ((${a} * twoMinusAbsS - 5 * ${a}) * twoMinusAbsS + 8 * ${a}) * twoMinusAbsS - 4 * ${a};
+    return coeffs;
+  }
+
+  fn cubicInterpolation1D(x: array<${y}, 4>, coefs: array<${y}, 4>) -> ${y} {
+    var coefsSum: ${y} = coefs[0] + coefs[1] + coefs[2] + coefs[3];
+    return (x[0] * coefs[0] + x[1] * coefs[1]+ x[2] * coefs[2]+ x[3] * coefs[3]) / coefsSum;
+  }
+
+  fn bicubicInterpolation(output_indices: ${e.type.indices}) -> ${y} {
+    var input_indices: ${t.type.indices} = output_indices;
+    return colCubicInterpolation(input_indices, output_indices);
+  }
+    `},Fy=(t,e,r,n,o)=>{let[a,u,d,c,p]=r.length===3?[-1,0,1,2,-1]:[0,2,3,4,1],m=t.type.value;return`
+    fn getInputValue(batch: u32, channel: u32, depth:u32, height: u32, width: u32) -> ${m} {
+      var input_indices: ${t.type.indices};
+      ${t.indicesSet("input_indices",u,`max(0, min(depth, ${r[u]} - 1))`)};
+      ${t.indicesSet("input_indices",d,`max(0, min(height, ${r[d]} - 1))`)};
+      ${t.indicesSet("input_indices",c,`max(0, min(width, ${r[c]} - 1))`)};
+      ${Pc(t,p,a,3)}
+      return ${t.getByIndices("input_indices")};
+    }
+
+    fn trilinearInterpolation(output_indices: ${e.type.indices}) -> ${m} {
+      var originalIndices = calculateOriginalIndicesFromOutputIndices(output_indices);
+      var depth:${m} = originalIndices[${u}];
+      var height:${m} = originalIndices[${d}];
+      var width:${m} = originalIndices[${c}];
+      ${n?`if (depth < 0 || depth > (${r[u]} - 1) || height < 0 || height > (${r[d]} - 1) || width < 0 || (width > ${r[c]} - 1)) {
+      return ${o};
+        }`:""};
+
+    depth = max(0, min(depth, ${r[u]} - 1));
+      height = max(0, min(height, ${r[d]} - 1));
+      width = max(0, min(width, ${r[c]} - 1));
+      var depth1: u32 = u32(depth);
+      var height1: u32 = u32(height);
+      var width1: u32 = u32(width);
+      var depth2: u32 = u32(depth + 1);
+      var height2: u32 = u32(height + 1);
+      var width2: u32 = u32(width + 1);
+      var channel: u32 = ${r.length>3?`u32(originalIndices[${p}])`:"0"};
+      var batch: u32 =  ${r.length>3?`u32(originalIndices[${a}])`:"0"};
+
+      var x111: ${m} = getInputValue(batch, channel, depth1, height1, width1);
+      var x112: ${m} = getInputValue(batch, channel, depth1, height1, width2);
+      var x121: ${m} = getInputValue(batch, channel, depth1, height2, width1);
+      var x122: ${m} = getInputValue(batch, channel, depth1, height2, width2);
+      var x211: ${m} = getInputValue(batch, channel, depth2, height1, width1);
+      var x212: ${m} = getInputValue(batch, channel, depth2, height1, width2);
+      var x221: ${m} = getInputValue(batch, channel, depth2, height2, width1);
+      var x222: ${m} = getInputValue(batch, channel, depth2, height2, width2);
+      var dx1: ${m} = abs(depth - ${m}(depth1));
+      var dx2: ${m} = abs(${m}(depth2) - depth);
+      var dy1: ${m} = abs(height - ${m}(height1));
+      var dy2: ${m} = abs(${m}(height2) - height);
+      var dz1: ${m} = abs(width - ${m}(width1));
+      var dz2: ${m} = abs(${m}(width2) - width);
+      if (depth1 == depth2) {
+        dx1 = 0.5;
+        dx2 = 0.5;
+      }
+      if (height1 == height2) {
+        dy1 = 0.5;
+        dy2 = 0.5;
+      }
+      if (width1 == width2) {
+        dz1 = 0.5;
+        dz2 = 0.5;
+      }
+      return (x111 * dx2 * dy2 * dz2 + x112 * dx2 * dy2 * dz1 + x121 * dx2 * dy1 *dz2 + x122 * dx2 * dy1 * dz1 +
+              x211 * dx1 * dy2 * dz2 + x212 * dx1 * dy2 * dz1 + x221 * dx1 * dy1 *dz2 + x222 * dx1 * dy1 * dz1);
+    }`},qy=(t,e,r,n,o,i)=>{let a=t.dims,u=Ry(i,e.axes,a.length),d=Uy(a,n,o,e.axes),c=n.slice();n.length===0&&(c=a.map(($,T)=>$===0?1:d[T]/$),e.keepAspectRatioPolicy!=="stretch"&&(d=Ny(a,c,e)));let p=R("output",t.dataType,d.length),m=D("input",t.dataType,a.length),g=k.size(d),b=a.length===d.length&&a.every(($,T)=>$===d[T]),y=e.coordinateTransformMode==="tf_crop_and_resize",_=e.extrapolationValue,S=m.type.value,x=$=>`
+      ${b?"":`
+      ${By(e.coordinateTransformMode,S)};
+      ${(()=>{switch(e.mode){case"nearest":return`
+              ${Wy(m,a)};
+              ${My(e.nearestMode,r,S)};
+              ${Ly(m,p,a,d,c.length,u.length,y)};
+              `;case"linear":return`
+              ${Vy(p,a,d,c.length,u.length)};
+              ${(()=>{if(a.length===2||a.length===4)return`${Gy(m,p,a,y,_)}`;if(a.length===3||a.length===5)return`${Fy(m,p,a,y,_)}`;throw Error("Linear mode only supports input dims 2, 3, 4 and 5 are supported in linear mode.")})()};
+            `;case"cubic":return`
+            ${(()=>{if(a.length===2||a.length===4)return`${Hy(m,p,a,d,c,u,e.cubicCoeffA,y,e.extrapolationValue,e.excludeOutside)}`;throw Error("Cubic mode only supports input dims 2 and 4 are supported in linear mode.")})()};
+            `;default:throw Error("Invalid resize mode")}})()};
+      `}
+      ${$.registerUniform("output_size","u32").registerUniform("scales","f32",c.length).registerUniform("roi","f32",u.length).declareVariables(m,p)}
+      ${$.mainStart()}
+        ${$.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+        ${b?"output[global_idx] = input[global_idx];":`
+        let output_indices = ${p.offsetToIndices("global_idx")};
+        var input_indices: ${m.type.indices};
+        ${(()=>{switch(e.mode){case"nearest":return`input_indices = calculateInputIndicesFromOutputIndices(output_indices);
+                if (checkInputIndices(input_indices)) {
+                  output[global_idx] = ${m.getByIndices("input_indices")};
+                } else {
+                  output[global_idx] = ${e.extrapolationValue};
+                }`;case"linear":return`output[global_idx] = ${a.length===2||a.length===4?"bilinearInterpolation":"trilinearInterpolation"}(output_indices);`;case"cubic":return"output[global_idx] = bicubicInterpolation(output_indices);";default:throw Error(`Unsupported resize mode: ${e.mode}`)}})()};
+`}
+      }`;return{name:"Resize",shaderCache:{hint:`${e.cacheKey}|${r}|${c.length>0?e.mode==="cubic"?c:c.length:""}|${o.length>0?o:""}|${u.length>0?u:""}|${b}|${e.mode==="nearest"?a.length:a}`,inputDependencies:["rank"]},getShaderSource:x,getRunData:()=>({outputs:[{dims:d,dataType:t.dataType}],dispatchGroup:{x:Math.ceil(g/64)},programUniforms:[{type:12,data:g},{type:1,data:c},{type:1,data:u},...W(a,d)]})}},Ky=t=>{let e=t.customDataBuffer;return new Uint32Array(e.buffer,e.byteOffset,1)[0]},Dc=(t,e)=>{let r=[],n=[],o=[],i=Ky(t);if(e.antialias!==0)throw Error("Only default value (0) for Antialias attribute is supported");zy(t.inputs,e,i,r,n,o),t.compute(qy(t.inputs[0],e,i,r,n,o),{inputs:[0]})},Oc=t=>{let e=t.antialias,r=t.axes,n=t.coordinateTransformMode,o=t.cubicCoeffA,i=t.excludeOutside!==0,a=t.extrapolationValue,u=t.keepAspectRatioPolicy,d=t.mode,c=t.nearestMode===""?"simple":t.nearestMode;return J({antialias:e,axes:r,coordinateTransformMode:n,cubicCoeffA:o,excludeOutside:i,extrapolationValue:a,keepAspectRatioPolicy:u,mode:d,nearestMode:c})}});var jy,Qy,Bc,Mc=V(()=>{"use strict";ee();te();oe();jy=t=>{if(!t||t.length<3)throw new Error("layerNorm requires at least 3 inputs.");let e=t[0],r=t[1],n=t[2];if(e.dataType!==r.dataType||e.dataType!==n.dataType)throw new Error("All inputs must have the same data type");if(e.dims.length!==3&&e.dims.length!==2)throw new Error("Input must be 2D or 3D");if(r.dims.length!==3&&r.dims.length!==2)throw new Error("Skip must be 2D or 3D");let o=e.dims[e.dims.length-1],i=e.dims[e.dims.length-2];if(r.dims[r.dims.length-1]!==o)throw new Error("Skip must have the same hidden size as input");if(r.dims[r.dims.length-2]!==i)throw new Error("Skip must have the same sequence length as input");if(n.dims.length!==1)throw new Error("Gamma must be 1D");if(n.dims[n.dims.length-1]!==o)throw new Error("Gamma must have the same hidden size as input");if(t.length>3){let a=t[3];if(a.dims.length!==1)throw new Error("Beta must be 1D");if(a.dims[a.dims.length-1]!==o)throw new Error("Beta must have the same hidden size as input")}if(t.length>4){let a=t[4];if(a.dims.length!==1)throw new Error("Bias must be 1D");if(a.dims[a.dims.length-1]!==o)throw new Error("Bias must have the same hidden size as input")}},Qy=(t,e,r,n)=>{let o=e.simplified,i=t[0].dims,a=k.size(i),u=i,d=a,c=i.slice(-1)[0],p=n?i.slice(0,-1).concat(1):[],m=!o&&t.length>3,g=t.length>4,b=n&&r>1,y=n&&r>2,_=r>3,S=64,x=fe(c),$=[{type:12,data:d},{type:12,data:x},{type:12,data:c},{type:1,data:e.epsilon}],T=E=>{let A=[{name:"output_size",type:"u32"},{name:"components",type:"u32"},{name:"hidden_size",type:"u32"},{name:"epsilon",type:"f32"}],O=[D("x",t[0].dataType,t[0].dims,x),D("skip",t[1].dataType,t[1].dims,x),D("gamma",t[2].dataType,t[2].dims,x)];m&&O.push(D("beta",t[3].dataType,t[3].dims,x)),g&&O.push(D("bias",t[4].dataType,t[4].dims,x)),O.push(R("output",t[0].dataType,u,x)),b&&O.push(R("mean_output",1,p)),y&&O.push(R("inv_std_output",1,p)),_&&O.push(R("input_skip_bias_sum",t[0].dataType,u,x));let w=we(t[0].dataType),U=we(1,x);return`
+
+      ${E.registerUniforms(A).declareVariables(...O)}
+      var<workgroup> sum_shared : array<${U}, ${S}>;
+      var<workgroup> sum_squared_shared : array<${U}, ${S}>;
+
+      ${E.mainStart([S,1,1])}
+        let ix = local_id.x;
+        let iy = global_id.x / ${S};
+
+        let hidden_size_vectorized: u32 = uniforms.hidden_size / uniforms.components;
+        var stride = hidden_size_vectorized / ${S};
+        let offset = ix * stride + iy * hidden_size_vectorized;
+        let offset1d = stride * ix;
+        if (ix == ${S-1}) {
+          stride = hidden_size_vectorized - stride * ix;
+        }
+        for (var i: u32 = 0; i < stride; i++) {
+          let skip_value = skip[offset + i];
+          let bias_value = ${g?"bias[offset1d + i]":w+"(0.0)"};
+          let input_value = x[offset + i];
+          let value = input_value + skip_value + bias_value;
+          ${_?"input_skip_bias_sum[offset + i] = value;":""}
+          output[offset + i] = value;
+          let f32_value = ${Mt(w,x,"value")};
+          sum_shared[ix] += f32_value;
+          sum_squared_shared[ix] += f32_value * f32_value;
+        }
+        workgroupBarrier();
+
+        var reduce_size : u32 = ${S};
+        for (var curr_size = reduce_size >> 1;  curr_size > 0; curr_size = reduce_size >> 1) {
+          reduce_size = curr_size + (reduce_size & 1);
+          if (ix < curr_size) {
+            sum_shared[ix] += sum_shared[ix + reduce_size];
+            sum_squared_shared[ix] += sum_squared_shared[ix + reduce_size];
+          }
+          workgroupBarrier();
+        }
+
+        let sum = sum_shared[0];
+        let square_sum = sum_squared_shared[0];
+        let mean = ${Qe("sum",x)} / f32(uniforms.hidden_size);
+        let inv_std_dev = inverseSqrt(${Qe("square_sum",x)} / f32(uniforms.hidden_size) ${o?"":"- mean * mean"} + uniforms.epsilon);
+        ${b?"mean_output[global_idx] = mean;":""}
+        ${y?"inv_std_output[global_idx] = inv_std_dev;":""}
+
+        for (var i: u32 = 0; i < stride; i++) {
+          output[offset + i] = (output[offset + i] ${o?"":`- ${w}(mean)`}) *
+            ${w}(inv_std_dev) * gamma[offset1d + i]
+            ${m?"+ beta[offset1d + i]":""};
+        }
+      }`},I=[{dims:u,dataType:t[0].dataType}];return r>1&&I.push({dims:p,dataType:1}),r>2&&I.push({dims:p,dataType:1}),r>3&&I.push({dims:i,dataType:t[0].dataType}),{name:"SkipLayerNormalization",shaderCache:{hint:`${x};${b};${y};${_}`,inputDependencies:t.map((E,A)=>"type")},getShaderSource:T,getRunData:()=>({outputs:I,dispatchGroup:{x:Math.ceil(d/c)},programUniforms:$})}},Bc=(t,e)=>{jy(t.inputs);let n=[0];t.outputCount>1&&n.push(-3),t.outputCount>2&&n.push(-3),t.outputCount>3&&n.push(3),t.compute(Qy(t.inputs,e,t.outputCount,!1),{outputs:n})}});var Zy,hn,Yy,Rc,Xy,Jy,Uc,Nc,Vc=V(()=>{"use strict";ee();te();Ce();oe();Zy=(t,e)=>{if(!t||t.length<1)throw new Error("too few inputs");if(e.axes.length!==0){if(e.axes.length!==e.starts.length||e.axes.length!==e.ends.length)throw new Error("axes, starts and ends must have the same length")}else if(e.starts.length!==e.ends.length)throw new Error("starts and ends must have the same length");t.slice(1).forEach((r,n)=>{if(t[n+1].dataType!==6&&t[n+1].dataType!==7)throw new Error(`Input ${n} must be an array of int32 or int64`)})},hn=(t,e)=>{let r=[];if(t.length>e)if(t[e].dataType===7)t[e].getBigInt64Array().forEach(n=>r.push(Number(n)));else if(t[e].dataType===6)t[e].getInt32Array().forEach(n=>r.push(Number(n)));else throw new Error(`Input ${e} must be an array of int32 or int64`);return r},Yy=(t,e)=>{if(t.length>1){let r=hn(t,1),n=hn(t,2),o=hn(t,3);return o.length===0&&(o=[...Array(t[0].dims.length).keys()]),J({starts:r,ends:n,axes:o})}else return e},Rc=(t,e,r,n,o)=>{let i=t;return t<0&&(i+=r[n[e]]),o[e]<0?Math.max(0,Math.min(i,r[n[e]]-1)):Math.max(0,Math.min(i,r[n[e]]))},Xy=(t,e,r)=>`fn calculateInputIndices(output_indices: ${e.type.indices}) -> ${t.type.indices} {
+          var input_indices: ${t.type.indices};
+          var carry = 0u;
+          for (var i = ${r.length-1}; i >= 0; i--) {
+            let input_shape_i = ${j("uniforms.input_shape","i",r.length)};
+            let steps_i = ${j("uniforms.steps","i",r.length)};
+            let signs_i = ${j("uniforms.signs","i",r.length)};
+            let starts_i = ${j("uniforms.starts","i",r.length)};
+            var output_index = ${e.indicesGet("output_indices","i")};
+            var input_index = output_index * steps_i + starts_i + carry;
+            carry = input_index / input_shape_i;
+            input_index = input_index % input_shape_i;
+            if (signs_i < 0) {
+              input_index = input_shape_i - input_index - 1u + starts_i;
+            }
+            ${t.indicesSet("input_indices","i","input_index")};
+          }
+          return input_indices;
+      }`,Jy=(t,e)=>{let r=t[0].dims,n=k.size(r),o=e.axes.length>0?k.normalizeAxes(e.axes,r.length):[...Array(r.length).keys()],i=hn(t,4);i.forEach(x=>x!==0||(()=>{throw new Error("step cannot be 0")})),i.length===0&&(i=Array(o.length).fill(1));let a=e.starts.map((x,$)=>Rc(x,$,r,o,i)),u=e.ends.map((x,$)=>Rc(x,$,r,o,i));if(o.length!==a.length||o.length!==u.length)throw new Error("start, ends and axes should have the same number of elements");if(o.length!==r.length)for(let x=0;x<r.length;++x)o.includes(x)||(a.splice(x,0,0),u.splice(x,0,r[x]),i.splice(x,0,1));let d=i.map(x=>Math.sign(x));i.forEach((x,$,T)=>{if(x<0){let I=(u[$]-a[$])/x,E=a[$],A=E+I*i[$];a[$]=A,u[$]=E,T[$]=-x}});let c=r.slice(0);o.forEach((x,$)=>{c[x]=Math.ceil((u[x]-a[x])/i[x])});let p={dims:c,dataType:t[0].dataType},m=R("output",t[0].dataType,c.length),g=D("input",t[0].dataType,t[0].dims.length),b=k.size(c),y=[{name:"outputSize",type:"u32"},{name:"starts",type:"u32",length:a.length},{name:"signs",type:"i32",length:d.length},{name:"steps",type:"u32",length:i.length}],_=[{type:12,data:b},{type:12,data:a},{type:6,data:d},{type:12,data:i},...W(t[0].dims,c)],S=x=>`
+      ${x.registerUniforms(y).declareVariables(g,m)}
+        ${Xy(g,m,r)}
+        ${x.mainStart()}
+          ${x.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.outputSize")}
+          let output_indices = ${m.offsetToIndices("global_idx")};
+          let input_indices = calculateInputIndices(output_indices);
+          ${m.setByOffset("global_idx",g.getByIndices("input_indices"))}
+      }`;return{name:"Slice",shaderCache:{hint:`${d.length}_${a.length}_${i.length}`,inputDependencies:["rank"]},getShaderSource:S,getRunData:()=>({outputs:[p],dispatchGroup:{x:Math.ceil(n/64)},programUniforms:_})}},Uc=(t,e)=>{Zy(t.inputs,e);let r=Yy(t.inputs,e);t.compute(Jy(t.inputs,r),{inputs:[0]})},Nc=t=>{let e=t.starts,r=t.ends,n=t.axes;return J({starts:e,ends:r,axes:n})}});var eb,tb,Lc,Wc,Gc=V(()=>{"use strict";ee();te();Ce();pt();oe();eb=t=>{if(!t||t.length!==1)throw new Error("Softmax op requires 1 input.")},tb=(t,e)=>{let r=t.inputs[0],n=r.dims,o=k.size(n),i=n.length,a=k.normalizeAxis(e.axis,i),u=a<n.length-1,d,c=[];u?(c=Array.from({length:i},(O,w)=>w),c[a]=i-1,c[i-1]=a,d=t.compute(ze(r,c),{inputs:[r],outputs:[-1]})[0]):d=r;let p=d.dims,m=p[i-1],g=o/m,b=fe(m),y=m/b,_=64;g===1&&(_=256);let S=(O,w)=>w===4?`max(max(${O}.x, ${O}.y), max(${O}.z, ${O}.w))`:w===2?`max(${O}.x, ${O}.y)`:w===3?`max(max(${O}.x, ${O}.y), ${O}.z)`:O,x=D("x",d.dataType,d.dims,b),$=R("result",d.dataType,d.dims,b),T=x.type.value,I=we(d.dataType)==="f32"?`var threadMax = ${T}(-3.4028234663852886e+38f);`:`var threadMax = ${T}(-65504.0h);`,E=O=>`
+      var<workgroup> rowMaxShared : ${T};
+      var<workgroup> rowSumShared : ${T};
+      var<workgroup> threadShared : array<${T}, ${_}>;
+
+      fn getValue(row: i32, col: i32, row_stride: i32) -> ${T} {
+        let index = row * row_stride + col;
+        return x[index];
+      }
+
+      fn setValue(row: i32, col: i32, row_stride: i32, value: ${T}) {
+        let index = row * row_stride + col;
+        result[index] = value;
+      }
+      ${O.registerUniform("packedCols","i32").declareVariables(x,$)}
+      ${O.mainStart(_)}
+        let gindex = i32(global_idx);
+        let lindex = i32(local_idx);
+        const wg = ${_};
+        let row = gindex / wg;
+        let cols = uniforms.packedCols;
+        let row_stride : i32 = uniforms.packedCols;
+
+        // find the rows max
+        ${I}
+        for (var col = lindex; col < cols; col += wg) {
+          let value = getValue(row, col, row_stride);
+          threadMax = max(threadMax, value);
+        }
+        if (lindex < cols) {
+          threadShared[lindex] = threadMax;
+        }
+        workgroupBarrier();
+
+        var reduceSize = min(cols, wg);
+        for (var currSize = reduceSize >> 1;  currSize > 0; currSize = reduceSize >> 1) {
+          reduceSize = currSize + (reduceSize & 1);
+          if (lindex < currSize) {
+            threadShared[lindex] = max(threadShared[lindex], threadShared[lindex + reduceSize]);
+          }
+          workgroupBarrier();
+        }
+        if (lindex == 0) {
+          rowMaxShared = ${T}(${S("threadShared[0]",b)});
+        }
+        workgroupBarrier();
+
+        // find the rows sum
+        var threadSum = ${T}(0.0);
+        for (var col = lindex; col < cols; col += wg) {
+          let subExp = exp(getValue(row, col, row_stride) - rowMaxShared);
+          threadSum += subExp;
+        }
+        threadShared[lindex] = threadSum;
+        workgroupBarrier();
+
+        for (var currSize = wg >> 1;  currSize > 0; currSize = currSize >> 1) {
+          if (lindex < currSize) {
+            threadShared[lindex] = threadShared[lindex] + threadShared[lindex + currSize];
+          }
+          workgroupBarrier();
+        }
+        if (lindex == 0) {
+          rowSumShared = ${T}(${Qe("threadShared[0]",b)});
+        }
+        workgroupBarrier();
+
+        // calculate final value for each element in the row
+        for (var col = lindex; col < cols; col += wg) {
+          var value = exp(getValue(row, col, row_stride) - rowMaxShared) / rowSumShared;
+          // max operation protects against NaN since all values should be >=0
+          value = max(value, ${T}(0.0));
+          setValue(row, col, row_stride, value);
+        }
+      }`,A=t.compute({name:"Softmax",shaderCache:{hint:`${b};${_}`,inputDependencies:["type"]},getRunData:()=>({outputs:[{dims:p,dataType:d.dataType}],dispatchGroup:{x:g},programUniforms:[{type:6,data:y}]}),getShaderSource:E},{inputs:[d],outputs:[u?-1:0]})[0];u&&t.compute(ze(A,c),{inputs:[A]})},Lc=(t,e)=>{eb(t.inputs),tb(t,e)},Wc=t=>J({axis:t.axis})});var Hc,rb,nb,ob,Fc,qc=V(()=>{"use strict";ee();te();oe();Hc=t=>Array.from(t.getBigInt64Array(),Number),rb=t=>{if(!t||t.length!==2)throw new Error("Tile requires 2 inputs.");if(t[0].dataType!==1&&t[0].dataType!==10&&t[0].dataType!==6&&t[0].dataType!==12)throw new Error("Tile only support float, float16, int32, and uint32 data types");if(t[1].dataType!==7)throw new Error("Tile `repeats` input should be of int64 data type");if(t[1].dims.length!==1)throw new Error("Tile `repeats` input should be 1-D");if(Hc(t[1]).length!==t[0].dims.length)throw new Error("Tile `repeats` input should have same number of elements as rank of input data tensor")},nb=(t,e)=>{let r=[];for(let n=0;n<t.length;++n)r.push(t[n]*e[n]);return r},ob=(t,e)=>{let r=t[0].dims,n=e??Hc(t[1]),o=nb(r,n),i=k.size(o),a=t[0].dataType,u=D("input",a,r.length),d=R("output",a,o.length),c=p=>`
+      const inputShape = ${u.indices(...r)};
+      ${p.registerUniform("output_size","u32").declareVariables(u,d)}
+      ${p.mainStart()}
+      ${p.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.output_size")}
+      let output_indices = ${d.offsetToIndices("global_idx")};
+      var input_indices: ${u.type.indices};
+      for (var i = 0; i < ${r.length}; i++) {
+        let input_dim_i = ${u.indicesGet("uniforms.input_shape","i")};
+        let input_dim_value = ${d.indicesGet("output_indices","i")}  % input_dim_i;
+
+        ${u.indicesSet("input_indices","i","input_dim_value")}
+      }
+      ${d.setByOffset("global_idx",u.getByIndices("input_indices"))}
+    }`;return{name:"Tile",shaderCache:{hint:`${n}`,inputDependencies:["rank"]},getRunData:()=>({outputs:[{dims:o,dataType:t[0].dataType}],dispatchGroup:{x:Math.ceil(i/64)},programUniforms:[{type:12,data:i},...W(t[0].dims,o)]}),getShaderSource:c}},Fc=t=>{rb(t.inputs),t.compute(ob(t.inputs),{inputs:[0]})}});var ib,ab,Kc,jc=V(()=>{"use strict";ee();te();oe();ib=(t,e,r,n,o)=>{let i=R("output_data",o,r.length,4),a=D("a_data",e[1].dataType,e[1].dims.length,4),u=D("b_data",e[2].dataType,e[2].dims.length,4),d=D("c_data",e[0].dataType,e[0].dims.length,4),c,p=(m,g,b)=>`select(${g}, ${m}, ${b})`;if(!n)c=i.setByOffset("global_idx",p(a.getByOffset("global_idx"),u.getByOffset("global_idx"),d.getByOffset("global_idx")));else{let m=(g,b,y="")=>{let _=`a_data[index_a${b}][component_a${b}]`,S=`b_data[index_b${b}][component_b${b}]`,x=`bool(c_data[index_c${b}] & (0xffu << (component_c${b} * 8)))`;return`
+            let output_indices${b} = ${i.offsetToIndices(`global_idx * 4u + ${b}u`)};
+            let offset_a${b} = ${a.broadcastedIndicesToOffset(`output_indices${b}`,i)};
+            let offset_b${b} = ${u.broadcastedIndicesToOffset(`output_indices${b}`,i)};
+            let offset_c${b} = ${d.broadcastedIndicesToOffset(`output_indices${b}`,i)};
+            let index_a${b} = offset_a${b} / 4u;
+            let index_b${b} = offset_b${b} / 4u;
+            let index_c${b} = offset_c${b} / 4u;
+            let component_a${b} = offset_a${b} % 4u;
+            let component_b${b} = offset_b${b} % 4u;
+            let component_c${b} = offset_c${b} % 4u;
+            ${g}[${b}] = ${y}(${p(_,S,x)});
+          `};o===9?c=`
+            var data = vec4<u32>(0);
+            ${m("data",0,"u32")}
+            ${m("data",1,"u32")}
+            ${m("data",2,"u32")}
+            ${m("data",3,"u32")}
+            output_data[global_idx] = dot(vec4<u32>(0x1, 0x100, 0x10000, 0x1000000), vec4<u32>(data));`:c=`
+            ${m("output_data[global_idx]",0)}
+            ${m("output_data[global_idx]",1)}
+            ${m("output_data[global_idx]",2)}
+            ${m("output_data[global_idx]",3)}
+          `}return`
+        ${t.registerUniform("vec_size","u32").declareVariables(d,a,u,i)}
+        ${t.mainStart()}
+        ${t.guardAgainstOutOfBoundsWorkgroupSizes("uniforms.vec_size")}
+        ${c}
+      }`},ab=t=>{let e=t[1].dims,r=t[2].dims,n=t[0].dims,o=t[1].dataType,i=!(k.areEqual(e,r)&&k.areEqual(r,n)),a=e,u=k.size(e);if(i){let c=ot.calcShape(ot.calcShape(e,r,!1),n,!1);if(!c)throw new Error("Can't perform where op on the given tensors");a=c,u=k.size(a)}let d=Math.ceil(u/4);return{name:"Where",shaderCache:{inputDependencies:["rank","rank","rank"]},getShaderSource:c=>ib(c,t,a,i,o),getRunData:()=>({outputs:[{dims:a,dataType:o}],dispatchGroup:{x:Math.ceil(u/64/4)},programUniforms:[{type:12,data:d},...W(n,e,r,a)]})}},Kc=t=>{t.compute(ab(t.inputs))}});var Qc,Zc=V(()=>{"use strict";vu();tn();Su();Iu();pd();xd();Id();Wd();Qd();Xd();tl();dl();fl();yl();_l();$l();Tl();Al();Pl();zl();Rl();ql();Ql();Yl();Jl();rc();Oo();oc();vc();Sc();Ic();Ec();Jr();zc();Mo();Mc();Vc();Gc();Bo();qc();pt();nn();jc();Qc=new Map([["Abs",[Cu]],["Acos",[Au]],["Acosh",[Eu]],["Add",[md]],["ArgMax",[wu,_o]],["ArgMin",[_u,_o]],["Asin",[ku]],["Asinh",[Pu]],["Atan",[Du]],["Atanh",[Ou]],["Attention",[$u]],["AveragePool",[pc,cc]],["BatchNormalization",[xu]],["BiasAdd",[Tu]],["BiasSplitGelu",[cd]],["Cast",[Bu,zu]],["Ceil",[Ru]],["Clip",[Mu]],["Concat",[Sd,Td]],["Conv",[Ao,Co]],["ConvTranspose",[jd,qd]],["Cos",[Uu]],["Cosh",[Nu]],["CumSum",[Zd,Yd]],["DepthToSpace",[Jd,el]],["DequantizeLinear",[$c,xc]],["DFT",[sl,ul]],["Div",[fd]],["Einsum",[pl,ml]],["Elu",[Vu,ar]],["Equal",[hd]],["Erf",[Lu]],["Exp",[Wu]],["Expand",[gl]],["FastGelu",[bl]],["Floor",[Gu]],["FusedConv",[Ao,Co]],["Gather",[vl,wl]],["GatherElements",[kl,El]],["GatherBlockQuantized",[Il,Cl]],["GatherND",[xl,Sl]],["Gelu",[Hu]],["Gemm",[Ol,Dl]],["GlobalAveragePool",[hc,fc]],["GlobalMaxPool",[wc,_c]],["Greater",[_d]],["GreaterOrEqual",[vd]],["GridSample",[Bl,Ml]],["GroupQueryAttention",[Fl]],["HardSigmoid",[Xu,Yu]],["HardSwish",[Ju]],["InstanceNormalization",[jl]],["LayerNormalization",[Zl]],["LeakyRelu",[Fu,ar]],["Less",[wd]],["LessOrEqual",[$d]],["Log",[ud]],["MatMul",[Xl]],["MatMulNBits",[ec,tc]],["MaxPool",[yc,bc]],["Mul",[gd]],["MultiHeadAttention",[Vl,Nl]],["Neg",[Ku]],["Not",[qu]],["Pad",[nc]],["Pow",[yd]],["QuickGelu",[dd,ar]],["Range",[Tc]],["Reciprocal",[ju]],["ReduceMin",[mu]],["ReduceMean",[uu]],["ReduceMax",[pu]],["ReduceSum",[hu]],["ReduceProd",[fu]],["ReduceL1",[du]],["ReduceL2",[lu]],["ReduceLogSum",[yu]],["ReduceLogSumExp",[cu]],["ReduceSumSquare",[gu]],["Relu",[Qu]],["Resize",[Dc,Oc]],["RotaryEmbedding",[Gl]],["ScatterND",[Ac,Cc]],["Sigmoid",[Zu]],["Sin",[ed]],["Sinh",[td]],["Slice",[Uc,Nc]],["SkipLayerNormalization",[Bc]],["Split",[Ll,Wl]],["Sqrt",[rd]],["Softmax",[Lc,Wc]],["Sub",[bd]],["Tan",[nd]],["Tanh",[id]],["ThresholdedRelu",[sd,ar]],["Tile",[Fc]],["Transpose",[Qs,Zs]],["Where",[Kc]]])});var gn,Yc=V(()=>{"use strict";Le();nt();oe();gn=class{constructor(e){this.backend=e;this.repo=new Map,this.attributesBound=!1}getArtifact(e){return this.repo.get(e)}setArtifact(e,r){this.repo.set(e,r)}run(e,r,n,o,i){Ve(e.programInfo.name);let a=this.backend.device,u=this.backend.getComputePassEncoder();this.backend.writeTimestamp(this.backend.pendingDispatchNumber*2);let d=[];for(let p of r)d.push({binding:d.length,resource:{buffer:p.buffer}});for(let p of n)d.push({binding:d.length,resource:{buffer:p.buffer}});i&&d.push({binding:d.length,resource:i});let c=a.createBindGroup({layout:e.computePipeline.getBindGroupLayout(0),entries:d,label:e.programInfo.name});if(this.backend.sessionStatus==="capturing"){let p={kernelId:this.backend.currentKernelId,computePipeline:e.computePipeline,bindGroup:c,dispatchGroup:o};this.backend.capturedCommandList.get(this.backend.currentSessionId).push(p)}u.setPipeline(e.computePipeline),u.setBindGroup(0,c),u.dispatchWorkgroups(...o),this.backend.writeTimestamp(this.backend.pendingDispatchNumber*2+1),this.backend.pendingDispatchNumber++,(this.backend.pendingDispatchNumber>=this.backend.maxDispatchNumber||this.backend.queryType==="at-passes")&&this.backend.endComputePass(),this.backend.pendingDispatchNumber>=this.backend.maxDispatchNumber&&this.backend.flush(),Re(e.programInfo.name)}dispose(){}build(e,r){Ve(e.name);let n=this.backend.device,o=[];[{feature:"shader-f16",extension:"f16"},{feature:"subgroups",extension:"subgroups"}].forEach(m=>{n.features.has(m.feature)&&o.push(`enable ${m.extension};`)});let a=Ks(r,this.backend.device.limits),u=e.getShaderSource(a),d=`${o.join(`
+`)}
+${a.additionalImplementations}
+${u}`,c=n.createShaderModule({code:d,label:e.name});se("verbose",()=>`[WebGPU] ${e.name} shader code: ${d}`);let p=n.createComputePipeline({compute:{module:c,entryPoint:"main"},layout:"auto",label:e.name});return Re(e.name),{programInfo:e,computePipeline:p,uniformVariablesInfo:a.variablesInfo}}normalizeDispatchGroupSize(e){let r=typeof e=="number"?e:e.x,n=typeof e=="number"?1:e.y||1,o=typeof e=="number"?1:e.z||1,i=this.backend.device.limits.maxComputeWorkgroupsPerDimension;if(r<=i&&n<=i&&o<=i)return[r,n,o];let a=r*n*o,u=Math.ceil(Math.sqrt(a));if(u>i){if(u=Math.ceil(Math.cbrt(a)),u>i)throw new Error("Total dispatch size exceeds WebGPU maximum.");return[u,u,u]}else return[u,u,1]}}});var Xc={};Wt(Xc,{WebGpuBackend:()=>Uo});var sb,ub,Ro,Uo,Jc=V(()=>{"use strict";Le();ee();nt();so();Fs();Zc();Yc();sb=(t,e)=>{if(e.length!==t.length)throw new Error(`inputDependencies length ${e.length} is not equal to inputTensors length ${t.length}.`);let r=[];for(let n=0;n<t.length;++n){let o=t[n].dataType;switch(e[n]){case"none":{r.push("");break}case"type":{r.push(`${o}`);break}case"rank":{let i=t[n].dims.length;r.push(`${o};${i}`);break}case"dims":{let i=t[n].dims.join(",");r.push(`${o};${i}`);break}default:throw new Error(`unsupported input dependency: ${e[n]}`)}}return r.join("|")},ub=(t,e,r)=>{let n=t.name;return t.shaderCache?.hint&&(n+="["+t.shaderCache.hint+"]"),n+=":"+r+`:${sb(e,t.shaderCache?.inputDependencies??new Array(e.length).fill("dims"))}`,n},Ro=class{constructor(e){e&&(this.architecture=e.architecture,this.vendor=e.vendor)}isArchitecture(e){return this.architecture===e}isVendor(e){return this.vendor===e}},Uo=class{constructor(){this.currentSessionId=null;this.currentKernelId=null;this.commandEncoder=null;this.computePassEncoder=null;this.maxDispatchNumber=16;this.pendingDispatchNumber=0;this.pendingKernels=[];this.pendingQueries=new Map;this.sessionStatus="default";this.capturedCommandList=new Map;this.capturedPendingKernels=new Map;this.sessionExternalDataMapping=new Map}get currentKernelCustomData(){if(this.currentKernelId===null)throw new Error("currentKernelCustomData(): currentKernelId is null. (should not happen)");let e=this.kernelCustomData.get(this.currentKernelId);return e||(e={},this.kernelCustomData.set(this.currentKernelId,e)),e}async initialize(e,r){this.env=e;let n=[],o={requiredLimits:{maxComputeWorkgroupStorageSize:r.limits.maxComputeWorkgroupStorageSize,maxComputeWorkgroupsPerDimension:r.limits.maxComputeWorkgroupsPerDimension,maxStorageBufferBindingSize:r.limits.maxStorageBufferBindingSize,maxBufferSize:r.limits.maxBufferSize,maxComputeInvocationsPerWorkgroup:r.limits.maxComputeInvocationsPerWorkgroup,maxComputeWorkgroupSizeX:r.limits.maxComputeWorkgroupSizeX,maxComputeWorkgroupSizeY:r.limits.maxComputeWorkgroupSizeY,maxComputeWorkgroupSizeZ:r.limits.maxComputeWorkgroupSizeZ},requiredFeatures:n},i=d=>r.features.has(d)&&n.push(d)&&!0;i("chromium-experimental-timestamp-query-inside-passes")||i("timestamp-query"),i("shader-f16"),i("subgroups"),this.device=await r.requestDevice(o);let a=r,u=r.info??(typeof a.requestAdapterInfo=="function"?await a.requestAdapterInfo():void 0);this.adapterInfo=new Ro(u),this.gpuDataManager=Hs(this),this.programManager=new gn(this),this.kernels=new Map,this.kernelPersistentData=new Map,this.kernelCustomData=new Map,Gr(e.logLevel,!!e.debug),this.device.onuncapturederror=d=>{d.error instanceof GPUValidationError&&console.error(`An uncaught WebGPU validation error was raised: ${d.error.message}`)},Object.defineProperty(this.env.webgpu,"device",{value:this.device,writable:!1,enumerable:!0,configurable:!0}),Object.defineProperty(this.env.webgpu,"adapter",{value:r,writable:!1,enumerable:!0,configurable:!1}),this.setQueryType()}dispose(){typeof this.querySet<"u"&&this.querySet.destroy(),this.gpuDataManager.dispose(),this.device&&this.env?.webgpu&&this.device.lost.then(()=>{delete this.env.webgpu.device})}getCommandEncoder(){return this.commandEncoder||(this.commandEncoder=this.device.createCommandEncoder()),this.commandEncoder}getComputePassEncoder(){if(!this.computePassEncoder){let e=this.getCommandEncoder(),r={};this.queryType==="at-passes"&&(r.timestampWrites={querySet:this.querySet,beginningOfPassWriteIndex:this.pendingDispatchNumber*2,endOfPassWriteIndex:this.pendingDispatchNumber*2+1}),this.computePassEncoder=e.beginComputePass(r)}return this.computePassEncoder}endComputePass(){this.computePassEncoder&&(this.computePassEncoder.end(),this.computePassEncoder=null)}flush(){if(!this.commandEncoder)return;Ve(),this.endComputePass();let e;this.queryType!=="none"&&(this.commandEncoder.resolveQuerySet(this.querySet,0,this.pendingDispatchNumber*2,this.queryResolveBuffer,0),e=this.device.createBuffer({size:this.pendingDispatchNumber*2*8,usage:GPUBufferUsage.MAP_READ|GPUBufferUsage.COPY_DST}),this.pendingQueries.set(e,this.pendingKernels),this.pendingKernels=[],this.commandEncoder.copyBufferToBuffer(this.queryResolveBuffer,0,e,0,this.pendingDispatchNumber*2*8)),this.device.queue.submit([this.commandEncoder.finish()]),this.gpuDataManager.refreshPendingBuffers(),this.commandEncoder=null,this.pendingDispatchNumber=0,this.queryType!=="none"&&e.mapAsync(GPUMapMode.READ).then(()=>{let r=new BigUint64Array(e.getMappedRange()),n=this.pendingQueries.get(e);for(let o=0;o<r.length/2;o++){let i=n[o],a=i.kernelId,u=this.kernels.get(a),d=u.kernelType,c=u.kernelName,p=i.programName,m=i.inputTensorViews,g=i.outputTensorViews,b=r[o*2],y=r[o*2+1];typeof this.queryTimeBase>"u"&&(this.queryTimeBase=b);let _=Number(b-this.queryTimeBase),S=Number(y-this.queryTimeBase);if(!Number.isSafeInteger(_)||!Number.isSafeInteger(S))throw new RangeError("incorrect timestamp range");if(this.env.webgpu.profiling?.ondata)this.env.webgpu.profiling.ondata({version:1,inputsMetadata:m.map(x=>({dims:x.dims,dataType:rt(x.dataType)})),outputsMetadata:g.map(x=>({dims:x.dims,dataType:rt(x.dataType)})),kernelId:a,kernelType:d,kernelName:c,programName:p,startTime:_,endTime:S});else{let x="";m.forEach((T,I)=>{x+=`input[${I}]: [${T.dims}] | ${rt(T.dataType)}, `});let $="";g.forEach((T,I)=>{$+=`output[${I}]: [${T.dims}] | ${rt(T.dataType)}, `}),console.log(`[profiling] kernel "${a}|${d}|${c}|${p}" ${x}${$}start time: ${_} ns, execution time: ${S-_} ns`)}Cr("GPU",`${p}::${b}::${y}`)}e.unmap(),this.pendingQueries.delete(e)}),Re()}run(e,r,n,o,i,a){Ve(e.name);let u=[];for(let T=0;T<r.length;++T){let I=r[T].data;if(I===0)continue;let E=this.gpuDataManager.get(I);if(!E)throw new Error(`no GPU data for input: ${I}`);u.push(E)}let{outputs:d,dispatchGroup:c,programUniforms:p}=e.getRunData(r),m=n.length===0?d.map((T,I)=>I):n;if(m.length!==d.length)throw new Error(`Output size ${m.length} must be equal to ${d.length}.`);let g=[],b=[];for(let T=0;T<d.length;++T){if(!Number.isInteger(m[T])||m[T]<-3||m[T]>=a)throw new Error(`Invalid output index: ${m[T]}`);if(m[T]===-3)continue;let I=m[T]===-1,E=m[T]===-2,A=I||E?i(d[T].dataType,d[T].dims):o(m[T],d[T].dataType,d[T].dims);if(g.push(A),A.data===0)continue;let O=this.gpuDataManager.get(A.data);if(!O)throw new Error(`no GPU data for output: ${A.data}`);if(I&&this.temporaryData.push(O),E){let w=this.kernelPersistentData.get(this.currentKernelId);w||(w=[],this.kernelPersistentData.set(this.currentKernelId,w)),w.push(O)}b.push(O)}if(u.length!==r.length||b.length!==g.length){if(b.length===0)return Re(e.name),g;throw new Error(`Program ${e.name} has zero-sized tensor(s) in inputs or outputs. This is not supported now.`)}let y;if(p){let T=0,I=[];p.forEach(w=>{let U=typeof w.data=="number"?[w.data]:w.data;if(U.length===0)return;let N=w.type===10?2:4,F,q;w.type===10?(q=U.length>4?16:U.length>2?8:U.length*N,F=U.length>4?16:N*U.length):(q=U.length<=2?U.length*N:16,F=16),T=Math.ceil(T/q)*q,I.push(T);let X=w.type===10?8:4;T+=U.length>4?Math.ceil(U.length/X)*F:U.length*N});let E=16;T=Math.ceil(T/E)*E;let A=new ArrayBuffer(T);p.forEach((w,U)=>{let N=I[U],F=typeof w.data=="number"?[w.data]:w.data;if(w.type===6)new Int32Array(A,N,F.length).set(F);else if(w.type===12)new Uint32Array(A,N,F.length).set(F);else if(w.type===10)new Uint16Array(A,N,F.length).set(F);else if(w.type===1)new Float32Array(A,N,F.length).set(F);else throw new Error(`Unsupported uniform type: ${rt(w.type)}`)});let O=this.gpuDataManager.create(T,GPUBufferUsage.COPY_DST|GPUBufferUsage.UNIFORM);this.device.queue.writeBuffer(O.buffer,0,A,0,T),this.gpuDataManager.release(O.id),y={offset:0,size:T,buffer:O.buffer}}let _=this.programManager.normalizeDispatchGroupSize(c),S=_[1]===1&&_[2]===1,x=ub(e,r,S),$=this.programManager.getArtifact(x);if($||($=this.programManager.build(e,_),this.programManager.setArtifact(x,$),se("info",()=>`[artifact] key: ${x}, programName: ${e.name}`)),p&&$.uniformVariablesInfo){if(p.length!==$.uniformVariablesInfo.length)throw new Error(`Uniform variables count mismatch: expect ${$.uniformVariablesInfo.length}, got ${p.length} in program "${$.programInfo.name}".`);for(let T=0;T<p.length;T++){let I=p[T],E=I.type,A=typeof I.data=="number"?1:I.data.length,[O,w]=$.uniformVariablesInfo[T];if(E!==O||A!==w)throw new Error(`Uniform variable ${T} mismatch: expect type ${O} with size ${w}, got type ${E} with size ${A} in program "${$.programInfo.name}".`)}}if(se("info",()=>`[ProgramManager] run "${e.name}" (key=${x}) with ${_[0]}x${_[1]}x${_[2]}`),this.queryType!=="none"||this.sessionStatus==="capturing"){let T={kernelId:this.currentKernelId,programName:$.programInfo.name,inputTensorViews:r,outputTensorViews:g};this.pendingKernels.push(T),this.sessionStatus==="capturing"&&this.capturedPendingKernels.get(this.currentSessionId).push(T)}return this.programManager.run($,u,b,_,y),Re(e.name),g}upload(e,r){this.gpuDataManager.upload(e,r)}memcpy(e,r){this.gpuDataManager.memcpy(e,r)}async download(e,r){await this.gpuDataManager.download(e,r)}alloc(e){return this.gpuDataManager.create(e).id}free(e){return this.gpuDataManager.release(e)}createKernel(e,r,n,o){let i=Qc.get(e);if(!i)throw new Error(`kernel not implemented: ${e}`);let a={kernelType:e,kernelName:o,kernelEntry:i[0],attributes:[i[1],n]};this.kernels.set(r,a)}releaseKernel(e){let r=this.kernelPersistentData.get(e);if(r){for(let n of r)this.gpuDataManager.release(n.id);this.kernelPersistentData.delete(e)}this.kernelCustomData.delete(e),this.kernels.delete(e)}computeKernel(e,r,n){let o=this.kernels.get(e);if(!o)throw new Error(`kernel not created: ${e}`);let i=o.kernelType,a=o.kernelName,u=o.kernelEntry,d=o.attributes;if(this.currentKernelId!==null)throw new Error(`kernel "[${i}] ${a}" is not allowed to be called recursively`);this.currentKernelId=e,d[0]&&(d[1]=d[0](d[1]),d[0]=void 0),se("info",()=>`[WebGPU] Start to run kernel "[${i}] ${a}"...`);let c=this.env.debug;this.temporaryData=[];try{return c&&this.device.pushErrorScope("validation"),u(r,d[1]),0}catch(p){return n.push(Promise.resolve(`[WebGPU] Kernel "[${i}] ${a}" failed. ${p}`)),1}finally{c&&n.push(this.device.popErrorScope().then(p=>p?`GPU validation error for kernel "[${i}] ${a}": ${p.message}`:null));for(let p of this.temporaryData)this.gpuDataManager.release(p.id);this.temporaryData=[],this.currentKernelId=null}}registerBuffer(e,r,n,o){let i=this.sessionExternalDataMapping.get(e);i||(i=new Map,this.sessionExternalDataMapping.set(e,i));let a=i.get(r),u=this.gpuDataManager.registerExternalBuffer(n,o,a);return i.set(r,[u,n]),u}unregisterBuffers(e){let r=this.sessionExternalDataMapping.get(e);r&&(r.forEach(n=>this.gpuDataManager.unregisterExternalBuffer(n[0])),this.sessionExternalDataMapping.delete(e))}getBuffer(e){let r=this.gpuDataManager.get(e);if(!r)throw new Error(`no GPU data for buffer: ${e}`);return r.buffer}createDownloader(e,r,n){return async()=>{let o=await mo(this,e,r);return Fr(o.buffer,n)}}writeTimestamp(e){this.queryType==="inside-passes"&&this.computePassEncoder.writeTimestamp(this.querySet,e)}setQueryType(){this.queryType="none",(this.env.webgpu.profiling?.mode==="default"||(typeof this.env.trace>"u"?this.env.wasm.trace:this.env.trace))&&(this.device.features.has("chromium-experimental-timestamp-query-inside-passes")?this.queryType="inside-passes":this.device.features.has("timestamp-query")&&(this.queryType="at-passes"),this.queryType!=="none"&&typeof this.querySet>"u"&&(this.querySet=this.device.createQuerySet({type:"timestamp",count:this.maxDispatchNumber*2}),this.queryResolveBuffer=this.device.createBuffer({size:this.maxDispatchNumber*2*8,usage:GPUBufferUsage.COPY_SRC|GPUBufferUsage.QUERY_RESOLVE})))}captureBegin(){se("info","captureBegin"),this.capturedCommandList.get(this.currentSessionId)||this.capturedCommandList.set(this.currentSessionId,[]),this.capturedPendingKernels.get(this.currentSessionId)||this.capturedPendingKernels.set(this.currentSessionId,[]),this.flush(),this.sessionStatus="capturing"}captureEnd(){se("info","captureEnd"),this.flush(),this.sessionStatus="default"}replay(){se("info","replay"),this.sessionStatus="replaying";let e=this.capturedCommandList.get(this.currentSessionId),r=this.capturedPendingKernels.get(this.currentSessionId),n=e.length;this.pendingKernels=[];for(let o=0;o<n;o++){let i=this.getComputePassEncoder(),a=e[o];this.writeTimestamp(this.pendingDispatchNumber*2),i.setPipeline(a.computePipeline),i.setBindGroup(0,a.bindGroup),i.dispatchWorkgroups(...a.dispatchGroup),this.writeTimestamp(this.pendingDispatchNumber*2+1),this.pendingDispatchNumber++,this.queryType!=="none"&&this.pendingKernels.push(r[o]),(this.pendingDispatchNumber>=this.maxDispatchNumber||this.queryType==="at-passes")&&this.endComputePass(),this.pendingDispatchNumber>=this.maxDispatchNumber&&this.flush()}this.flush(),this.sessionStatus="default"}onCreateSession(){this.gpuDataManager.onCreateSession()}onReleaseSession(e){this.unregisterBuffers(e),this.capturedCommandList.has(e)&&this.capturedCommandList.delete(e),this.capturedPendingKernels.has(e)&&this.capturedPendingKernels.delete(e),this.gpuDataManager.onReleaseSession(e)}onRunStart(e){this.currentSessionId=e,this.setQueryType()}}});var ep={};Wt(ep,{init:()=>db});var lr,No,db,tp=V(()=>{"use strict";ee();nt();te();Vs();lr=class t{constructor(e,r,n,o){this.module=e;this.dataType=r;this.data=n;this.dims=o}getFloat32Array(){if(this.dataType!==1)throw new Error("Invalid data type");let e=k.size(this.dims);return e===0?new Float32Array:new Float32Array(this.module.HEAP8.buffer,this.data,e)}getBigInt64Array(){if(this.dataType!==7)throw new Error("Invalid data type");let e=k.size(this.dims);return e===0?new BigInt64Array:new BigInt64Array(this.module.HEAP8.buffer,this.data,e)}getInt32Array(){if(this.dataType!==6)throw new Error("Invalid data type");let e=k.size(this.dims);return e===0?new Int32Array:new Int32Array(this.module.HEAP8.buffer,this.data,e)}getUint16Array(){if(this.dataType!==10&&this.dataType!==4)throw new Error("Invalid data type");let e=k.size(this.dims);return e===0?new Uint16Array:new Uint16Array(this.module.HEAP8.buffer,this.data,e)}reshape(e){if(k.size(e)!==k.size(this.dims))throw new Error("Invalid new shape");return new t(this.module,this.dataType,this.data,e)}},No=class{constructor(e,r,n){this.module=e;this.backend=r;this.customDataOffset=0;this.customDataSize=0;this.adapterInfo=r.adapterInfo;let o=e.PTR_SIZE,i=n/e.PTR_SIZE,a=o===4?"i32":"i64";this.opKernelContext=Number(e.getValue(o*i++,a));let u=Number(e.getValue(o*i++,a));this.outputCount=Number(e.getValue(o*i++,a)),this.customDataOffset=Number(e.getValue(o*i++,"*")),this.customDataSize=Number(e.getValue(o*i++,a));let d=[];for(let c=0;c<u;c++){let p=Number(e.getValue(o*i++,a)),m=Number(e.getValue(o*i++,"*")),g=Number(e.getValue(o*i++,a)),b=[];for(let y=0;y<g;y++)b.push(Number(e.getValue(o*i++,a)));d.push(new lr(e,p,m,b))}this.inputs=d}get kernelCustomData(){return this.backend.currentKernelCustomData}get customDataBuffer(){return this.module.HEAPU8.subarray(this.customDataOffset,this.customDataOffset+this.customDataSize)}compute(e,r){let n=r?.inputs?.map(u=>typeof u=="number"?this.inputs[u]:u)??this.inputs,o=r?.outputs??[],i=(u,d,c)=>new lr(this.module,d,this.output(u,c),c),a=(u,d)=>{let c=xt(u,d);if(!c)throw new Error(`Unsupported data type: ${u}`);let p=c>0?this.backend.gpuDataManager.create(c).id:0;return new lr(this.module,u,p,d)};return this.backend.run(e,n,o,i,a,this.outputCount)}output(e,r){let n=this.module.stackSave();try{let o=this.module.PTR_SIZE,i=o===4?"i32":"i64",a=this.module.stackAlloc((1+r.length)*o);this.module.setValue(a,r.length,i);for(let u=0;u<r.length;u++)this.module.setValue(a+o*(u+1),r[u],i);return this.module._JsepOutput(this.opKernelContext,e,a)}catch(o){throw new Error(`Failed to generate kernel's output[${e}] with dims [${r}]. If you are running with pre-allocated output, please make sure the output type/dims are correct. Error: ${o}`)}finally{this.module.stackRestore(n)}}},db=async(t,e,r,n)=>{let o=e.jsepInit;if(!o)throw new Error("Failed to initialize JSEP. The WebAssembly module is not built with JSEP support.");if(t==="webgpu"){let i=(Jc(),er(Xc)).WebGpuBackend,a=new i;await a.initialize(r,n),o("webgpu",[a,u=>a.alloc(Number(u)),u=>a.free(u),(u,d,c,p=!1)=>{if(p)se("verbose",()=>`[WebGPU] jsepCopyGpuToGpu: src=${Number(u)}, dst=${Number(d)}, size=${Number(c)}`),a.memcpy(Number(u),Number(d));else{se("verbose",()=>`[WebGPU] jsepCopyCpuToGpu: dataOffset=${Number(u)}, gpuDataId=${Number(d)}, size=${Number(c)}`);let m=e.HEAPU8.subarray(Number(u>>>0),Number(u>>>0)+Number(c));a.upload(Number(d),m)}},async(u,d,c)=>{se("verbose",()=>`[WebGPU] jsepCopyGpuToCpu: gpuDataId=${u}, dataOffset=${d}, size=${c}`),await a.download(Number(u),()=>e.HEAPU8.subarray(Number(d)>>>0,Number(d+c)>>>0))},(u,d,c)=>a.createKernel(u,Number(d),c,e.UTF8ToString(e._JsepGetNodeName(Number(d)))),u=>a.releaseKernel(u),(u,d,c,p)=>{se("verbose",()=>`[WebGPU] jsepRun: sessionHandle=${c}, kernel=${u}, contextDataOffset=${d}`);let m=new No(e,a,Number(d));return a.computeKernel(Number(u),m,p)},()=>a.captureBegin(),()=>a.captureEnd(),()=>a.replay()])}else{let i=new Qr(r);o("webnn",[i,()=>i.reserveTensorId(),a=>i.releaseTensorId(a),async(a,u,d,c,p)=>i.ensureTensor(a,u,d,c,p),(a,u)=>{i.uploadTensor(a,u)},async(a,u)=>i.downloadTensor(a,u),(a,u)=>i.registerMLContext(a,u),!!r.trace])}}});var lb,Dr,Or,Ut,cb,rp,rr,zr,Br,np,Mr,Rr,Ur,Jn=V(()=>{"use strict";Le();Cs();Es();ee();vt();Vr();io();lb=(t,e)=>{be()._OrtInit(t,e)!==0&&me("Can't initialize onnxruntime.")},Dr=async t=>{lb(t.wasm.numThreads,or(t.logLevel))},Or=async(t,e)=>{be().asyncInit?.();let r=t.webgpu.adapter;if(e==="webgpu"){if(typeof navigator>"u"||!navigator.gpu)throw new Error("WebGPU is not supported in current environment");if(r){if(typeof r.limits!="object"||typeof r.features!="object"||typeof r.requestDevice!="function")throw new Error("Invalid GPU adapter set in `env.webgpu.adapter`. It must be a GPUAdapter object.")}else{let n=t.webgpu.powerPreference;if(n!==void 0&&n!=="low-power"&&n!=="high-performance")throw new Error(`Invalid powerPreference setting: "${n}"`);let o=t.webgpu.forceFallbackAdapter;if(o!==void 0&&typeof o!="boolean")throw new Error(`Invalid forceFallbackAdapter setting: "${o}"`);if(r=await navigator.gpu.requestAdapter({powerPreference:n,forceFallbackAdapter:o}),!r)throw new Error('Failed to get GPU adapter. You may need to enable flag "--enable-unsafe-webgpu" if you are using Chrome.')}}if(e==="webnn"&&(typeof navigator>"u"||!navigator.ml))throw new Error("WebNN is not supported in current environment");{let n=(tp(),er(ep)).init;e==="webgpu"&&await n("webgpu",be(),t,r),e==="webnn"&&await n("webnn",be(),t)}},Ut=new Map,cb=t=>{let e=be(),r=e.stackSave();try{let n=e.PTR_SIZE,o=e.stackAlloc(2*n);e._OrtGetInputOutputCount(t,o,o+n)!==0&&me("Can't get session input/output count.");let a=n===4?"i32":"i64";return[Number(e.getValue(o,a)),Number(e.getValue(o+n,a))]}finally{e.stackRestore(r)}},rp=(t,e)=>{let r=be(),n=r.stackSave(),o=0;try{let i=r.PTR_SIZE,a=r.stackAlloc(2*i);r._OrtGetInputOutputMetadata(t,e,a,a+i)!==0&&me("Can't get session input/output metadata.");let d=Number(r.getValue(a,"*"));o=Number(r.getValue(a+i,"*"));let c=r.HEAP32[o/4];if(c===0)return[d,0];let p=r.HEAPU32[o/4+1],m=[];for(let g=0;g<p;g++){let b=Number(r.getValue(o+8+g*i,"*"));m.push(b!==0?r.UTF8ToString(b):Number(r.getValue(o+8+(g+p)*i,"*")))}return[d,c,m]}finally{r.stackRestore(n),o!==0&&r._OrtFree(o)}},rr=t=>{let e=be(),r=e._malloc(t.byteLength);if(r===0)throw new Error(`Can't create a session. failed to allocate a buffer of size ${t.byteLength}.`);return e.HEAPU8.set(t,r),[r,t.byteLength]},zr=async(t,e)=>{let r,n,o=be();Array.isArray(t)?[r,n]=t:t.buffer===o.HEAPU8.buffer?[r,n]=[t.byteOffset,t.byteLength]:[r,n]=rr(t);let i=0,a=0,u=0,d=[],c=[],p=[];try{if([a,d]=await As(e),e?.externalData&&o.mountExternalData){let I=[];for(let E of e.externalData){let A=typeof E=="string"?E:E.path,O=typeof E=="string"?E:E.data;I.push(ir(O).then(w=>{o.mountExternalData(A,w)}))}await Promise.all(I)}for(let I of e?.executionProviders??[])if((typeof I=="string"?I:I.name)==="webnn"){if(o.shouldTransferToMLTensor=!1,typeof I!="string"){let A=I,O=A?.context,w=A?.gpuDevice,U=A?.deviceType,N=A?.powerPreference;O?o.currentContext=O:w?o.currentContext=await o.webnnCreateMLContext(w):o.currentContext=await o.webnnCreateMLContext({deviceType:U,powerPreference:N})}else o.currentContext=await o.webnnCreateMLContext();break}i=await o._OrtCreateSession(r,n,a),o.webgpuOnCreateSession?.(i),i===0&&me("Can't create a session."),o.jsepOnCreateSession?.(),o.currentContext&&(o.webnnRegisterMLContext(i,o.currentContext),o.currentContext=void 0,o.shouldTransferToMLTensor=!0);let[m,g]=cb(i),b=!!e?.enableGraphCapture,y=[],_=[],S=[],x=[],$=[];for(let I=0;I<m;I++){let[E,A,O]=rp(i,I);E===0&&me("Can't get an input name."),c.push(E);let w=o.UTF8ToString(E);y.push(w),S.push(A===0?{name:w,isTensor:!1}:{name:w,isTensor:!0,type:rt(A),shape:O})}for(let I=0;I<g;I++){let[E,A,O]=rp(i,I+m);E===0&&me("Can't get an output name."),p.push(E);let w=o.UTF8ToString(E);_.push(w),x.push(A===0?{name:w,isTensor:!1}:{name:w,isTensor:!0,type:rt(A),shape:O});{if(b&&e?.preferredOutputLocation===void 0){$.push("gpu-buffer");continue}let U=typeof e?.preferredOutputLocation=="string"?e.preferredOutputLocation:e?.preferredOutputLocation?.[w]??"cpu",N=o.webnnIsGraphOutput;if(U==="cpu"&&N&&N(i,w)){$.push("ml-tensor-cpu-output");continue}if(U!=="cpu"&&U!=="cpu-pinned"&&U!=="gpu-buffer"&&U!=="ml-tensor")throw new Error(`Not supported preferred output location: ${U}.`);if(b&&U!=="gpu-buffer")throw new Error(`Not supported preferred output location: ${U}. Only 'gpu-buffer' location is supported when enableGraphCapture is true.`);$.push(U)}}let T=null;return $.some(I=>I==="gpu-buffer"||I==="ml-tensor"||I==="ml-tensor-cpu-output")&&(u=o._OrtCreateBinding(i),u===0&&me("Can't create IO binding."),T={handle:u,outputPreferredLocations:$,outputPreferredLocationsEncoded:$.map(I=>I==="ml-tensor-cpu-output"?"ml-tensor":I).map(I=>oo(I))}),Ut.set(i,[i,c,p,T,b,!1]),[i,y,_,S,x]}catch(m){throw c.forEach(g=>o._OrtFree(g)),p.forEach(g=>o._OrtFree(g)),u!==0&&o._OrtReleaseBinding(u)!==0&&me("Can't release IO binding."),i!==0&&o._OrtReleaseSession(i)!==0&&me("Can't release session."),m}finally{o._free(r),a!==0&&o._OrtReleaseSessionOptions(a)!==0&&me("Can't release session options."),d.forEach(m=>o._free(m)),o.unmountExternalData?.()}},Br=t=>{let e=be(),r=Ut.get(t);if(!r)throw new Error(`cannot release session. invalid session id: ${t}`);let[n,o,i,a,u]=r;a&&(u&&e._OrtClearBoundOutputs(a.handle)!==0&&me("Can't clear bound outputs."),e._OrtReleaseBinding(a.handle)!==0&&me("Can't release IO binding.")),e.jsepOnReleaseSession?.(t),e.webnnOnReleaseSession?.(t),e.webgpuOnReleaseSession?.(t),o.forEach(d=>e._OrtFree(d)),i.forEach(d=>e._OrtFree(d)),e._OrtReleaseSession(n)!==0&&me("Can't release session."),Ut.delete(t)},np=async(t,e,r,n,o,i,a=!1)=>{if(!t){e.push(0);return}let u=be(),d=u.PTR_SIZE,c=t[0],p=t[1],m=t[3],g=m,b,y;if(c==="string"&&(m==="gpu-buffer"||m==="ml-tensor"))throw new Error("String tensor is not supported on GPU.");if(a&&m!=="gpu-buffer")throw new Error(`External buffer must be provided for input/output index ${i} when enableGraphCapture is true.`);if(m==="gpu-buffer"){let x=t[2].gpuBuffer;y=xt($t(c),p);{let $=u.jsepRegisterBuffer;if(!$)throw new Error('Tensor location "gpu-buffer" is not supported without using WebGPU.');b=$(n,i,x,y)}}else if(m==="ml-tensor"){let x=t[2].mlTensor;y=xt($t(c),p);let $=u.webnnRegisterMLTensor;if(!$)throw new Error('Tensor location "ml-tensor" is not supported without using WebNN.');b=$(n,x,$t(c),p)}else{let x=t[2];if(Array.isArray(x)){y=d*x.length,b=u._malloc(y),r.push(b);for(let $=0;$<x.length;$++){if(typeof x[$]!="string")throw new TypeError(`tensor data at index ${$} is not a string`);u.setValue(b+$*d,Ge(x[$],r),"*")}}else{let $=u.webnnIsGraphInput,T=u.webnnIsGraphOutput;if(c!=="string"&&$&&T){let I=u.UTF8ToString(o);if($(n,I)||T(n,I)){let E=$t(c);y=xt(E,p),g="ml-tensor";let A=u.webnnCreateTemporaryTensor,O=u.webnnUploadTensor;if(!A||!O)throw new Error('Tensor location "ml-tensor" is not supported without using WebNN.');let w=await A(n,E,p);O(w,new Uint8Array(x.buffer,x.byteOffset,x.byteLength)),b=w}else y=x.byteLength,b=u._malloc(y),r.push(b),u.HEAPU8.set(new Uint8Array(x.buffer,x.byteOffset,y),b)}else y=x.byteLength,b=u._malloc(y),r.push(b),u.HEAPU8.set(new Uint8Array(x.buffer,x.byteOffset,y),b)}}let _=u.stackSave(),S=u.stackAlloc(4*p.length);try{p.forEach(($,T)=>u.setValue(S+T*d,$,d===4?"i32":"i64"));let x=u._OrtCreateTensor($t(c),b,y,S,p.length,oo(g));x===0&&me(`Can't create tensor for input/output. session=${n}, index=${i}.`),e.push(x)}finally{u.stackRestore(_)}},Mr=async(t,e,r,n,o,i)=>{let a=be(),u=a.PTR_SIZE,d=Ut.get(t);if(!d)throw new Error(`cannot run inference. invalid session id: ${t}`);let c=d[0],p=d[1],m=d[2],g=d[3],b=d[4],y=d[5],_=e.length,S=n.length,x=0,$=[],T=[],I=[],E=[],A=[],O=a.stackSave(),w=a.stackAlloc(_*u),U=a.stackAlloc(_*u),N=a.stackAlloc(S*u),F=a.stackAlloc(S*u);try{[x,$]=Is(i),_t("wasm prepareInputOutputTensor");for(let L=0;L<_;L++)await np(r[L],T,E,t,p[e[L]],e[L],b);for(let L=0;L<S;L++)await np(o[L],I,E,t,m[n[L]],_+n[L],b);wt("wasm prepareInputOutputTensor");for(let L=0;L<_;L++)a.setValue(w+L*u,T[L],"*"),a.setValue(U+L*u,p[e[L]],"*");for(let L=0;L<S;L++)a.setValue(N+L*u,I[L],"*"),a.setValue(F+L*u,m[n[L]],"*");if(g&&!y){let{handle:L,outputPreferredLocations:Z,outputPreferredLocationsEncoded:Y}=g;if(p.length!==_)throw new Error(`input count from feeds (${_}) is expected to be always equal to model's input count (${p.length}).`);_t("wasm bindInputsOutputs");for(let Q=0;Q<_;Q++){let ne=e[Q];await a._OrtBindInput(L,p[ne],T[Q])!==0&&me(`Can't bind input[${Q}] for session=${t}.`)}for(let Q=0;Q<S;Q++){let ne=n[Q];o[Q]?.[3]?(A.push(I[Q]),a._OrtBindOutput(L,m[ne],I[Q],0)!==0&&me(`Can't bind pre-allocated output[${Q}] for session=${t}.`)):a._OrtBindOutput(L,m[ne],0,Y[ne])!==0&&me(`Can't bind output[${Q}] to ${Z[Q]} for session=${t}.`)}wt("wasm bindInputsOutputs"),Ut.set(t,[c,p,m,g,b,!0])}a.jsepOnRunStart?.(c),a.webnnOnRunStart?.(c);let q;g?q=await a._OrtRunWithBinding(c,g.handle,S,N,x):q=await a._OrtRun(c,U,w,_,F,S,N,x),q!==0&&me("failed to call OrtRun().");let X=[],z=[];_t("wasm ProcessOutputTensor");for(let L=0;L<S;L++){let Z=Number(a.getValue(N+L*u,"*"));if(Z===I[L]||A.includes(I[L])){X.push(o[L]),Z!==I[L]&&a._OrtReleaseTensor(Z)!==0&&me("Can't release tensor.");continue}let Y=a.stackSave(),Q=a.stackAlloc(4*u),ne=!1,ie,ce=0;try{a._OrtGetTensorData(Z,Q,Q+u,Q+2*u,Q+3*u)!==0&&me(`Can't access output tensor data on index ${L}.`);let ve=u===4?"i32":"i64",M=Number(a.getValue(Q,ve));ce=a.getValue(Q+u,"*");let G=a.getValue(Q+u*2,"*"),ye=Number(a.getValue(Q+u*3,ve)),ke=[];for(let ge=0;ge<ye;ge++)ke.push(Number(a.getValue(G+ge*u,ve)));a._OrtFree(G)!==0&&me("Can't free memory for tensor dims.");let $e=ke.reduce((ge,Te)=>ge*Te,1);ie=rt(M);let De=g?.outputPreferredLocations[n[L]];if(ie==="string"){if(De==="gpu-buffer"||De==="ml-tensor")throw new Error("String tensor is not supported on GPU.");let ge=[];for(let Te=0;Te<$e;Te++){let qe=a.getValue(ce+Te*u,"*"),Ne=a.getValue(ce+(Te+1)*u,"*"),Se=Te===$e-1?void 0:Ne-qe;ge.push(a.UTF8ToString(qe,Se))}X.push([ie,ke,ge,"cpu"])}else if(De==="gpu-buffer"&&$e>0){let ge=a.jsepGetBuffer;if(!ge)throw new Error('preferredLocation "gpu-buffer" is not supported without using WebGPU.');let Te=ge(ce),qe=xt(M,$e);if(qe===void 0||!Lr(ie))throw new Error(`Unsupported data type: ${ie}`);ne=!0,X.push([ie,ke,{gpuBuffer:Te,download:a.jsepCreateDownloader(Te,qe,ie),dispose:()=>{a._OrtReleaseTensor(Z)!==0&&me("Can't release tensor.")}},"gpu-buffer"])}else if(De==="ml-tensor"&&$e>0){let ge=a.webnnEnsureTensor,Te=a.webnnIsGraphInputOutputTypeSupported;if(!ge||!Te)throw new Error('preferredLocation "ml-tensor" is not supported without using WebNN.');if(xt(M,$e)===void 0||!Wr(ie))throw new Error(`Unsupported data type: ${ie}`);if(!Te(t,ie,!1))throw new Error(`preferredLocation "ml-tensor" for ${ie} output is not supported by current WebNN Context.`);let Ne=await ge(t,ce,M,ke,!1);ne=!0,X.push([ie,ke,{mlTensor:Ne,download:a.webnnCreateMLTensorDownloader(ce,ie),dispose:()=>{a.webnnReleaseTensorId(ce),a._OrtReleaseTensor(Z)}},"ml-tensor"])}else if(De==="ml-tensor-cpu-output"&&$e>0){let ge=a.webnnCreateMLTensorDownloader(ce,ie)(),Te=X.length;ne=!0,z.push((async()=>{let qe=[Te,await ge];return a.webnnReleaseTensorId(ce),a._OrtReleaseTensor(Z),qe})()),X.push([ie,ke,[],"cpu"])}else{let ge=Ht(ie),Te=new ge($e);new Uint8Array(Te.buffer,Te.byteOffset,Te.byteLength).set(a.HEAPU8.subarray(ce,ce+Te.byteLength)),X.push([ie,ke,Te,"cpu"])}}finally{a.stackRestore(Y),ie==="string"&&ce&&a._free(ce),ne||a._OrtReleaseTensor(Z)}}g&&!b&&(a._OrtClearBoundOutputs(g.handle)!==0&&me("Can't clear bound outputs."),Ut.set(t,[c,p,m,g,b,!1]));for(let[L,Z]of await Promise.all(z))X[L][2]=Z;return wt("wasm ProcessOutputTensor"),X}finally{a.webnnOnRunEnd?.(c),a.stackRestore(O),T.forEach(q=>a._OrtReleaseTensor(q)),I.forEach(q=>a._OrtReleaseTensor(q)),E.forEach(q=>a._free(q)),x!==0&&a._OrtReleaseRunOptions(x),$.forEach(q=>a._free(q))}},Rr=t=>{let e=be(),r=Ut.get(t);if(!r)throw new Error("invalid session id");let n=r[0],o=e._OrtEndProfiling(n);o===0&&me("Can't get an profile file name."),e._OrtFree(o)},Ur=t=>{let e=[];for(let r of t){let n=r[2];!Array.isArray(n)&&"buffer"in n&&e.push(n.buffer)}return e}});var Nt,Fe,cr,bn,_n,yn,Vo,Lo,jt,Qt,mb,op,ip,ap,sp,up,dp,lp,Wo=V(()=>{"use strict";Le();Jn();vt();kr();Nt=()=>!!_e.wasm.proxy&&typeof document<"u",cr=!1,bn=!1,_n=!1,Lo=new Map,jt=(t,e)=>{let r=Lo.get(t);r?r.push(e):Lo.set(t,[e])},Qt=()=>{if(cr||!bn||_n||!Fe)throw new Error("worker not ready")},mb=t=>{switch(t.data.type){case"init-wasm":cr=!1,t.data.err?(_n=!0,Vo[1](t.data.err)):(bn=!0,Vo[0]()),yn&&(URL.revokeObjectURL(yn),yn=void 0);break;case"init-ep":case"copy-from":case"create":case"release":case"run":case"end-profiling":{let e=Lo.get(t.data.type);t.data.err?e.shift()[1](t.data.err):e.shift()[0](t.data.out);break}default:}},op=async()=>{if(!bn){if(cr)throw new Error("multiple calls to 'initWasm()' detected.");if(_n)throw new Error("previous call to 'initWasm()' failed.");if(cr=!0,Nt())return new Promise((t,e)=>{Fe?.terminate(),xs().then(([r,n])=>{try{Fe=n,Fe.onerror=i=>e(i),Fe.onmessage=mb,Vo=[t,e];let o={type:"init-wasm",in:_e};!o.in.wasm.wasmPaths&&(r||to)&&(o.in.wasm.wasmPaths={wasm:new URL("ort-wasm-simd-threaded.jsep.wasm",import.meta.url).href}),Fe.postMessage(o),yn=r}catch(o){e(o)}},e)});try{await Pr(_e.wasm),await Dr(_e),bn=!0}catch(t){throw _n=!0,t}finally{cr=!1}}},ip=async t=>{if(Nt())return Qt(),new Promise((e,r)=>{jt("init-ep",[e,r]);let n={type:"init-ep",in:{epName:t,env:_e}};Fe.postMessage(n)});await Or(_e,t)},ap=async t=>Nt()?(Qt(),new Promise((e,r)=>{jt("copy-from",[e,r]);let n={type:"copy-from",in:{buffer:t}};Fe.postMessage(n,[t.buffer])})):rr(t),sp=async(t,e)=>{if(Nt()){if(e?.preferredOutputLocation)throw new Error('session option "preferredOutputLocation" is not supported for proxy.');return Qt(),new Promise((r,n)=>{jt("create",[r,n]);let o={type:"create",in:{model:t,options:{...e}}},i=[];t instanceof Uint8Array&&i.push(t.buffer),Fe.postMessage(o,i)})}else return zr(t,e)},up=async t=>{if(Nt())return Qt(),new Promise((e,r)=>{jt("release",[e,r]);let n={type:"release",in:t};Fe.postMessage(n)});Br(t)},dp=async(t,e,r,n,o,i)=>{if(Nt()){if(r.some(a=>a[3]!=="cpu"))throw new Error("input tensor on GPU is not supported for proxy.");if(o.some(a=>a))throw new Error("pre-allocated output tensor is not supported for proxy.");return Qt(),new Promise((a,u)=>{jt("run",[a,u]);let d=r,c={type:"run",in:{sessionId:t,inputIndices:e,inputs:d,outputIndices:n,options:i}};Fe.postMessage(c,Ur(d))})}else return Mr(t,e,r,n,o,i)},lp=async t=>{if(Nt())return Qt(),new Promise((e,r)=>{jt("end-profiling",[e,r]);let n={type:"end-profiling",in:t};Fe.postMessage(n)});Rr(t)}});var cp,fb,wn,pp=V(()=>{"use strict";Le();Wo();ee();Er();io();cp=(t,e)=>{switch(t.location){case"cpu":return[t.type,t.dims,t.data,"cpu"];case"gpu-buffer":return[t.type,t.dims,{gpuBuffer:t.gpuBuffer},"gpu-buffer"];case"ml-tensor":return[t.type,t.dims,{mlTensor:t.mlTensor},"ml-tensor"];default:throw new Error(`invalid data location: ${t.location} for ${e()}`)}},fb=t=>{switch(t[3]){case"cpu":return new je(t[0],t[2],t[1]);case"gpu-buffer":{let e=t[0];if(!Lr(e))throw new Error(`not supported data type: ${e} for deserializing GPU tensor`);let{gpuBuffer:r,download:n,dispose:o}=t[2];return je.fromGpuBuffer(r,{dataType:e,dims:t[1],download:n,dispose:o})}case"ml-tensor":{let e=t[0];if(!Wr(e))throw new Error(`not supported data type: ${e} for deserializing MLTensor tensor`);let{mlTensor:r,download:n,dispose:o}=t[2];return je.fromMLTensor(r,{dataType:e,dims:t[1],download:n,dispose:o})}default:throw new Error(`invalid data location: ${t[3]}`)}},wn=class{async fetchModelAndCopyToWasmMemory(e){return ap(await ir(e))}async loadModel(e,r){Ve();let n;typeof e=="string"?n=await this.fetchModelAndCopyToWasmMemory(e):n=e,[this.sessionId,this.inputNames,this.outputNames,this.inputMetadata,this.outputMetadata]=await sp(n,r),Re()}async dispose(){return up(this.sessionId)}async run(e,r,n){Ve();let o=[],i=[];Object.entries(e).forEach(g=>{let b=g[0],y=g[1],_=this.inputNames.indexOf(b);if(_===-1)throw new Error(`invalid input '${b}'`);o.push(y),i.push(_)});let a=[],u=[];Object.entries(r).forEach(g=>{let b=g[0],y=g[1],_=this.outputNames.indexOf(b);if(_===-1)throw new Error(`invalid output '${b}'`);a.push(y),u.push(_)});let d=o.map((g,b)=>cp(g,()=>`input "${this.inputNames[i[b]]}"`)),c=a.map((g,b)=>g?cp(g,()=>`output "${this.outputNames[u[b]]}"`):null),p=await dp(this.sessionId,i,d,u,c,n),m={};for(let g=0;g<p.length;g++)m[this.outputNames[u[g]]]=a[g]??fb(p[g]);return Re(),m}startProfiling(){}endProfiling(){lp(this.sessionId)}}});var fp={};Wt(fp,{OnnxruntimeWebAssemblyBackend:()=>vn,initializeFlags:()=>mp,wasmBackend:()=>hb});var mp,vn,hb,hp=V(()=>{"use strict";Le();Wo();pp();mp=()=>{(typeof _e.wasm.initTimeout!="number"||_e.wasm.initTimeout<0)&&(_e.wasm.initTimeout=0);let t=_e.wasm.simd;if(typeof t!="boolean"&&t!==void 0&&t!=="fixed"&&t!=="relaxed"&&(console.warn(`Property "env.wasm.simd" is set to unknown value "${t}". Reset it to \`false\` and ignore SIMD feature checking.`),_e.wasm.simd=!1),typeof _e.wasm.proxy!="boolean"&&(_e.wasm.proxy=!1),typeof _e.wasm.trace!="boolean"&&(_e.wasm.trace=!1),typeof _e.wasm.numThreads!="number"||!Number.isInteger(_e.wasm.numThreads)||_e.wasm.numThreads<=0)if(typeof self<"u"&&!self.crossOriginIsolated)_e.wasm.numThreads=1;else{let e=typeof navigator>"u"?qn("node:os").cpus().length:navigator.hardwareConcurrency;_e.wasm.numThreads=Math.min(4,Math.ceil((e||1)/2))}},vn=class{async init(e){mp(),await op(),await ip(e)}async createInferenceSessionHandler(e,r){let n=new wn;return await n.loadModel(e,r),n}},hb=new vn});Le();Le();Le();var ls="1.30.0";var OT=Xn;{let t=(hp(),er(fp)).wasmBackend;Pt("webgpu",t,5),Pt("webnn",t,5),Pt("cpu",t,10),Pt("wasm",t,10)}Object.defineProperty(_e.versions,"web",{value:ls,enumerable:!0});export{Of as InferenceSession,Cr as TRACE,_t as TRACE_EVENT_BEGIN,wt as TRACE_EVENT_END,Ve as TRACE_FUNC_BEGIN,Re as TRACE_FUNC_END,je as Tensor,OT as default,_e as env,Pt as registerBackend};
+/**
+ * @license
+ * Copyright 2021 Google LLC. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =============================================================================
+ */
+/**
+ * @license
+ * Copyright 2020 Google LLC. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =============================================================================
+ */
+/**
+ * @license
+ * Copyright 2019 Google LLC. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * =============================================================================
+ */
 //# sourceMappingURL=ort.bundle.min.mjs.map
